@@ -16,7 +16,7 @@ public class DateQl {
 		return Optional.ofNullable(new DateQl(date));
 	}
 
-	public String iso() {
+	public String getIso() {
 		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toString();
 	}
 }

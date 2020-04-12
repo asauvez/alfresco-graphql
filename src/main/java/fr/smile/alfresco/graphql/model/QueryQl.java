@@ -12,7 +12,7 @@ public class QueryQl extends AbstractQlModel {
 		this.node = new NodeQueryQl(serviceRegistry);
 	}
 	
-	public NodeQueryQl node() {
+	public NodeQueryQl getNode() {
 		return node;
 	}
 }

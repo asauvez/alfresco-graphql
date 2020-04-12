@@ -12,19 +12,19 @@ public class NodeQueryQl extends AbstractQlModel {
 		super(serviceRegistry);
 	}
 
-	public NodeQl companyHome() {
+	public NodeQl getCompanyHome() {
 		return new NodeQl(getServiceRegistry(), 
 				getServiceRegistry().getNodeLocatorService().getNode(CompanyHomeNodeLocator.NAME, null, null));
 	}
-	public NodeQl userHome() {
+	public NodeQl getUserHome() {
 		return new NodeQl(getServiceRegistry(), 
 				getServiceRegistry().getNodeLocatorService().getNode(UserHomeNodeLocator.NAME, null, null));
 	}
-	public NodeQl sharedHome() {
+	public NodeQl getSharedHome() {
 		return new NodeQl(getServiceRegistry(), 
 				getServiceRegistry().getNodeLocatorService().getNode(SharedHomeNodeLocator.NAME, null, null));
 	}
-	public NodeQl sitesHome() {
+	public NodeQl getSitesHome() {
 		return new NodeQl(getServiceRegistry(), 
 				getServiceRegistry().getNodeLocatorService().getNode(SitesHomeNodeLocator.NAME, null, null));
 	}

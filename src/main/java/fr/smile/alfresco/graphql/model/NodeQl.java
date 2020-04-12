@@ -16,31 +16,31 @@ public class NodeQl extends AbstractQlModel {
 		this.nodeRef = nodeRef;
 	}
 
-	public String nodeRef() {
+	public String getNodeRef() {
 		return nodeRef.toString();
 	}
 
-	public String uuid() {
+	public String getUuid() {
 		return nodeRef.getId();
 	}
 
-	public String name() {
+	public String getName() {
 		return (String) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_NAME);
 	}
 
-	public String title() {
+	public String getTitle() {
 		return (String) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_TITLE);
 	}
 
-	public String description() {
+	public String getDescription() {
 		return (String) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_DESCRIPTION);
 	}
 
-	public Optional<DateQl> created() {
+	public Optional<DateQl> getCreated() {
 		return DateQl.of((Date) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_CREATED));
 	}
 
-	public Optional<DateQl> modified() {
+	public Optional<DateQl> getModified() {
 		return DateQl.of((Date) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_MODIFIED));
 	}
 }
