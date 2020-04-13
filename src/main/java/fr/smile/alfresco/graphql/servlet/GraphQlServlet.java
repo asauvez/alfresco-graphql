@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.alfresco.service.ServiceRegistry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.Authenticator;
 import org.springframework.extensions.webscripts.Description.RequiredAuthentication;
 import org.springframework.extensions.webscripts.servlet.ServletAuthenticatorFactory;
@@ -29,7 +31,8 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 
 @WebServlet(name = "GraphQlServlet", urlPatterns = { "/graphql/*", "/graphiql" }, loadOnStartup = 1)
 public class GraphQlServlet extends GraphQLHttpServlet {
-
+	private static Log log = LogFactory.getLog(GraphQlServlet.class);
+	
 	private static final String ALFRESCO_SCHEMA = "/alfresco/module/graphql/alfresco.graphqls";
 	
 	private QueryQl query;
@@ -43,21 +46,10 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 		
 		servletAuthenticatorFactory = (ServletAuthenticatorFactory) applicationContext.getBean("webscripts.authenticator.remoteuser");
 		
-		super.init();
-	}
-	
-	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Authenticator authenticator = servletAuthenticatorFactory.create(
-				new WebScriptServletRequest(null, request, null, null), 
-				new WebScriptServletResponse(null, response));
-		
-		if (authenticator.authenticate(RequiredAuthentication.user, true)) {
-			if ("/graphiql".equals(request.getServletPath())) {
-				request.getRequestDispatcher("/graphiql.html").forward(request, response);
-			} else {
-				super.service(request, response);
-			}
+		try {
+			super.init();
+		} catch (RuntimeException ex) {
+			log.error("GraphQL Init", ex);
 		}
 	}
 	
@@ -78,6 +70,21 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 			return GraphQLConfiguration.with(graphQLSchema).build();
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
+		}
+	}
+	
+	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Authenticator authenticator = servletAuthenticatorFactory.create(
+				new WebScriptServletRequest(null, request, null, null), 
+				new WebScriptServletResponse(null, response));
+		
+		if (authenticator.authenticate(RequiredAuthentication.user, true)) {
+			if ("/graphiql".equals(request.getServletPath())) {
+				request.getRequestDispatcher("/graphiql.html").forward(request, response);
+			} else {
+				super.service(request, response);
+			}
 		}
 	}
 }

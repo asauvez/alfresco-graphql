@@ -1,8 +1,11 @@
 package fr.smile.alfresco.graphql.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
+
+import graphql.schema.DataFetchingEnvironment;
 
 public class DateQl {
 
@@ -12,11 +15,12 @@ public class DateQl {
 		this.date = date;
 	}
 	
-	public static Optional<DateQl> of(Date date) {
-		return Optional.ofNullable(new DateQl(date));
-	}
-
 	public String getIso() {
 		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toString();
+	}
+	
+	public String getFormat(DataFetchingEnvironment env) {
+		DateFormat dateFormat = new SimpleDateFormat(env.getArgument("format"));
+		return dateFormat.format(date);
 	}
 }

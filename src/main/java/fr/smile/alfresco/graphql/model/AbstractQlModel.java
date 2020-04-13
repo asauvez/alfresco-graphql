@@ -1,5 +1,7 @@
 package fr.smile.alfresco.graphql.model;
 
+import java.util.Optional;
+
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -23,7 +25,7 @@ public abstract class AbstractQlModel {
 		return new NodeQl(serviceRegistry, nodeRef);
 	}
 	@SuppressWarnings("unchecked")
-	protected <T> T getProperty(NodeRef nodeRef, QName propertyName) {
-		return (T) getNodeService().getProperty(nodeRef, propertyName);
+	protected <T> Optional<T> getProperty(NodeRef nodeRef, QName propertyName) {
+		return Optional.ofNullable((T) getNodeService().getProperty(nodeRef, propertyName));
 	}
 }

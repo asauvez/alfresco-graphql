@@ -1,10 +1,16 @@
 package fr.smile.alfresco.graphql.model;
 
+import java.util.Optional;
+
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.SharedHomeNodeLocator;
 import org.alfresco.repo.nodelocator.SitesHomeNodeLocator;
 import org.alfresco.repo.nodelocator.UserHomeNodeLocator;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.StoreRef;
+
+import graphql.schema.DataFetchingEnvironment;
 
 public class NodeQueryQl extends AbstractQlModel {
 
@@ -26,5 +32,14 @@ public class NodeQueryQl extends AbstractQlModel {
 	}
 	public NodeQl getSitesHome() {
 		return getNodeByLocator(SitesHomeNodeLocator.NAME);
+	}
+
+	public Optional<NodeQl> getByNodeRef(DataFetchingEnvironment env) {
+		NodeRef nodeRef = new NodeRef(env.getArgument("nodeRef"));
+		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
+	}
+	public Optional<NodeQl> getByUuid(DataFetchingEnvironment env) {
+		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, env.getArgument("uuid"));
+		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
 	}
 }

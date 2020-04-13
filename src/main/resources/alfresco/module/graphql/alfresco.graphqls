@@ -3,27 +3,54 @@ type Query {
 }
 
 type NodeQuery {
-	companyHome: Node
-	userHome: Node
-	sharedHome: Node
-	sitesHome: Node
+	companyHome: Node!
+	userHome: Node!
+	sharedHome: Node!
+	sitesHome: Node!
+	
+	byNodeRef(nodeRef: String!) : Node
+	byUuid(uuid: String!) : Node
 }
 
 type Node {
 	nodeRef: ID!
 	uuid: ID!
+	type: QName!
+	aspects: [QName!]!
 	
+	pathDisplay: String!
+	pathPrefixString: String!
+	pathQualifiedName: String!
+	
+	propertyAsString(name: String!) : String
 	name: String
 	title: String
 	description: String
 	created: Date
+	createdIso: String
 	modified: Date
+	modifiedIso: String
+	content: ContentData
 	
 	primaryParent: Node
-	children: [Node]!
-	childrenContains: [Node]!
+	parents: [Node!]!
+	children: [Node!]!
+	childrenContains: [Node!]!
 }
 
 type Date {
 	iso: String!
+	format(format: String!) : String!
+}
+type QName {
+	localName: String!
+	namespaceURI: String!
+	prefixString: String!
+}
+type ContentData {
+	contentUrl: String!
+	mimetype: String!
+	size: Int!
+	encoding: String!
+	locale: String!
 }
