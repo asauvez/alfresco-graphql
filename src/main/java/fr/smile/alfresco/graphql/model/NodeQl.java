@@ -1,7 +1,8 @@
 package fr.smile.alfresco.graphql.model;
 
-import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
@@ -25,22 +26,37 @@ public class NodeQl extends AbstractQlModel {
 	}
 
 	public String getName() {
-		return (String) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_NAME);
+		return getProperty(nodeRef, ContentModel.PROP_NAME);
 	}
 
 	public String getTitle() {
-		return (String) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_TITLE);
+		return getProperty(nodeRef, ContentModel.PROP_TITLE);
 	}
 
 	public String getDescription() {
-		return (String) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_DESCRIPTION);
+		return getProperty(nodeRef, ContentModel.PROP_DESCRIPTION);
 	}
 
 	public Optional<DateQl> getCreated() {
-		return DateQl.of((Date) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_CREATED));
+		return DateQl.of(getProperty(nodeRef, ContentModel.PROP_CREATED));
 	}
 
 	public Optional<DateQl> getModified() {
-		return DateQl.of((Date) getServiceRegistry().getNodeService().getProperty(nodeRef, ContentModel.PROP_MODIFIED));
+		return DateQl.of(getProperty(nodeRef, ContentModel.PROP_MODIFIED));
+	}
+	
+	public Optional<NodeQl> getPrimaryParent() {
+		return Optional.ofNullable(getNodeService().getPrimaryParent(nodeRef))
+			.map(assoc -> newNode(assoc.getParentRef()));
+	}
+	public List<NodeQl> getChildren() {
+		return getNodeService().getChildAssocs(nodeRef).stream()
+			.map(assoc -> newNode(assoc.getChildRef()))
+			.collect(Collectors.toList());
+	}
+	public List<NodeQl> getChildrenContains() {
+		return getNodeService().getChildAssocs(nodeRef, ContentModel.ASSOC_CONTAINS, null).stream()
+			.map(assoc -> newNode(assoc.getChildRef()))
+			.collect(Collectors.toList());
 	}
 }
