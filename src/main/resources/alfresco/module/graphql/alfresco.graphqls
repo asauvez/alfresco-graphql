@@ -10,6 +10,7 @@ type NodeQuery {
 	
 	byNodeRef(nodeRef: String!) : Node
 	byUuid(uuid: String!) : Node
+	query(params: SearchParameters!): [Node!]!
 }
 
 type Node {
@@ -53,4 +54,9 @@ type ContentData {
 	size: Int!
 	encoding: String!
 	locale: String!
+}
+input SearchParameters {
+	query: String!
+	language: String
+	limit: Int
 }
