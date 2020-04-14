@@ -8,6 +8,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.service.namespace.RegexQNamePattern;
@@ -25,6 +26,9 @@ public abstract class AbstractQLModel {
 	}
 	protected NodeService getNodeService() {
 		return serviceRegistry.getNodeService();
+	}
+	protected NamespacePrefixResolver getNamespaceService() {
+		return serviceRegistry.getNamespaceService();
 	}
 	protected AuthorityService getAuthorityService() {
 		return getServiceRegistry().getAuthorityService();

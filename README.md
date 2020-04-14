@@ -49,8 +49,12 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- FTS search
+- close resultset ?
+	https://github.com/graphql-java/graphql-java/issues/1863
 - jar in AMP ?
+- arbre de création de requête FTS
 - gérer plusieurs consommation du flux par RetryngTransaction ?
 - integration tests
 - query by path
+- Optimisation
+	DataLoader ? batch ?

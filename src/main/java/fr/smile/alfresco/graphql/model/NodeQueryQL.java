@@ -1,8 +1,6 @@
 package fr.smile.alfresco.graphql.model;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.SharedHomeNodeLocator;
@@ -11,6 +9,7 @@ import org.alfresco.repo.nodelocator.UserHomeNodeLocator;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.search.QueryConsistency;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 
@@ -47,15 +46,20 @@ public class NodeQueryQL extends AbstractQLModel {
 		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
 	}
 	
-	public List<NodeQL> query(DataFetchingEnvironment env) {
-		SearchParameters searchParameters = env.getArgument("params");
+	public ResultSetQL getQuery(DataFetchingEnvironment env) {
+		SearchParameters searchParameters = new SearchParameters();
+		searchParameters.setQuery(env.getArgument("query"));
+		searchParameters.setLanguage(env.getArgument("language"));
+		searchParameters.setMaxItems(env.getArgument("maxItems"));
+		searchParameters.setSkipCount(env.getArgument("skipCount"));
+		searchParameters.setQueryConsistency(QueryConsistency.valueOf(env.getArgument("queryConsistency")));
+		searchParameters.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+		
+		// TODO sortdefinition
+		
+		// TODO close resultset
+		
 		ResultSet resultSet = getServiceRegistry().getSearchService().query(searchParameters);
-		try {
-			return resultSet.getNodeRefs().stream()
-					.map(this::newNode)
-					.collect(Collectors.toList());
-		} finally {
-			resultSet.close();
-		}
+		return new ResultSetQL(getServiceRegistry(), resultSet);
 	}
 }

@@ -3,7 +3,6 @@ package fr.smile.alfresco.graphql.model;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
@@ -34,11 +33,14 @@ public class NodeQL extends AbstractQLModel {
 		return nodeRef.getId();
 	}
 	
-	public QName getType() {
-		return getNodeService().getType(nodeRef);
+	public String getType() {
+		return getNodeService().getType(nodeRef).toPrefixString(getNamespaceService());
 	}
-	public Set<QName> getAspects() {
-		return getNodeService().getAspects(nodeRef);
+
+	public List<String> getAspects() {
+		return getNodeService().getAspects(nodeRef).stream()
+				.map(qname -> qname.toPrefixString(getNamespaceService()))
+				.collect(Collectors.toList());
 	}
 	public String getPathDisplay() {
 		return getNodeService().getPath(nodeRef).toDisplayPath(getNodeService(), getServiceRegistry().getPermissionService());

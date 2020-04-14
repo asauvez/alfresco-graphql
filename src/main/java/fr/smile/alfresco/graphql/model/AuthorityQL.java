@@ -62,14 +62,16 @@ public class AuthorityQL extends AbstractQLModel {
 	
 	
 	public List<AuthorityQL> getContainedAuthorities(DataFetchingEnvironment env) {
-		AuthorityType type = env.getArgument("type");
+		String typeS = env.getArgument("type");
+		AuthorityType type = (typeS != null) ? AuthorityType.valueOf(typeS) : null;
 		boolean immediate = env.getArgument("immediate");
 		return getAuthorityService().getContainedAuthorities(type, name, immediate).stream()
 				.map(s -> newAuthority(s))
 				.collect(Collectors.toList());
 	}
 	public List<AuthorityQL> getContainingAuthorities(DataFetchingEnvironment env) {
-		AuthorityType type = env.getArgument("type");
+		String typeS = env.getArgument("type");
+		AuthorityType type = (typeS != null) ? AuthorityType.valueOf(typeS) : null;
 		boolean immediate = env.getArgument("immediate");
 		return getAuthorityService().getContainingAuthorities(type, name, immediate).stream()
 				.map(s -> newAuthority(s))

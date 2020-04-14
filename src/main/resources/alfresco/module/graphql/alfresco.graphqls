@@ -11,14 +11,20 @@ type NodeQuery {
 	
 	byNodeRef(nodeRef: String!) : Node
 	byUuid(uuid: String!) : Node
-	query(params: SearchParameters!): [Node!]!
+	query(
+		query: String!, 
+		language: String = "fts-alfresco",
+		maxItems: Int = -1,
+		skipCount: Int = 0,
+		queryConsistency: QueryConsistency = DEFAULT
+	): ResultSet
 }
 
 type Node {
 	nodeRef: ID!
 	uuid: ID!
-	type: QName!
-	aspects: [QName!]!
+	type: String!
+	aspects: [String!]!
 	
 	pathDisplay: String!
 	pathPrefixString: String!
@@ -39,7 +45,7 @@ type Node {
 	inheritParentPermissions: Boolean!
 	permissions: [AccessPermission!]!
 	allSetPermissions: [AccessPermission!]!
-	hasPermission(permission: String) : Boolean!
+	hasPermission(permission: String!) : Boolean!
 	hasReadPermission: Boolean!
 	hasWritePermission: Boolean!
 	hasDeletePermission: Boolean!
@@ -57,11 +63,6 @@ type Date {
 	iso: String!
 	format(format: String!) : String!
 }
-type QName {
-	localName: String!
-	namespaceURI: String!
-	prefixString: String!
-}
 type ContentData {
 	contentUrl: String!
 	mimetype: String!
@@ -69,12 +70,11 @@ type ContentData {
 	encoding: String!
 	locale: String!
 }
-input SearchParameters {
-	query: String!
-	language: String
-	limit: Int
+type ResultSet {
+	nodes: [Node!]!
+	numberFound: Int!
 }
-
+enum QueryConsistency { EVENTUAL, TRANSACTIONAL, DEFAULT, TRANSACTIONAL_IF_POSSIBLE, HYBRID }
 
 type AuthorityQuery {
 	currentUser: Authority!
