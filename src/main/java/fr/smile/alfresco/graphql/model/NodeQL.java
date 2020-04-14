@@ -11,14 +11,15 @@ import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.QNamePattern;
 
 import graphql.schema.DataFetchingEnvironment;
 
-public class NodeQl extends AbstractQlModel {
+public class NodeQL extends AbstractQLModel {
 
 	private NodeRef nodeRef;
 
-	public NodeQl(ServiceRegistry serviceRegistry, NodeRef nodeRef) {
+	public NodeQL(ServiceRegistry serviceRegistry, NodeRef nodeRef) {
 		super(serviceRegistry);
 		this.nodeRef = nodeRef;
 	}
@@ -50,10 +51,7 @@ public class NodeQl extends AbstractQlModel {
 	// ======= Properties ==============================================================
 	
 	public Optional<String> getPropertyAsString(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
-		QName propertyName = (name.startsWith(String.valueOf(QName.NAMESPACE_BEGIN))) 
-				? QName.createQName(name) 
-				: QName.createQName(name, getServiceRegistry().getNamespaceService());
+		QName propertyName = getQName(env.getArgument("name"));
 		return Optional.ofNullable(getProperty(nodeRef, propertyName))
 				.map(Object::toString);
 	}
@@ -70,20 +68,20 @@ public class NodeQl extends AbstractQlModel {
 		return getProperty(nodeRef, ContentModel.PROP_DESCRIPTION).get().toString();
 	}
 
-	public Optional<DateQl> getCreated() {
+	public Optional<DateQL> getCreated() {
 		return getProperty(nodeRef, ContentModel.PROP_CREATED)
-				.map(o -> new DateQl((Date) o));
+				.map(o -> new DateQL((Date) o));
 	}
 	public Optional<String> getCreatedIso() {
-		return getCreated().map(DateQl::getIso);
+		return getCreated().map(DateQL::getIso);
 	}
 
-	public Optional<DateQl> getModified() {
+	public Optional<DateQL> getModified() {
 		return getProperty(nodeRef, ContentModel.PROP_MODIFIED)
-				.map(o -> new DateQl((Date) o));
+				.map(o -> new DateQL((Date) o));
 	}
 	public Optional<String> getModifiedIso() {
-		return getModified().map(DateQl::getIso);
+		return getModified().map(DateQL::getIso);
 	}
 
 	public Optional<ContentData> getContent() {
@@ -92,23 +90,43 @@ public class NodeQl extends AbstractQlModel {
 
 	// ======= Associations ==============================================================
 
-	public Optional<NodeQl> getPrimaryParent() {
+	public Optional<NodeQL> getPrimaryParent() {
 		return Optional.ofNullable(getNodeService().getPrimaryParent(nodeRef))
 			.map(assoc -> newNode(assoc.getParentRef()));
 	}
-	public List<NodeQl> getParents() {
-		return getNodeService().getParentAssocs(nodeRef).stream()
+	public List<NodeQL> getParents(DataFetchingEnvironment env) {
+		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+		return getNodeService().getParentAssocs(nodeRef, assocType, null).stream()
 			.map(assoc -> newNode(assoc.getChildRef()))
 			.collect(Collectors.toList());
 	}
-	public List<NodeQl> getChildren() {
-		return getNodeService().getChildAssocs(nodeRef).stream()
+	public List<NodeQL> getChildren(DataFetchingEnvironment env) {
+		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+		return getNodeService().getChildAssocs(nodeRef, assocType, null).stream()
 			.map(assoc -> newNode(assoc.getChildRef()))
 			.collect(Collectors.toList());
 	}
-	public List<NodeQl> getChildrenContains() {
+	public List<NodeQL> getChildrenContains() {
 		return getNodeService().getChildAssocs(nodeRef, ContentModel.ASSOC_CONTAINS, null).stream()
 			.map(assoc -> newNode(assoc.getChildRef()))
+			.collect(Collectors.toList());
+	}
+	public Optional<NodeQL> getChildByName(DataFetchingEnvironment env) {
+		String name = env.getArgument("name");
+		QName assocType = getQName(env.getArgument("assocType"));
+		return Optional.ofNullable(getNodeService().getChildByName(nodeRef, assocType, name))
+			.map(child -> newNode(child));
+	}
+	public List<NodeQL> getSourceAssocs(DataFetchingEnvironment env) {
+		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+		return getNodeService().getSourceAssocs(nodeRef, assocType).stream()
+			.map(assoc -> newNode(assoc.getSourceRef()))
+			.collect(Collectors.toList());
+	}
+	public List<NodeQL> getTargetAssocs(DataFetchingEnvironment env) {
+		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+		return getNodeService().getTargetAssocs(nodeRef, assocType).stream()
+			.map(assoc -> newNode(assoc.getTargetRef()))
 			.collect(Collectors.toList());
 	}
 }

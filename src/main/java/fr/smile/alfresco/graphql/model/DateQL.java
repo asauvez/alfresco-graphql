@@ -7,11 +7,11 @@ import java.util.Date;
 
 import graphql.schema.DataFetchingEnvironment;
 
-public class DateQl {
+public class DateQL {
 
 	private Date date;
 
-	public DateQl(Date date) {
+	public DateQL(Date date) {
 		this.date = date;
 	}
 	

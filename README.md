@@ -1,7 +1,13 @@
 # GraphQL endpoint for Alfresco
 
 This is an ACS project for Alfresco SDK 4.0.
+
 To know more about GraphQL : https://graphql.org/
+
+Declare the following endpoints:
+- http://localhost:8080/alfresco/graphql : GraphQL endpoint read only.
+- http://localhost:8080/alfresco/graphql_mutation : GraphQL endpoint that allows mutations.
+- http://localhost:8080/alfresco/graphiql : UI to create queries. Test with that one.
 
 # Author
 
@@ -10,12 +16,28 @@ Special thanks for Covid 19 for having forced me to stay at home and therefore g
 
 # Install
 
-Run with `./run.sh build_start` or `./run.bat build_start` and verify that it
-
-Declare the following endpoints:
-- http://localhost:8080/alfresco/graphql : GraphQL endpoint read only.
-- http://localhost:8080/alfresco/graphql_mutation : GraphQL endpoint that allows mutations.
-- http://localhost:8080/alfresco/graphiql : UI to create queries. Test with that one.
+- `git clone https://github.com/asauvez/alfresco-graphql`
+- `cd alfresco-graphql`
+- `./run.sh build_start`
+- http://localhost:8080/alfresco/graphiql
+```
+{
+  node {
+    sitesHome {
+      childByName(name: "swsdp") {
+        name
+        childByName(name: "documentLibrary") {
+          childrenContains {
+            nodeRef,
+            name,
+            title
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 Can be integrated in an existing Alfresco by declaring:
 ```

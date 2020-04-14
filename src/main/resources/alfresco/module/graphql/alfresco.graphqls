@@ -34,9 +34,12 @@ type Node {
 	content: ContentData
 	
 	primaryParent: Node
-	parents: [Node!]!
-	children: [Node!]!
+	parents(assocType: String): [Node!]!
+	children(assocType: String): [Node!]!
 	childrenContains: [Node!]!
+	childByName(name: String!, assocType: String = "cm:contains") : Node
+	sourceAssocs(assocType: String) : [Node!]!
+	targetAssocs(assocType: String) : [Node!]!
 }
 
 type Date {

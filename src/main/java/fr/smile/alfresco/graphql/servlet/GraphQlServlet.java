@@ -21,7 +21,7 @@ import org.springframework.extensions.webscripts.servlet.WebScriptServletRespons
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import fr.smile.alfresco.graphql.model.QueryQl;
+import fr.smile.alfresco.graphql.model.QueryQL;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.kickstart.servlet.GraphQLHttpServlet;
 import graphql.schema.GraphQLSchema;
@@ -55,7 +55,7 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 	
 	private static final String ALFRESCO_SCHEMA = "/alfresco/module/graphql/alfresco.graphqls";
 	
-	private QueryQl query;
+	private QueryQL query;
 	private ServletAuthenticatorFactory servletAuthenticatorFactory;
 	private RetryingTransactionHelper retryingTransactionHelper;
 
@@ -64,7 +64,7 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 		try {
 			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 			ServiceRegistry serviceRegistry = applicationContext.getBean(ServiceRegistry.class);
-			query = new QueryQl(serviceRegistry);
+			query = new QueryQL(serviceRegistry);
 			
 			servletAuthenticatorFactory = (ServletAuthenticatorFactory) applicationContext.getBean("webscripts.authenticator.remoteuser");
 			retryingTransactionHelper = serviceRegistry.getRetryingTransactionHelper();
