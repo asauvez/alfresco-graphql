@@ -1,5 +1,6 @@
 type Query {
-	node: NodeQuery
+	node: NodeQuery!
+	authority: AuthorityQuery!
 }
 
 type NodeQuery {
@@ -27,11 +28,21 @@ type Node {
 	name: String
 	title: String
 	description: String
+	creator: Authority
 	created: Date
 	createdIso: String
+	modifier: Authority
 	modified: Date
 	modifiedIso: String
 	content: ContentData
+	
+	inheritParentPermissions: Boolean!
+	permissions: [AccessPermission!]!
+	allSetPermissions: [AccessPermission!]!
+	hasPermission(permission: String) : Boolean!
+	hasReadPermission: Boolean!
+	hasWritePermission: Boolean!
+	hasDeletePermission: Boolean!
 	
 	primaryParent: Node
 	parents(assocType: String): [Node!]!
@@ -62,4 +73,46 @@ input SearchParameters {
 	query: String!
 	language: String
 	limit: Int
+}
+
+
+type AuthorityQuery {
+	currentUser: Authority!
+	byName(name: String!) : Authority
+}
+type Authority {
+	name: ID!
+	nodeRef: ID
+	uuid: ID
+	
+	type: AuthorityType
+	displayName: String
+	shortName: String
+	
+	firstName: String
+	lastName: String
+	email: String
+	propertyAsString(name: String!) : String
+	
+	containedAuthorities(type: AuthorityType, immediate: Boolean = false) : [Authority!]!
+	containingAuthorities(type: AuthorityType, immediate: Boolean = false) : [Authority!]!
+}
+enum AuthorityType {
+	ADMIN
+	EVERYONE
+	OWNER
+	GUEST
+	GROUP
+	ROLE
+	USER
+	WILDCARD
+}
+type AccessPermission {
+	permission: String!
+	allowed: Boolean!
+	denied: Boolean!
+	authority: Authority!
+	authorityType: AuthorityType!
+	inherited: Boolean!
+	setDirectly: Boolean!
 }

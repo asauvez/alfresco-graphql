@@ -10,6 +10,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 
@@ -75,6 +77,11 @@ public class NodeQL extends AbstractQLModel {
 	public Optional<String> getCreatedIso() {
 		return getCreated().map(DateQL::getIso);
 	}
+	public Optional<AuthorityQL> getCreator() {
+		return getProperty(nodeRef, ContentModel.PROP_CREATOR)
+				.map(o -> newAuthority((String) o));
+	}
+	
 
 	public Optional<DateQL> getModified() {
 		return getProperty(nodeRef, ContentModel.PROP_MODIFIED)
@@ -83,11 +90,46 @@ public class NodeQL extends AbstractQLModel {
 	public Optional<String> getModifiedIso() {
 		return getModified().map(DateQL::getIso);
 	}
+	public Optional<AuthorityQL> getModifier() {
+		return getProperty(nodeRef, ContentModel.PROP_MODIFIER)
+				.map(o -> newAuthority((String) o));
+	}
 
 	public Optional<ContentData> getContent() {
 		return getProperty(nodeRef, ContentModel.PROP_CONTENT);
 	}
 
+
+	// ======= Permissions ==============================================================
+
+	public boolean getInheritParentPermissions() {
+		return getPermissionService().getInheritParentPermissions(nodeRef);
+	}
+	public List<AccessPermissionQL> getPermissions() {
+		return getPermissionService().getPermissions(nodeRef).stream()
+				.map(this::newAccessPermission)
+				.collect(Collectors.toList());
+	}
+	public List<AccessPermissionQL> getAllSetPermissions() {
+		return getPermissionService().getAllSetPermissions(nodeRef).stream()
+				.map(this::newAccessPermission)
+				.collect(Collectors.toList());
+	}
+	public boolean getHasPermission(DataFetchingEnvironment env) {
+		String permission = env.getArgument("permission");
+		return getPermissionService().hasPermission(nodeRef, permission) == AccessStatus.ALLOWED;
+	}
+	public boolean getHasReadPermission() {
+		return getPermissionService().hasReadPermission(nodeRef) == AccessStatus.ALLOWED;
+	}
+	public boolean getHasWritePermission() {
+		return getPermissionService().hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
+	}
+	public boolean getHasDeletePermission() {
+		return getPermissionService().hasPermission(nodeRef, PermissionService.DELETE) == AccessStatus.ALLOWED;
+	}
+	
+	
 	// ======= Associations ==============================================================
 
 	public Optional<NodeQL> getPrimaryParent() {

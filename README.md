@@ -16,7 +16,7 @@ Special thanks for Covid 19 for having forced me to stay at home and therefore g
 
 # Install
 
-- `git clone https://github.com/asauvez/alfresco-graphql`
+- `git clone git@github.com:asauvez/alfresco-graphql.git`
 - `cd alfresco-graphql`
 - `./run.sh build_start`
 - http://localhost:8080/alfresco/graphiql
@@ -25,7 +25,7 @@ Special thanks for Covid 19 for having forced me to stay at home and therefore g
   node {
     sitesHome {
       childByName(name: "swsdp") {
-        name
+        title
         childByName(name: "documentLibrary") {
           childrenContains {
             nodeRef,
@@ -44,6 +44,7 @@ Can be integrated in an existing Alfresco by declaring:
 <dependency>
 	<groupId>fr.smile.alfresco.graphql</groupId>
 	<artifactId>graphql</artifactId>
+	<version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -51,6 +52,5 @@ Can be integrated in an existing Alfresco by declaring:
 - FTS search
 - jar in AMP ?
 - gérer plusieurs consommation du flux par RetryngTransaction ?
-- authority (currentUser, permission)
 - integration tests
 - query by path
