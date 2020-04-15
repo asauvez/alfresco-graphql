@@ -44,7 +44,7 @@ public class GraphQlServletIT {
 				.setDefaultCredentialsProvider(provider)
 				.build();
 
-		String query = IOUtils.toString(getClass().getResourceAsStream("/query.json"), Charset.defaultCharset());
+		String query = IOUtils.toString(getClass().getResourceAsStream("/query.graphql"), Charset.defaultCharset());
 		String expectedResponse = IOUtils.toString(getClass().getResourceAsStream("/expectedResponse.json"), Charset.defaultCharset());
 		
 		query = "{ \"query\": \"" + query.replace("\"", "\\\"").replace("\n", " ") + "\", \"variables\": null }";

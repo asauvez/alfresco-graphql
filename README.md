@@ -11,7 +11,7 @@ Declare the following endpoints:
 
 Interesting files:
 - The GraphQL schema:  [alfresco.graphqls](src/main/resources/alfresco/module/graphql/alfresco.graphqls)
-- Sample query: [query.json](src/test/resources/query.json)
+- Sample query: [query.graphql](src/test/resources/query.graphql)
 - Sample results: [expectedResponse.json](src/test/resources/expectedResponse.json)
 
 # Author
