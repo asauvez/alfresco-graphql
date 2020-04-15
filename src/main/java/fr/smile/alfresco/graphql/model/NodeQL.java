@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.repository.ContentData;
+import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
@@ -43,10 +43,10 @@ public class NodeQL extends AbstractQLModel {
 				.collect(Collectors.toList());
 	}
 	public String getPathDisplay() {
-		return getNodeService().getPath(nodeRef).toDisplayPath(getNodeService(), getServiceRegistry().getPermissionService());
+		return getNodeService().getPath(nodeRef).toDisplayPath(getNodeService(), getPermissionService());
 	}
 	public String getPathPrefixString() {
-		return getNodeService().getPath(nodeRef).toPrefixString(getServiceRegistry().getNamespaceService());
+		return getNodeService().getPath(nodeRef).toPrefixString(getNamespaceService());
 	}
 	public String getPathQualifiedName() {
 		return getNodeService().getPath(nodeRef).toString();
@@ -97,10 +97,12 @@ public class NodeQL extends AbstractQLModel {
 				.map(o -> newAuthority((String) o));
 	}
 
-	public Optional<ContentData> getContent() {
-		return getProperty(nodeRef, ContentModel.PROP_CONTENT);
+	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env) {
+		QName property = getQName(env.getArgument("property"));
+		Optional<ContentReader> contentData = Optional.ofNullable(getContentService().getReader(nodeRef, property));
+		return contentData
+				.map(reader -> new ContentReaderQL(getServiceRegistry(), nodeRef, reader));
 	}
-
 
 	// ======= Permissions ==============================================================
 

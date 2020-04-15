@@ -3,6 +3,7 @@ package fr.smile.alfresco.graphql.model;
 import java.util.Optional;
 
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessPermission;
@@ -31,10 +32,13 @@ public abstract class AbstractQLModel {
 		return serviceRegistry.getNamespaceService();
 	}
 	protected AuthorityService getAuthorityService() {
-		return getServiceRegistry().getAuthorityService();
+		return serviceRegistry.getAuthorityService();
 	}
 	protected PermissionService getPermissionService() {
-		return getServiceRegistry().getPermissionService();
+		return serviceRegistry.getPermissionService();
+	}
+	protected ContentService getContentService() {
+		return serviceRegistry.getContentService();
 	}
 
 	protected NodeQL newNode(NodeRef nodeRef) {
@@ -58,7 +62,7 @@ public abstract class AbstractQLModel {
 		if (name.startsWith(String.valueOf(QName.NAMESPACE_BEGIN))) {
 			return QName.createQName(name);
 		} else {
-			return QName.createQName(name, getServiceRegistry().getNamespaceService());
+			return QName.createQName(name, serviceRegistry.getNamespaceService());
 		}
 	}
 	protected QNamePattern getQNameFilter(String name) {

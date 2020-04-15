@@ -40,7 +40,8 @@ type Node {
 	modifier: Authority
 	modified: Date
 	modifiedIso: String
-	content: ContentData
+	
+	content(property: String! = "cm:content") : ContentData
 	
 	inheritParentPermissions: Boolean!
 	permissions: [AccessPermission!]!
@@ -64,11 +65,14 @@ type Date {
 	format(format: String!) : String!
 }
 type ContentData {
-	contentUrl: String!
+	asString: String!
+	asBase64: String!
+	downloadUrl: String!
+
 	mimetype: String!
 	size: Int!
-	encoding: String!
-	locale: String!
+	encoding: String
+	locale: String
 }
 type ResultSet {
 	nodes: [Node!]!

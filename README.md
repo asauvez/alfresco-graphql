@@ -49,6 +49,15 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
+
+query(predicates=[
+  {match: {field:"cm:name", value:"toto.txt", exact: true}},
+  {type: "cm:content"},
+  {or: [{...}, {...}]}  
+])
+
+rendition
+
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863
 - jar in AMP ?
