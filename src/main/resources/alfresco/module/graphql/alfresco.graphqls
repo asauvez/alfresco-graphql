@@ -14,8 +14,8 @@ type NodeQuery {
 	query(
 		query: String!, 
 		language: String = "fts-alfresco",
-		maxItems: Int = -1,
 		skipCount: Int = 0,
+		maxItems: Int = -1,
 		queryConsistency: QueryConsistency = DEFAULT
 	): ResultSet
 	queryPredicate(
@@ -59,8 +59,8 @@ type Node {
 	
 	primaryParent: Node
 	parents(assocType: String): [Node!]!
-	children(assocType: String): [Node!]!
-	childrenContains: [Node!]!
+	children(assocType: String, skipCount: Int = 0, maxItems: Int = 2147483647): [Node!]!
+	childrenContains(skipCount: Int = 0, maxItems: Int = 2147483647): [Node!]!
 	childByName(name: String!, assocType: String = "cm:contains") : Node
 	sourceAssocs(assocType: String) : [Node!]!
 	targetAssocs(assocType: String) : [Node!]!

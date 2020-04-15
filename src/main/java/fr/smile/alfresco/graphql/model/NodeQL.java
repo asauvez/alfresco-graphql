@@ -148,15 +148,18 @@ public class NodeQL extends AbstractQLModel {
 	}
 	public List<NodeQL> getChildren(DataFetchingEnvironment env) {
 		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+		return getChildren(assocType, env);
+	}
+	public List<NodeQL> getChildrenContains(DataFetchingEnvironment env) {
+		return getChildren(ContentModel.ASSOC_CONTAINS, env);
+	}
+	private List<NodeQL> getChildren(QNamePattern assocType, DataFetchingEnvironment env) {
 		return getNodeService().getChildAssocs(nodeRef, assocType, null).stream()
+			.skip(env.getArgument("skipCount"))
+			.limit(env.getArgument("maxItems"))
 			.map(assoc -> newNode(assoc.getChildRef()))
 			.collect(Collectors.toList());
-	}
-	public List<NodeQL> getChildrenContains() {
-		return getNodeService().getChildAssocs(nodeRef, ContentModel.ASSOC_CONTAINS, null).stream()
-			.map(assoc -> newNode(assoc.getChildRef()))
-			.collect(Collectors.toList());
-	}
+	} 
 	public Optional<NodeQL> getChildByName(DataFetchingEnvironment env) {
 		String name = env.getArgument("name");
 		QName assocType = getQName(env.getArgument("assocType"));

@@ -49,16 +49,19 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
+- jar in AMP ?
+- integration tests
+	- test PredicateHelper
+- Documentation
+
 - predicate between
 	borne inclusive
 - rendition
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863
-- jar in AMP ?
-- arbre de création de requête FTS
 - gérer plusieurs consommation du flux par RetryngTransaction ?
-- integration tests
 - query by path
-- Optimisation
-- Documentation
-	DataLoader ? batch ?
+- Optimisation ?
+- Subscription
+	https://www.graphql-java.com/documentation/v14/subscriptions/
+	SubmissionPublisher
