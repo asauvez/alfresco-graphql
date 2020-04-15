@@ -1,0 +1,170 @@
+{
+  "data": {
+    "node": {
+      "companyHome": {
+        "pathPrefixString": "/app:company_home"
+      },
+      "sitesHome": {
+        "pathPrefixString": "/app:company_home/st:sites",
+        "pathQualifiedName": "/{http://www.alfresco.org/model/application/1.0}company_home/{http://www.alfresco.org/model/site/1.0}sites",
+        "pathDisplay": "/Company Home"
+      },
+      "userHome": {
+        "pathPrefixString": "/app:company_home"
+      },
+      "sharedHome": {
+        "pathPrefixString": "/app:company_home/app:shared"
+      },
+      "sites": {
+        "swsdp": {
+          "title": "Sample: Web Site Design Project",
+          "childByName": {
+            "childrenContains": [
+              {
+                "nodeRef": "workspace://SpacesStore/8bb36efb-c26d-4d2b-9199-ab6922f53c28",
+                "name": "Agency Files",
+                "title": "Agency related files",
+                "created": {
+                  "iso": "2011-02-15T20:47:03.951"
+                },
+                "createdIso": "2011-02-15T20:47:03.951",
+                "creator": {
+                  "displayName": "mjackson",
+                  "firstName": "Mike",
+                  "lastName": "Jackson",
+                  "email": "mjackson@example.com"
+                },
+                "modified": {
+                  "format": "15/02/2011"
+                },
+                "modifiedIso": "2011-02-15T21:00:43.616",
+                "modifier": {
+                  "name": "mjackson"
+                },
+                "inheritParentPermissions": true,
+                "permissions": [
+                  {
+                    "permission": "Collaborator",
+                    "allowed": true,
+                    "authority": {
+                      "name": "admin"
+                    },
+                    "inherited": false
+                  },
+                  {
+                    "permission": "Consumer",
+                    "allowed": true,
+                    "authority": {
+                      "name": "admin"
+                    },
+                    "inherited": false
+                  },
+                  {
+                    "permission": "Contributor",
+                    "allowed": true,
+                    "authority": {
+                      "name": "admin"
+                    },
+                    "inherited": false
+                  },
+                  {
+                    "permission": "Coordinator",
+                    "allowed": true,
+                    "authority": {
+                      "name": "admin"
+                    },
+                    "inherited": false
+                  },
+                  {
+                    "permission": "Editor",
+                    "allowed": true,
+                    "authority": {
+                      "name": "admin"
+                    },
+                    "inherited": false
+                  }
+                ],
+                "allSetPermissions": [
+                  {
+                    "permission": "ReadPermissions"
+                  },
+                  {
+                    "permission": "SiteConsumer"
+                  },
+                  {
+                    "permission": "SiteCollaborator"
+                  },
+                  {
+                    "permission": "SiteConsumer"
+                  },
+                  {
+                    "permission": "SiteContributor"
+                  },
+                  {
+                    "permission": "SiteManager"
+                  }
+                ],
+                "hasPermission": true,
+                "hasReadPermission": true,
+                "hasWritePermission": true,
+                "hasDeletePermission": true
+              }
+            ]
+          }
+        }
+      },
+      "readmeFile": {
+        "numberFound": 1,
+        "nodes": [
+          {
+            "name": "readme.ftl",
+            "type": "cm:content",
+            "aspects": [
+              "cm:titled",
+              "app:inlineeditable",
+              "cm:auditable",
+              "sys:referenceable",
+              "sys:localized",
+              "cm:author"
+            ],
+            "content": {
+              "asString": "\u003c#-- Displays the contents of readme.html and/or the evaluated readme.ftl if they exist in the current space. --\u003e\n\u003c#assign filename \u003d \"readme\"/\u003e\n\u003c#assign htmlExt \u003d \"html\"/\u003e\n\u003c#assign suffix \u003d .lang /\u003e\n\u003c#assign ftlExt \u003d \"ftl\"/\u003e\n\u003c#assign htmlLangFilename \u003d \"${filename}_${suffix}.${htmlExt}\"/\u003e\n\u003c#assign htmlFilename \u003d \"${filename}.${htmlExt}\"/\u003e\n\u003c#assign ftlFilename \u003d \"${filename}.${ftlExt}\"/\u003e\n\u003c#assign messageError\u003d\"Readme file does not exist!\"/\u003e\n\u003c#assign found \u003d false\u003e\n\n\u003c#if space?exists\u003e\n    \u003c#if space.childByNamePath[\"${htmlLangFilename}\"]?exists\u003e\n        ${space.childByNamePath[htmlLangFilename].content}\n    \u003c#elseif space.childByNamePath[\"${htmlFilename}\"]?exists\u003e\n        ${space.childByNamePath[htmlFilename].content}\n    \u003c#elseif space.childByNamePath[\"${ftlFilename}\"]?exists\u003e\n        \u003c#include space.childByNamePath[\"${ftlFilename}\"].nodeRef\u003e \n    \u003c#else\u003e\n        ${messageError}\n    \u003c/#if\u003e\n\u003c/#if\u003e",
+              "mimetype": "text/plain",
+              "size": 909,
+              "encoding": "UTF-8",
+              "locale": "en_US"
+            },
+            "primaryParent": {
+              "name": "Presentation Templates"
+            }
+          }
+        ]
+      },
+      "readmeFile2": {
+        "numberFound": 1
+      }
+    },
+    "authority": {
+      "currentUser": {
+        "name": "admin"
+      },
+      "byName": {
+        "shortName": "site_swsdp_SiteManager",
+        "type": "GROUP",
+        "containedAuthorities": [
+          {
+            "name": "admin"
+          },
+          {
+            "name": "mjackson"
+          }
+        ],
+        "containingAuthorities": [
+          {
+            "name": "GROUP_site_swsdp"
+          }
+        ]
+      }
+    }
+  }
+}

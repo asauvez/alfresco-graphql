@@ -9,6 +9,11 @@ Declare the following endpoints:
 - http://localhost:8080/alfresco/graphql_mutation : GraphQL endpoint that allows mutations.
 - http://localhost:8080/alfresco/graphiql : UI to create queries. Test with that one.
 
+Interesting files:
+- The GraphQL schema:  [src/main/resources/alfresco/module/graphql/alfresco.graphqls]
+- Sample query: [src/test/resources/query.json]
+- Sample results: [src/test/resources/expectedResponse.json]
+
 # Author
 
 Made for fun and education by Adrien SAUVEZ, Alfresco expert @Smile company (https://www.smile.eu).
@@ -21,7 +26,7 @@ Special thanks for Covid 19 for having forced me to stay at home and therefore g
 - `./run.sh build_start`
 - http://localhost:8080/alfresco/graphiql
 ```
-{
+query {
   node {
     sitesHome {
       childByName(name: "swsdp") {
@@ -50,8 +55,7 @@ Can be integrated in an existing Alfresco by declaring:
 
 # TODO
 - jar in AMP ?
-- integration tests
-	- test PredicateHelper
+- test PredicateHelper
 - Documentation
 
 - predicate between

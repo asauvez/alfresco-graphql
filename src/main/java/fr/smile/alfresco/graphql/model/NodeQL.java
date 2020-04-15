@@ -112,11 +112,13 @@ public class NodeQL extends AbstractQLModel {
 	public List<AccessPermissionQL> getPermissions() {
 		return getPermissionService().getPermissions(nodeRef).stream()
 				.map(this::newAccessPermission)
+				.sorted()
 				.collect(Collectors.toList());
 	}
 	public List<AccessPermissionQL> getAllSetPermissions() {
 		return getPermissionService().getAllSetPermissions(nodeRef).stream()
 				.map(this::newAccessPermission)
+				.sorted() // to have predictable tests
 				.collect(Collectors.toList());
 	}
 	public boolean getHasPermission(DataFetchingEnvironment env) {
@@ -155,8 +157,8 @@ public class NodeQL extends AbstractQLModel {
 	}
 	private List<NodeQL> getChildren(QNamePattern assocType, DataFetchingEnvironment env) {
 		return getNodeService().getChildAssocs(nodeRef, assocType, null).stream()
-			.skip(env.getArgument("skipCount"))
-			.limit(env.getArgument("maxItems"))
+			.skip((int) env.getArgument("skipCount"))
+			.limit((int) env.getArgument("maxItems"))
 			.map(assoc -> newNode(assoc.getChildRef()))
 			.collect(Collectors.toList());
 	} 

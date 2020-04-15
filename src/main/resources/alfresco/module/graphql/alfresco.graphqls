@@ -87,7 +87,7 @@ type ResultSet {
 enum QueryConsistency { EVENTUAL, TRANSACTIONAL, DEFAULT, TRANSACTIONAL_IF_POSSIBLE, HYBRID }
 
 input Predicate {
-	not: boolean
+	not: Boolean
 
 	and: [Predicate!]
 	or: [Predicate!]

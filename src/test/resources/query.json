@@ -1,0 +1,74 @@
+query {
+  node {
+    companyHome { pathPrefixString }
+    sitesHome { pathPrefixString, pathQualifiedName, pathDisplay }
+    userHome { pathPrefixString }
+    sharedHome { pathPrefixString }
+    
+    sites: sitesHome {
+      swsdp: childByName(name: "swsdp") {
+        title
+        childByName(name: "documentLibrary") {
+          childrenContains(maxItems:1) {
+            nodeRef,
+            name,
+            title
+            created { iso }
+            createdIso
+            creator { displayName, firstName, lastName, email }
+            modified { format(format:"dd/MM/yyyy") }
+            modifiedIso
+            modifier { name }
+            
+            inheritParentPermissions
+            permissions {
+              permission
+              allowed
+              authority { name }
+              inherited
+            }
+            allSetPermissions { permission }
+            hasPermission(permission:"DeleteAssociations")
+            hasReadPermission
+            hasWritePermission
+            hasDeletePermission
+          }
+        }
+      }
+    }
+    
+    readmeFile: queryPredicate(query: [
+      { type: "cm:content" }
+      { eq: { property:"cm:name", value:"readme.ftl"} }
+    ]) {
+      numberFound
+      nodes {
+        name
+        type
+        aspects
+        content {
+          asString
+          mimetype
+          size
+          encoding
+          locale
+        }
+        primaryParent { name }
+      }
+    }
+
+    readmeFile2 : query(query: "=cm:name:readme.ftl") {
+      numberFound
+    }
+  }
+  
+  authority {
+    currentUser { name }
+    byName(name:"GROUP_site_swsdp_SiteManager") {
+      shortName
+      type
+      containedAuthorities { name }
+      containingAuthorities { name }
+    }
+  }
+}

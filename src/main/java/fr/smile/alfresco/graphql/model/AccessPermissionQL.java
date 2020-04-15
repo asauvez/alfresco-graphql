@@ -5,7 +5,7 @@ import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.AuthorityType;
 
-public class AccessPermissionQL extends AbstractQLModel {
+public class AccessPermissionQL extends AbstractQLModel implements Comparable<AccessPermissionQL> {
 
 	private AccessPermission accessPermission;
 
@@ -39,5 +39,16 @@ public class AccessPermissionQL extends AbstractQLModel {
 
 	public boolean isSetDirectly() {
 		return accessPermission.isSetDirectly();
+	}
+	
+	@Override
+	public int compareTo(AccessPermissionQL o) {
+		int diff = this.accessPermission.getAuthority().compareTo(o.accessPermission.getAuthority());
+		if (diff != 0) return diff;
+
+		diff = this.accessPermission.getPermission().compareTo(o.accessPermission.getPermission());
+		if (diff != 0) return diff;
+
+		return this.accessPermission.getAccessStatus().compareTo(o.accessPermission.getAccessStatus());
 	}
 }
