@@ -18,6 +18,12 @@ type NodeQuery {
 		skipCount: Int = 0,
 		queryConsistency: QueryConsistency = DEFAULT
 	): ResultSet
+	queryPredicate(
+		query: [Predicate!]!, 
+		maxItems: Int = -1,
+		skipCount: Int = 0,
+		queryConsistency: QueryConsistency = DEFAULT
+	): ResultSet
 }
 
 type Node {
@@ -79,6 +85,25 @@ type ResultSet {
 	numberFound: Int!
 }
 enum QueryConsistency { EVENTUAL, TRANSACTIONAL, DEFAULT, TRANSACTIONAL_IF_POSSIBLE, HYBRID }
+
+input Predicate {
+	not: boolean
+
+	and: [Predicate!]
+	or: [Predicate!]
+	match: MatchPredicate
+	eq: MatchPredicate
+	type: String
+	exactType: String
+	aspect: String
+	exactAspect: String
+}
+input MatchPredicate {
+	property: String!,
+	value: String!
+}
+
+
 
 type AuthorityQuery {
 	currentUser: Authority!
