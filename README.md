@@ -10,9 +10,9 @@ Declare the following endpoints:
 - http://localhost:8080/alfresco/graphiql : UI to create queries. Test with that one.
 
 Interesting files:
-- The GraphQL schema:  [src/main/resources/alfresco/module/graphql/alfresco.graphqls]
-- Sample query: [src/test/resources/query.json]
-- Sample results: [src/test/resources/expectedResponse.json]
+- The GraphQL schema:  [alfresco.graphqls](src/main/resources/alfresco/module/graphql/alfresco.graphqls)
+- Sample query: [query.json](src/test/resources/query.json)
+- Sample results: [expectedResponse.json](src/test/resources/expectedResponse.json)
 
 # Author
 
