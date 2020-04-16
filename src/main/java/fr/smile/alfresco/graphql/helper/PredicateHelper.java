@@ -40,8 +40,8 @@ public class PredicateHelper {
 
 	@SuppressWarnings("unchecked")
 	private void parsePredicate(StringBuilder buf, Map<String, Object> predicate) {
-		Boolean not = (Boolean) predicate.get("not");
-		if (not != null && ! not.booleanValue()) {
+		boolean not = (Boolean) predicate.getOrDefault("not", Boolean.FALSE);
+		if (not) {
 			buf.append("NOT (");
 		}
 		
@@ -58,45 +58,69 @@ public class PredicateHelper {
 			nbOperator ++;
 		}
 		
-		String exactType = (String) predicate.get("exactType");
-		if (exactType != null) {
-			buf.append("EXACTTYPE:").append(getQName(exactType));
-			nbOperator ++;
-		}
 		String type = (String) predicate.get("type");
 		if (type != null) {
 			buf.append("TYPE:").append(getQName(type));
 			nbOperator ++;
 		}
+		String exactType = (String) predicate.get("exactType");
+		if (exactType != null) {
+			buf.append("EXACTTYPE:").append(getQName(exactType));
+			nbOperator ++;
+		}
 		String aspect = (String) predicate.get("aspect");
 		if (aspect != null) {
-			buf.append("ASPECT:").append(getQName(type));
+			buf.append("ASPECT:").append(getQName(aspect));
 			nbOperator ++;
 		}
 		String exactAspect = (String) predicate.get("exactAspect");
 		if (exactAspect != null) {
-			buf.append("EXACTASPECT:").append(getQName(type));
+			buf.append("EXACTASPECT:").append(getQName(exactAspect));
+			nbOperator ++;
+		}
+
+		String natif = (String) predicate.get("natif");
+		if (natif != null) {
+			buf.append(natif);
 			nbOperator ++;
 		}
 
 		Map<String, Object> match = (Map<String, Object>) predicate.get("match");
 		if (match != null) {
 			String property = (String) match.get("property");
-			Object value = match.get("value");
+			String value = (String) match.get("value");
 			buf.append("@").append(getQName(property).toPrefixString(namespaceService))
-				.append(":").append(toFtsValue(value));
+				.append(":").append(toFtsValue(match, value));
 			nbOperator ++;
 		}
 
 		Map<String, Object> eq = (Map<String, Object>) predicate.get("eq");
 		if (eq != null) {
 			String property = (String) eq.get("property");
-			Object value = eq.get("value");
+			String value = (String) eq.get("value");
 			buf.append("=").append(getQName(property).toPrefixString(namespaceService))
-				.append(":").append(toFtsValue(value));
+				.append(":").append(toFtsValue(eq, value));
 			nbOperator ++;
 		}
-		if (not != null && ! not.booleanValue()) {
+		Map<String, Object> range = (Map<String, Object>) predicate.get("range");
+		if (range != null) {
+			String property = (String) range.get("property");
+			String min = (String) range.get("min");
+			String max = (String) range.get("max");
+			boolean minInclusive = (Boolean) range.getOrDefault("minInclusive", Boolean.TRUE);
+			boolean maxInclusive = (Boolean) range.getOrDefault("maxInclusive", Boolean.TRUE);
+			
+			buf.append(getQName(property).toPrefixString(namespaceService))
+				.append(minInclusive ? ":[" : ":<")
+				.append((min != null) ? toFtsValue(range, min): "MIN")
+				.append(" TO ")
+				.append((max != null) ? toFtsValue(range, max): "MAX")
+				.append(maxInclusive ? "]" : ">");
+			
+			nbOperator ++;
+		}
+		
+		if (not) {
 			buf.append(")");
 		}
 
@@ -105,6 +129,8 @@ public class PredicateHelper {
 		}
 	}
 	
+	private enum PredicateValueType { STRING, NUMBER, BOOLEAN, DATE }
+	
 	private QName getQName(String name) {
 		if (name.startsWith(String.valueOf(QName.NAMESPACE_BEGIN))) {
 			return QName.createQName(name);
@@ -112,11 +138,16 @@ public class PredicateHelper {
 			return QName.createQName(name, namespaceService);
 		}
 	}
-	private String toFtsValue(Object value) {
-		if (value instanceof String) {
-			return "\"" + value.toString().replace("\"", "\\\"").replace("\n", "\\n") + "\"";
-		} else {
-			return value.toString();
+	private String toFtsValue(Map<String, Object> map, String value) {
+		PredicateValueType valueType = PredicateValueType.valueOf((String) map.getOrDefault("type", PredicateValueType.DATE.name()));
+		switch (valueType) {
+		case STRING:
+		case DATE:
+			return "\"" + value.replace("\"", "\\\"").replace("\n", "\\n") + "\"";
+		case NUMBER:
+		case BOOLEAN:
+			return value;
 		}
+		throw new IllegalStateException(valueType.name());
 	}
 }

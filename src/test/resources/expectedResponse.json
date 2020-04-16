@@ -4,21 +4,21 @@
       "companyHome": {
         "pathPrefixString": "/app:company_home"
       },
-      "sitesHome": {
-        "pathPrefixString": "/app:company_home/st:sites",
-        "pathQualifiedName": "/{http://www.alfresco.org/model/application/1.0}company_home/{http://www.alfresco.org/model/site/1.0}sites",
-        "pathDisplay": "/Company Home"
-      },
       "userHome": {
         "pathPrefixString": "/app:company_home"
       },
       "sharedHome": {
         "pathPrefixString": "/app:company_home/app:shared"
       },
+      "sitesHome": {
+        "pathPrefixString": "/app:company_home/st:sites",
+        "pathQualifiedName": "/{http://www.alfresco.org/model/application/1.0}company_home/{http://www.alfresco.org/model/site/1.0}sites",
+        "pathDisplay": "/Company Home"
+      },
       "sites": {
         "swsdp": {
           "title": "Sample: Web Site Design Project",
-          "childByName": {
+          "documentLibrary": {
             "childrenContains": [
               {
                 "nodeRef": "workspace://SpacesStore/8bb36efb-c26d-4d2b-9199-ab6922f53c28",
@@ -148,7 +148,7 @@
       "currentUser": {
         "name": "admin"
       },
-      "byName": {
+      "swsdp_SiteManager": {
         "shortName": "site_swsdp_SiteManager",
         "type": "GROUP",
         "containedAuthorities": [

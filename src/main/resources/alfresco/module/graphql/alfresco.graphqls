@@ -93,16 +93,27 @@ input Predicate {
 	or: [Predicate!]
 	match: MatchPredicate
 	eq: MatchPredicate
+	range: RangePredicate
 	type: String
 	exactType: String
 	aspect: String
 	exactAspect: String
+	natif: String
 }
 input MatchPredicate {
 	property: String!,
 	value: String!
+	type: PredicateValueType
 }
-
+input RangePredicate {
+	property: String!,
+	min: String
+	max: String
+	minInclusive: Boolean
+	maxInclusive: Boolean
+	type: PredicateValueType
+}
+enum PredicateValueType { STRING, NUMBER, BOOLEAN, DATE }
 
 
 type AuthorityQuery {

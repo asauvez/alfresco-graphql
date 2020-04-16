@@ -54,13 +54,13 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- jar in AMP ?
-- test PredicateHelper
-- Documentation
-
-- predicate between
-	borne inclusive
+- field name generated with DictionaryService
 - rendition
+- system
+	alfresco version
+	module version
+	license (enterprise)
+	alfresco-global (just for admin)
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863
 - gérer plusieurs consommation du flux par RetryngTransaction ?

@@ -1,14 +1,14 @@
 query {
   node {
     companyHome { pathPrefixString }
-    sitesHome { pathPrefixString, pathQualifiedName, pathDisplay }
     userHome { pathPrefixString }
     sharedHome { pathPrefixString }
+    sitesHome { pathPrefixString, pathQualifiedName, pathDisplay }
     
     sites: sitesHome {
       swsdp: childByName(name: "swsdp") {
         title
-        childByName(name: "documentLibrary") {
+        documentLibrary: childByName(name: "documentLibrary") {
           childrenContains(maxItems:1) {
             nodeRef,
             name,
@@ -64,7 +64,7 @@ query {
   
   authority {
     currentUser { name }
-    byName(name:"GROUP_site_swsdp_SiteManager") {
+    swsdp_SiteManager: byName(name:"GROUP_site_swsdp_SiteManager") {
       shortName
       type
       containedAuthorities { name }
