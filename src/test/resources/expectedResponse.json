@@ -142,6 +142,20 @@
       },
       "readmeFile2": {
         "numberFound": 1
+      },
+      "image": {
+        "nodes": [
+          {
+            "name": "coins.JPG",
+            "properties": {
+              "exif_exif": {
+                "exif_manufacturer": "OLYMPUS OPTICAL CO.,LTD",
+                "exif_pixelXDimension": 1120,
+                "exif_pixelYDimension": 840
+              }
+            }
+          }
+        ]
       }
     },
     "authority": {

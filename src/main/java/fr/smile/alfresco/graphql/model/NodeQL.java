@@ -1,5 +1,6 @@
 package fr.smile.alfresco.graphql.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,9 @@ public class NodeQL extends AbstractQLModel {
 		return Optional.ofNullable(getProperty(nodeRef, propertyName))
 				.map(Object::toString);
 	}
+	public NodeQL getProperties() {
+		return this;
+	}
 	
 	public String getName() {
 		return getProperty(nodeRef, ContentModel.PROP_NAME).get().toString();
@@ -99,6 +103,9 @@ public class NodeQL extends AbstractQLModel {
 
 	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env) {
 		QName property = getQName(env.getArgument("property"));
+		return getContent(property);
+	}
+	public Optional<ContentReaderQL> getContent(QName property) {
 		Optional<ContentReader> contentData = Optional.ofNullable(getContentService().getReader(nodeRef, property));
 		return contentData
 				.map(reader -> new ContentReaderQL(getServiceRegistry(), nodeRef, reader));
@@ -179,5 +186,9 @@ public class NodeQL extends AbstractQLModel {
 		return getNodeService().getTargetAssocs(nodeRef, assocType).stream()
 			.map(assoc -> newNode(assoc.getTargetRef()))
 			.collect(Collectors.toList());
+	}
+
+	public Serializable getPropertyValue(QName property) {
+		return getNodeService().getProperty(nodeRef, property);
 	}
 }

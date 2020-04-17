@@ -60,6 +60,18 @@ query {
     readmeFile2 : query(query: "=cm:name:readme.ftl") {
       numberFound
     }
+    image: queryPredicate(query: [{aspect: "exif:exif"}], maxItems: 1) {
+      nodes {
+        name
+        properties {
+          exif_exif {
+            exif_manufacturer
+            exif_pixelXDimension
+            exif_pixelYDimension
+          } 
+        }
+      }
+    }
   }
   
   authority {

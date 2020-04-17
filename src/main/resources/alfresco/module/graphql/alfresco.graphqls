@@ -46,6 +46,7 @@ type Node {
 	modifier: Authority
 	modified: Date
 	modifiedIso: String
+	properties: PropertiesType
 	
 	content(property: String! = "cm:content") : ContentData
 	
