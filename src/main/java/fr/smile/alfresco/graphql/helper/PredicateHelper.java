@@ -132,11 +132,7 @@ public class PredicateHelper {
 	private enum PredicateValueType { STRING, NUMBER, BOOLEAN, DATE }
 	
 	private QName getQName(String name) {
-		if (name.startsWith(String.valueOf(QName.NAMESPACE_BEGIN))) {
-			return QName.createQName(name);
-		} else {
-			return QName.createQName(name, namespaceService);
-		}
+		return GraphQlConfigurationHelper.getQName(name);
 	}
 	private String toFtsValue(Map<String, Object> map, String value) {
 		PredicateValueType valueType = PredicateValueType.valueOf((String) map.getOrDefault("type", PredicateValueType.DATE.name()));

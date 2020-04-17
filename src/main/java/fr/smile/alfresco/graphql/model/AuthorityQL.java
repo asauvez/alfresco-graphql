@@ -59,7 +59,9 @@ public class AuthorityQL extends AbstractQLModel {
 		return getNodeRefInternal().flatMap(nodeRef -> getPropertyString(nodeRef, propertyName))
 				.map(Object::toString);
 	}
-	
+	public Optional<NodeQL> getNodes() {
+		return getNodeRefInternal().map(this::newNode);
+	}
 	
 	public List<AuthorityQL> getContainedAuthorities(DataFetchingEnvironment env) {
 		String typeS = env.getArgument("type");

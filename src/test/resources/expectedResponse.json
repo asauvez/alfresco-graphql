@@ -147,6 +147,8 @@
         "nodes": [
           {
             "name": "coins.JPG",
+            "manufacturer": "OLYMPUS OPTICAL CO.,LTD",
+            "width": "1120",
             "properties": {
               "exif_exif": {
                 "exif_manufacturer": "OLYMPUS OPTICAL CO.,LTD",

@@ -14,6 +14,8 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.service.namespace.RegexQNamePattern;
 
+import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
+
 public abstract class AbstractQLModel {
 
 	private ServiceRegistry serviceRegistry;
@@ -59,11 +61,7 @@ public abstract class AbstractQLModel {
 		return Optional.ofNullable((String) getNodeService().getProperty(nodeRef, propertyName));
 	}
 	protected QName getQName(String name) {
-		if (name.startsWith(String.valueOf(QName.NAMESPACE_BEGIN))) {
-			return QName.createQName(name);
-		} else {
-			return QName.createQName(name, serviceRegistry.getNamespaceService());
-		}
+		return GraphQlConfigurationHelper.getQName(name);
 	}
 	protected QNamePattern getQNameFilter(String name) {
 		if (name == null) {

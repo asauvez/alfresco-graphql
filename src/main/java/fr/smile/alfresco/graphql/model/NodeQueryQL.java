@@ -57,12 +57,12 @@ public class NodeQueryQL extends AbstractQLModel {
 		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
 	}
 	
-	public ResultSetQL getQuery(DataFetchingEnvironment env) {
+	public ResultSetQL getQueryNative(DataFetchingEnvironment env) {
 		return query(env, 
 				env.getArgument("query"), 
 				env.getArgument("language"));
 	}
-	public ResultSetQL getQueryPredicate(DataFetchingEnvironment env) {
+	public ResultSetQL getQuery(DataFetchingEnvironment env) {
 		List<Map<String, Object>> predicates = env.getArgument("query");
 		String query = predicateHelper.getQuery(predicates);
 		return query(env, 

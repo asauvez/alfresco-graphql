@@ -57,7 +57,7 @@ public class NodeQL extends AbstractQLModel {
 	
 	public Optional<String> getPropertyAsString(DataFetchingEnvironment env) {
 		QName propertyName = getQName(env.getArgument("name"));
-		return Optional.ofNullable(getProperty(nodeRef, propertyName))
+		return getProperty(nodeRef, propertyName)
 				.map(Object::toString);
 	}
 	public NodeQL getProperties() {

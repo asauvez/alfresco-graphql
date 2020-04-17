@@ -54,13 +54,8 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- refactor servlet
-- rename queryPredicate --> query
-- field name generated with DictionaryService
-	{ eq: { property: cm_name, value: "foo.pdf" } }
-	type: cm_content, aspect: exif_exif
-- authority should have method node
 - rendition
+- query sort
 - system
 	alfresco version
 	module version
@@ -74,3 +69,4 @@ Can be integrated in an existing Alfresco by declaring:
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
 	SubmissionPublisher
+

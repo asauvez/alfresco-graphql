@@ -37,9 +37,9 @@ query {
       }
     }
     
-    readmeFile: queryPredicate(query: [
-      { type: "cm:content" }
-      { eq: { property:"cm:name", value:"readme.ftl"} }
+    readmeFile: query(query: [
+      { type: cm_content }
+      { eq: { property: cm_name, value:"readme.ftl"} }
     ]) {
       numberFound
       nodes {
@@ -57,12 +57,17 @@ query {
       }
     }
 
-    readmeFile2 : query(query: "=cm:name:readme.ftl") {
+    readmeFile2 : queryNative(query: "=cm:name:readme.ftl") {
       numberFound
     }
-    image: queryPredicate(query: [{aspect: "exif:exif"}], maxItems: 1) {
+    image: query(query: [
+           {aspect: exif_exif}, 
+           {eq: {property: cm_name, value:"coins.JPG"}}
+      ], maxItems: 1) {
       nodes {
         name
+        manufacturer: propertyAsString(name: exif_manufacturer)
+        width: propertyAsString(name: exif_pixelXDimension)
         properties {
           exif_exif {
             exif_manufacturer
@@ -79,6 +84,8 @@ query {
     swsdp_SiteManager: byName(name:"GROUP_site_swsdp_SiteManager") {
       shortName
       type
+      node { pathPrefixString }
+      propertyAsString(name:cm_email)
       containedAuthorities { name }
       containingAuthorities { name }
     }

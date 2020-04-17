@@ -32,6 +32,7 @@ public class PredicateHelperTest {
 		namespaceService.map("exif", "http://www.alfresco.org/model/exif/1.0");
 		
 		predicateHelper = new PredicateHelper(namespaceService);
+		GraphQlConfigurationHelper.namespaceService = namespaceService;
 	}
 	
 	@Test
