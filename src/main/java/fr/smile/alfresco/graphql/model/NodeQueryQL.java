@@ -1,5 +1,6 @@
 package fr.smile.alfresco.graphql.model;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,7 +82,14 @@ public class NodeQueryQL extends AbstractQLModel {
 		searchParameters.setQueryConsistency(QueryConsistency.valueOf(env.getArgument("queryConsistency")));
 		searchParameters.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
 		
-		// TODO sortdefinition
+		List<Map<String, Object>> sorts = env.getArgumentOrDefault("sort", Collections.emptyList());
+		for (Map<String, Object> sort : sorts) {
+			String property = (String) sort.get("property");
+			String direction = (String) sort.get("direction");
+			searchParameters.addSort(
+					getQName(property).toPrefixString(getNamespaceService()), 
+					(direction == null) || "ASCENDING".equals(direction));
+		}
 		
 		// TODO close resultset
 		

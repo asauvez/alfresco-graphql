@@ -60,10 +60,13 @@ query {
     readmeFile2 : queryNative(query: "=cm:name:readme.ftl") {
       numberFound
     }
-    image: query(query: [
+    image: query(
+        query: [
            {aspect: exif_exif}, 
            {eq: {property: cm_name, value:"coins.JPG"}}
-      ], maxItems: 1) {
+        ], 
+        sort: [{property: exif_pixelXDimension, direction: ASCENDING}],
+        maxItems: 1) {
       nodes {
         name
         manufacturer: propertyAsString(name: exif_manufacturer)

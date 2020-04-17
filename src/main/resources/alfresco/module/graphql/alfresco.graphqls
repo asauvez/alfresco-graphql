@@ -11,18 +11,20 @@ type NodeQuery {
 	
 	byNodeRef(nodeRef: String!) : Node
 	byUuid(uuid: String!) : Node
+	query(
+		query: [Predicate!]!, 
+		maxItems: Int = -1,
+		skipCount: Int = 0,
+		queryConsistency: QueryConsistency = DEFAULT,
+		sort: [SortDefinition!]
+	): ResultSet
 	queryNative(
 		query: String!, 
 		language: String = "fts-alfresco",
 		skipCount: Int = 0,
 		maxItems: Int = -1,
-		queryConsistency: QueryConsistency = DEFAULT
-	): ResultSet
-	query(
-		query: [Predicate!]!, 
-		maxItems: Int = -1,
-		skipCount: Int = 0,
-		queryConsistency: QueryConsistency = DEFAULT
+		queryConsistency: QueryConsistency = DEFAULT,
+		sort: [SortDefinition!]
 	): ResultSet
 }
 
@@ -102,7 +104,7 @@ input Predicate {
 	natif: String
 }
 input MatchPredicate {
-	property: PropertyEnum!,
+	property: PropertyEnum!
 	value: String!
 	type: PredicateValueType
 }
@@ -115,7 +117,11 @@ input RangePredicate {
 	type: PredicateValueType
 }
 enum PredicateValueType { STRING, NUMBER, BOOLEAN, DATE }
-
+input SortDefinition {
+	property: PropertyEnum!
+	direction: SortDirection
+}
+enum SortDirection { ASCENDING, DESCENDING }
 
 type AuthorityQuery {
 	currentUser: Authority!

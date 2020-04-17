@@ -55,7 +55,6 @@ Can be integrated in an existing Alfresco by declaring:
 
 # TODO
 - rendition
-- query sort
 - system
 	alfresco version
 	module version
