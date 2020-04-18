@@ -58,65 +58,79 @@ public class PredicateHelper {
 			nbOperator ++;
 		}
 		
-		String type = (String) predicate.get("type");
-		if (type != null) {
-			buf.append("TYPE:").append(getQName(type));
+		String typePredicate = (String) predicate.get("type");
+		if (typePredicate != null) {
+			buf.append("TYPE:").append(getQName(typePredicate));
 			nbOperator ++;
 		}
-		String exactType = (String) predicate.get("exactType");
-		if (exactType != null) {
-			buf.append("EXACTTYPE:").append(getQName(exactType));
+		String exactTypePredicate = (String) predicate.get("exactType");
+		if (exactTypePredicate != null) {
+			buf.append("EXACTTYPE:").append(getQName(exactTypePredicate));
 			nbOperator ++;
 		}
-		String aspect = (String) predicate.get("aspect");
-		if (aspect != null) {
-			buf.append("ASPECT:").append(getQName(aspect));
+		String aspectPredicate = (String) predicate.get("aspect");
+		if (aspectPredicate != null) {
+			buf.append("ASPECT:").append(getQName(aspectPredicate));
 			nbOperator ++;
 		}
-		String exactAspect = (String) predicate.get("exactAspect");
-		if (exactAspect != null) {
-			buf.append("EXACTASPECT:").append(getQName(exactAspect));
-			nbOperator ++;
-		}
-
-		String natif = (String) predicate.get("natif");
-		if (natif != null) {
-			buf.append(natif);
+		String exactAspectPredicate = (String) predicate.get("exactAspect");
+		if (exactAspectPredicate != null) {
+			buf.append("EXACTASPECT:").append(getQName(exactAspectPredicate));
 			nbOperator ++;
 		}
 
-		Map<String, Object> match = (Map<String, Object>) predicate.get("match");
-		if (match != null) {
-			String property = (String) match.get("property");
-			String value = (String) match.get("value");
+		String natifPredicate = (String) predicate.get("natif");
+		if (natifPredicate != null) {
+			buf.append(natifPredicate);
+			nbOperator ++;
+		}
+
+		Map<String, Object> matchPredicate = (Map<String, Object>) predicate.get("match");
+		if (matchPredicate != null) {
+			String property = (String) matchPredicate.get("property");
+			String value = (String) matchPredicate.get("value");
 			buf.append("@").append(getQName(property).toPrefixString(namespaceService))
-				.append(":").append(toFtsValue(match, value));
+				.append(":").append(toFtsValue(value));
 			nbOperator ++;
 		}
 
-		Map<String, Object> eq = (Map<String, Object>) predicate.get("eq");
-		if (eq != null) {
-			String property = (String) eq.get("property");
-			String value = (String) eq.get("value");
-			buf.append("=").append(getQName(property).toPrefixString(namespaceService))
-				.append(":").append(toFtsValue(eq, value));
+		for (String valueType : new String[] { "", "Int" }) {
+			Map<String, Object> eqPredicate = (Map<String, Object>) predicate.get("eq" + valueType);
+			if (eqPredicate != null) {
+				String property = (String) eqPredicate.get("property");
+				Object value = eqPredicate.get("value");
+				buf.append("=").append(getQName(property).toPrefixString(namespaceService))
+					.append(":").append(toFtsValue(value));
+				nbOperator ++;
+			}
+			Map<String, Object> rangePredicate = (Map<String, Object>) predicate.get("range" + valueType);
+			if (rangePredicate != null) {
+				String property = (String) rangePredicate.get("property");
+				Object min = rangePredicate.get("min");
+				Object max = rangePredicate.get("max");
+				boolean minInclusive = (Boolean) rangePredicate.getOrDefault("minInclusive", Boolean.TRUE);
+				boolean maxInclusive = (Boolean) rangePredicate.getOrDefault("maxInclusive", Boolean.TRUE);
+				
+				buf.append(getQName(property).toPrefixString(namespaceService))
+					.append(minInclusive ? ":[" : ":<")
+					.append((min != null) ? toFtsValue(min): "MIN")
+					.append(" TO ")
+					.append((max != null) ? toFtsValue(max): "MAX")
+					.append(maxInclusive ? "]" : ">");
+				
+				nbOperator ++;
+			}
+		} 
+		String isTruePredicate = (String) predicate.get("isTrue");
+		if (isTruePredicate != null) {
+			buf.append("=").append(getQName(isTruePredicate).toPrefixString(namespaceService))
+				.append(":true");
 			nbOperator ++;
 		}
-		Map<String, Object> range = (Map<String, Object>) predicate.get("range");
-		if (range != null) {
-			String property = (String) range.get("property");
-			String min = (String) range.get("min");
-			String max = (String) range.get("max");
-			boolean minInclusive = (Boolean) range.getOrDefault("minInclusive", Boolean.TRUE);
-			boolean maxInclusive = (Boolean) range.getOrDefault("maxInclusive", Boolean.TRUE);
-			
-			buf.append(getQName(property).toPrefixString(namespaceService))
-				.append(minInclusive ? ":[" : ":<")
-				.append((min != null) ? toFtsValue(range, min): "MIN")
-				.append(" TO ")
-				.append((max != null) ? toFtsValue(range, max): "MAX")
-				.append(maxInclusive ? "]" : ">");
-			
+		String isFalsePredicate = (String) predicate.get("isFalse");
+		if (isFalsePredicate != null) {
+			buf.append("=").append(getQName(isFalsePredicate).toPrefixString(namespaceService))
+				.append(":false");
 			nbOperator ++;
 		}
 		
@@ -128,22 +142,17 @@ public class PredicateHelper {
 			throw new IllegalArgumentException("There should be exactly one operator but got " + predicate);
 		}
 	}
-	
-	private enum PredicateValueType { STRING, NUMBER, BOOLEAN, DATE }
-	
+		
 	private QName getQName(String name) {
 		return GraphQlConfigurationHelper.getQName(name);
 	}
-	private String toFtsValue(Map<String, Object> map, String value) {
-		PredicateValueType valueType = PredicateValueType.valueOf((String) map.getOrDefault("type", PredicateValueType.DATE.name()));
-		switch (valueType) {
-		case STRING:
-		case DATE:
-			return "\"" + value.replace("\"", "\\\"").replace("\n", "\\n") + "\"";
-		case NUMBER:
-		case BOOLEAN:
-			return value;
+	private String toFtsValue(Object value) {
+		if (value instanceof Number) {
+			return value.toString();
+		} else if (value instanceof String) {
+			return "\"" + value.toString().replace("\"", "\\\"").replace("\n", "\\n") + "\"";
+		} else {
+			throw new IllegalStateException(value.getClass().toString());
 		}
-		throw new IllegalStateException(valueType.name());
 	}
 }

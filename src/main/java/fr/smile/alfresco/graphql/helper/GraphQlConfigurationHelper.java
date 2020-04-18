@@ -48,11 +48,13 @@ public class GraphQlConfigurationHelper {
 	private QueryQL query;
 	private DictionaryService dictionaryService;
 
-	private Map<QName, String> typeByDataType = new HashMap<>();
+	private Map<QName, GraphQlType> typeByDataType = new HashMap<>();
 	private Map<QName, Function<Serializable, Object>> transformByDataType = new HashMap<>();
 	
 	private static Map<String, QName> qnameByFieldName = new HashMap<>();
 	public static NamespacePrefixResolver namespaceService;
+	
+	private enum GraphQlType { String, ID, Boolean, Int, Float, Date, ContentData}
 	
 	public GraphQlConfigurationHelper(ServletContext context) {
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(context);
@@ -62,26 +64,26 @@ public class GraphQlConfigurationHelper {
 		dictionaryService = serviceRegistry.getDictionaryService();
 		namespaceService = serviceRegistry.getNamespaceService();
 
-		typeByDataType.put(DataTypeDefinition.TEXT, "String");
-		typeByDataType.put(DataTypeDefinition.ANY, "String");
-		typeByDataType.put(DataTypeDefinition.ENCRYPTED, "String");
-		typeByDataType.put(DataTypeDefinition.MLTEXT, "String");
-		typeByDataType.put(DataTypeDefinition.CONTENT, "ContentData");
-		typeByDataType.put(DataTypeDefinition.INT, "Int");
-		typeByDataType.put(DataTypeDefinition.LONG, "Int");
-		typeByDataType.put(DataTypeDefinition.FLOAT, "Float");
-		typeByDataType.put(DataTypeDefinition.DOUBLE, "Float");
-		typeByDataType.put(DataTypeDefinition.DATE, "Date");
-		typeByDataType.put(DataTypeDefinition.DATETIME, "Date");
-		typeByDataType.put(DataTypeDefinition.BOOLEAN, "Boolean");
-		typeByDataType.put(DataTypeDefinition.QNAME, "String");
-		typeByDataType.put(DataTypeDefinition.CATEGORY, "String");
-		typeByDataType.put(DataTypeDefinition.NODE_REF, "ID");
-		typeByDataType.put(DataTypeDefinition.CHILD_ASSOC_REF, "String");
-		typeByDataType.put(DataTypeDefinition.ASSOC_REF, "String");
-		typeByDataType.put(DataTypeDefinition.PATH, "String");
-		typeByDataType.put(DataTypeDefinition.LOCALE, "String");
-		typeByDataType.put(DataTypeDefinition.PERIOD, "String");
+		typeByDataType.put(DataTypeDefinition.TEXT, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.ANY, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.ENCRYPTED, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.MLTEXT, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.CONTENT, GraphQlType.ContentData);
+		typeByDataType.put(DataTypeDefinition.INT, GraphQlType.Int);
+		typeByDataType.put(DataTypeDefinition.LONG, GraphQlType.Int);
+		typeByDataType.put(DataTypeDefinition.FLOAT, GraphQlType.Float);
+		typeByDataType.put(DataTypeDefinition.DOUBLE, GraphQlType.Float);
+		typeByDataType.put(DataTypeDefinition.DATE, GraphQlType.Date);
+		typeByDataType.put(DataTypeDefinition.DATETIME, GraphQlType.Date);
+		typeByDataType.put(DataTypeDefinition.BOOLEAN, GraphQlType.Boolean);
+		typeByDataType.put(DataTypeDefinition.QNAME, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.CATEGORY, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.NODE_REF, GraphQlType.ID);
+		typeByDataType.put(DataTypeDefinition.CHILD_ASSOC_REF, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.ASSOC_REF, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.PATH, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.LOCALE, GraphQlType.String);
+		typeByDataType.put(DataTypeDefinition.PERIOD, GraphQlType.String);
 		
 		transformByDataType.put(DataTypeDefinition.TEXT, o -> o.toString());
 		transformByDataType.put(DataTypeDefinition.ANY, o -> o.toString());
@@ -138,6 +140,8 @@ public class GraphQlConfigurationHelper {
 			buf.append("}\n\n");
 			
 			List<QName> allProperties = new ArrayList<>();
+			Map<GraphQlType, List<QName>> propertiesByType = new HashMap<>();
+			
 			for (QName container : classes) {
 				buf.append("type ").append(toFieldName(container)).append(" {\n");
 
@@ -146,13 +150,18 @@ public class GraphQlConfigurationHelper {
 						QName property = entry.getKey();
 						PropertyDefinition def = entry.getValue();
 						QName dataType = def.getDataType().getName();
-						String type = typeByDataType.getOrDefault(dataType, "String");
+						GraphQlType type = typeByDataType.getOrDefault(dataType, GraphQlType.String);
 						
 						allProperties.add(property);
+						List<QName> propertiesForType = propertiesByType.get(type);
+						if (propertiesForType == null) {
+							propertiesByType.put(type, propertiesForType = new ArrayList<>());
+						}
+						propertiesForType.add(property);
 						
 						buf.append("	").append(toFieldName(property)).append(": ")
 							.append(def.isMultiValued() ? "[" : "")
-							.append(type)
+							.append(type.name())
 							.append(def.isMultiValued() ? "]" : "")
 							.append("\n");
 						
@@ -187,6 +196,8 @@ public class GraphQlConfigurationHelper {
 			enumQName(buf, "TypeEnum", dictionaryService.getAllTypes());
 			enumQName(buf, "AspectEnum", dictionaryService.getAllAspects());
 			enumQName(buf, "PropertyEnum", allProperties);
+			enumQName(buf, "BooleanPropertyEnum", propertiesByType.get(GraphQlType.Boolean));
+			enumQName(buf, "IntPropertyEnum", propertiesByType.get(GraphQlType.Int));
 			
 			RuntimeWiring runtimeWiring = runtimeWiringBuilder.build();
 			

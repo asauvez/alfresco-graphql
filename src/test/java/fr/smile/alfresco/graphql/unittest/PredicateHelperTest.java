@@ -48,8 +48,15 @@ public class PredicateHelperTest {
 				"[{ eq: { property:\"cm:name\", value:\"readme.ftl\"} }]");
 		assertTransformation(
 				"=exif:pixelXDimension:300", 
-				"[{ eq: { property:\"exif:pixelXDimension\", value:\"300\", type: \"NUMBER\"} }]");
+				"[{ eqInt: { property:\"exif:pixelXDimension\", value:300 } }]");
 
+		assertTransformation(
+				"=cm:isIndexed:true", 
+				"[{ isTrue: \"cm:isIndexed\" }]");
+		assertTransformation(
+				"=cm:isIndexed:false", 
+				"[{ isFalse: \"cm:isIndexed\" }]");
+		
 		assertTransformation(
 				"cm:created:[\"2020-01-01\" TO MAX]", 
 				"[{ range: { property:\"cm:created\", min:\"2020-01-01\"} }]");
@@ -61,7 +68,7 @@ public class PredicateHelperTest {
 				"[{ range: { property:\"cm:created\", min:\"2019-01-01\", max:\"2020-01-01\", minInclusive: false, maxInclusive: false} }]");
 		assertTransformation(
 				"exif:pixelXDimension:[100 TO 200]", 
-				"[{ range: { property:\"exif:pixelXDimension\", min:\"100\", max:\"200\", type: \"NUMBER\"} }]");
+				"[{ rangeInt: { property:\"exif:pixelXDimension\", min:100, max:200 } }]");
 
 		assertTransformation(
 				"NOT (@cm:name:\"readme.ftl\")", 

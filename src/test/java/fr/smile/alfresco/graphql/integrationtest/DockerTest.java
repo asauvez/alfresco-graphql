@@ -5,11 +5,13 @@ import java.time.Duration;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+@Ignore
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	GraphQlServletIT.class

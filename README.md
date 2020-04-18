@@ -54,9 +54,7 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- { eqInt: { property: exif_width, value=123 } }
-- { isTrue: my_boolean_property }
-	with only numeric or boolean properties
+- match with only text and content
 - mutation
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863

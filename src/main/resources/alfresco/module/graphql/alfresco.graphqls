@@ -53,7 +53,7 @@ type Node {
 	properties: PropertiesType
 	propertiesList: [PropertyValue!]!
 	
-	content(property: PropertyEnum! = "cm:content", rendition: String) : ContentData
+	content(property: PropertyEnum! = cm_content, rendition: String) : ContentData
 	
 	inheritParentPermissions: Boolean!
 	permissions: [AccessPermission!]!
@@ -103,7 +103,11 @@ input Predicate {
 	or: [Predicate!]
 	match: MatchPredicate
 	eq: MatchPredicate
+	eqInt: IntMatchPredicate
 	range: RangePredicate
+	rangeInt: IntRangePredicate
+	isTrue: BooleanPropertyEnum
+	isFalse: BooleanPropertyEnum
 	type: TypeEnum
 	exactType: TypeEnum
 	aspect: AspectEnum
@@ -113,7 +117,10 @@ input Predicate {
 input MatchPredicate {
 	property: PropertyEnum!
 	value: String!
-	type: PredicateValueType
+}
+input IntMatchPredicate {
+	property: IntPropertyEnum!
+	value: Int!
 }
 input RangePredicate {
 	property: PropertyEnum!,
@@ -121,9 +128,14 @@ input RangePredicate {
 	max: String
 	minInclusive: Boolean
 	maxInclusive: Boolean
-	type: PredicateValueType
 }
-enum PredicateValueType { STRING, NUMBER, BOOLEAN, DATE }
+input IntRangePredicate {
+	property: IntPropertyEnum!,
+	min: Int
+	max: Int
+	minInclusive: Boolean
+	maxInclusive: Boolean
+}
 input SortDefinition {
 	property: PropertyEnum!
 	direction: SortDirection
