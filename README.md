@@ -54,12 +54,12 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- rendition
-- system
-	alfresco version
-	module version
-	license (enterprise)
-	alfresco-global (just for admin)
+- TestContainer
+	AllTest qui inclu test IT et qui lance docker compose
+- { eqInt: { property: exif_width, value=123 } }
+- { isTrue: my_boolean_property }
+- list all properties
+- mutation
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863
 - gérer plusieurs consommation du flux par RetryngTransaction ?

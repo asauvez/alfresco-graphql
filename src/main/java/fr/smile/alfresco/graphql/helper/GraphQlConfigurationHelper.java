@@ -118,6 +118,7 @@ public class GraphQlConfigurationHelper {
 					.type("Query", builder -> builder
 						.dataFetcher("node", new StaticDataFetcher(query.getNode()))
 						.dataFetcher("authority", new StaticDataFetcher(query.getAuthority()))
+						.dataFetcher("system", new StaticDataFetcher(query.getSystem()))
 					);
 
 			StringBuilder buf = new StringBuilder(schemaString);

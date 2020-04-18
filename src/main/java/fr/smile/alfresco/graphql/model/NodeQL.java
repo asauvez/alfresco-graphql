@@ -87,6 +87,10 @@ public class NodeQL extends AbstractQLModel {
 		return getProperty(nodeRef, ContentModel.PROP_CREATOR)
 				.map(o -> newAuthority((String) o));
 	}
+	public Optional<AuthorityQL> getOwner() {
+		return getProperty(nodeRef, ContentModel.PROP_OWNER)
+				.map(o -> newAuthority((String) o));
+	}
 	
 
 	public Optional<DateQL> getModified() {
@@ -103,6 +107,11 @@ public class NodeQL extends AbstractQLModel {
 
 	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env) {
 		QName property = getQName(env.getArgument("property"));
+		String rendition = env.getArgument("rendition");
+		if (rendition != null) {
+			return Optional.of(getServiceRegistry().getRenditionService2().getRenditionByName(nodeRef, rendition))
+					.flatMap(assoc -> newNode(assoc.getChildRef()).getContent(property));
+		}
 		return getContent(property);
 	}
 	public Optional<ContentReaderQL> getContent(QName property) {

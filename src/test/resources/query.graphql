@@ -19,6 +19,7 @@ query {
             modified { format(format:"dd/MM/yyyy") }
             modifiedIso
             modifier { name }
+            owner { name }
             
             inheritParentPermissions
             permissions {
@@ -91,6 +92,14 @@ query {
       propertyAsString(name:cm_email)
       containedAuthorities { name }
       containingAuthorities { name }
+    }
+  }
+  system {
+    modules {
+      id
+      title
+      description
+      moduleVersionNumber
     }
   }
 }
