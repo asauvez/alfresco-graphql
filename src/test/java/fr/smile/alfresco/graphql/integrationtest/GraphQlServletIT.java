@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.servlet;
+package fr.smile.alfresco.graphql.integrationtest;
 
 import static org.junit.Assert.assertEquals;
 

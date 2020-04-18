@@ -41,6 +41,9 @@
                 "modifier": {
                   "name": "mjackson"
                 },
+                "owner": {
+                  "name": "admin"
+                },
                 "inheritParentPermissions": true,
                 "permissions": [
                   {
@@ -181,6 +184,40 @@
           }
         ]
       }
+    },
+    "system": {
+      "modules": [
+        {
+          "id": "alfresco-aos-module",
+          "title": "Alfresco Office Services Module",
+          "description": "Allows applications that can talk to a SharePoint server to talk to your Alfresco installation",
+          "moduleVersionNumber": "1.3.0-RC1"
+        },
+        {
+          "id": "org.alfresco.integrations.google.docs",
+          "title": "Alfresco / Google Docs Integration",
+          "description": "The Repository side artifacts of the Alfresco / Google Docs Integration.",
+          "moduleVersionNumber": "3.1.0"
+        },
+        {
+          "id": "graphql",
+          "title": "graphql Platform/Repository JAR Module",
+          "description": "Platform/Repo JAR Module (to be included in the alfresco.war)",
+          "moduleVersionNumber": "1.0-SNAPSHOT"
+        },
+        {
+          "id": "alfresco-share-services",
+          "title": "Alfresco Share Services AMP",
+          "description": "Module to be applied to alfresco.war, containing APIs for Alfresco Share",
+          "moduleVersionNumber": "6.2.0"
+        },
+        {
+          "id": "alfresco-trashcan-cleaner",
+          "title": "alfresco-trashcan-cleaner project",
+          "description": "The Alfresco Trashcan Cleaner (Alfresco Module)",
+          "moduleVersionNumber": "2.3"
+        }
+      ]
     }
   }
 }

@@ -70,6 +70,12 @@
             <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>1.14.0</version>
+			<scope>test</scope>
+		</dependency>
 
         <!-- The main Alfresco Repo dependency for compiling Java code in src/main/java -->
         <dependency>

@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.helper;
+package fr.smile.alfresco.graphql.unittest;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +16,9 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
+import fr.smile.alfresco.graphql.helper.PredicateHelper;
 
 
 public class PredicateHelperTest {

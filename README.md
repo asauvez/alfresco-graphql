@@ -1,6 +1,6 @@
 # GraphQL endpoint for Alfresco
 
-This is an ACS project for Alfresco SDK 4.0.
+This is an ACS project for Alfresco SDK 4.0, tested against ACS 6.2.0 community.
 
 To know more about GraphQL : https://graphql.org/
 
@@ -54,8 +54,6 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- TestContainer
-	AllTest qui inclu test IT et qui lance docker compose
 - { eqInt: { property: exif_width, value=123 } }
 - { isTrue: my_boolean_property }
 	with only numeric or boolean properties
