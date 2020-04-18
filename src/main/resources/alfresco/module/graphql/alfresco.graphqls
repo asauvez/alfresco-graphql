@@ -51,6 +51,7 @@ type Node {
 	modifiedIso: String
 	owner: Authority
 	properties: PropertiesType
+	propertiesList: [PropertyValue!]!
 	
 	content(property: PropertyEnum! = "cm:content", rendition: String) : ContentData
 	
@@ -84,6 +85,10 @@ type ContentData {
 	size: Int!
 	encoding: String
 	locale: String
+}
+type PropertyValue {
+	property: String!
+	valueAsString: String
 }
 type ResultSet {
 	nodes: [Node!]!

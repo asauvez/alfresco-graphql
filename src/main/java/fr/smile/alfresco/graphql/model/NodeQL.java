@@ -61,7 +61,30 @@ public class NodeQL extends AbstractQLModel {
 				.map(Object::toString);
 	}
 	public NodeQL getProperties() {
-		return this;
+		return this; // managed in global configuration
+	}
+	
+	public static class PropertyValue {
+		private String property;
+		private Optional<String> valueAsString;
+		
+		public PropertyValue(String property, Optional<String> valueAsString) {
+			this.property = property;
+			this.valueAsString = valueAsString;
+		}
+		public String getProperty() {
+			return property;
+		}
+		public Optional<String> getValueAsString() {
+			return valueAsString;
+		}
+	}
+	public List<PropertyValue> getPropertiesList() {
+		return getNodeService().getProperties(nodeRef).entrySet().stream()
+				.map(entry -> new PropertyValue(
+						entry.getKey().toPrefixString(getNamespaceService()), 
+						Optional.ofNullable(entry.getValue()).map(Serializable::toString)))
+				.collect(Collectors.toList());
 	}
 	
 	public String getName() {
