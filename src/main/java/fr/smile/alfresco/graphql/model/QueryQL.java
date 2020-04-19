@@ -1,6 +1,6 @@
 package fr.smile.alfresco.graphql.model;
 
-import org.alfresco.service.ServiceRegistry;
+import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class QueryQL extends AbstractQLModel {
 
@@ -8,12 +8,12 @@ public class QueryQL extends AbstractQLModel {
 	private AuthorityQueryQL authority;
 	private SystemQueryQL system;
 	
-	public QueryQL(ServiceRegistry serviceRegistry) {
-		super(serviceRegistry);
+	public QueryQL(QueryContext queryContext) {
+		super(queryContext);
 		
-		this.node = new NodeQueryQL(serviceRegistry);
-		this.authority = new AuthorityQueryQL(serviceRegistry);
-		this.system = new SystemQueryQL(serviceRegistry);
+		this.node = new NodeQueryQL(queryContext);
+		this.authority = new AuthorityQueryQL(queryContext);
+		this.system = new SystemQueryQL(queryContext);
 	}
 	
 	public NodeQueryQL getNode() {

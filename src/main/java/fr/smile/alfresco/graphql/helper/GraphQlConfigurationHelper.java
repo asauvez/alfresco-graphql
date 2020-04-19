@@ -16,6 +16,7 @@ import java.util.function.Function;
 
 import javax.servlet.ServletContext;
 
+import org.alfresco.repo.dictionary.IndexTokenisationMode;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -59,10 +60,11 @@ public class GraphQlConfigurationHelper {
 	public GraphQlConfigurationHelper(ServletContext context) {
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(context);
 		ServiceRegistry serviceRegistry = applicationContext.getBean(ServiceRegistry.class);
-		query = new QueryQL(serviceRegistry);
+		QueryContext queryContext = new QueryContext(serviceRegistry);
+		query = new QueryQL(queryContext);
 		
 		dictionaryService = serviceRegistry.getDictionaryService();
-		namespaceService = serviceRegistry.getNamespaceService();
+		namespaceService = queryContext.getNamespaceService();
 
 		typeByDataType.put(DataTypeDefinition.TEXT, GraphQlType.String);
 		typeByDataType.put(DataTypeDefinition.ANY, GraphQlType.String);
@@ -140,6 +142,7 @@ public class GraphQlConfigurationHelper {
 			buf.append("}\n\n");
 			
 			List<QName> allProperties = new ArrayList<>();
+			List<QName> tokenizedProperties = new ArrayList<>();
 			Map<GraphQlType, List<QName>> propertiesByType = new HashMap<>();
 			
 			for (QName container : classes) {
@@ -158,6 +161,11 @@ public class GraphQlConfigurationHelper {
 							propertiesByType.put(type, propertiesForType = new ArrayList<>());
 						}
 						propertiesForType.add(property);
+						if (   def.isIndexed() 
+							&& def.getIndexTokenisationMode() != IndexTokenisationMode.FALSE
+							&& (type == GraphQlType.String || type == GraphQlType.ContentData)) {
+							tokenizedProperties.add(property);
+						}
 						
 						buf.append("	").append(toFieldName(property)).append(": ")
 							.append(def.isMultiValued() ? "[" : "")
@@ -196,6 +204,7 @@ public class GraphQlConfigurationHelper {
 			enumQName(buf, "TypeEnum", dictionaryService.getAllTypes());
 			enumQName(buf, "AspectEnum", dictionaryService.getAllAspects());
 			enumQName(buf, "PropertyEnum", allProperties);
+			enumQName(buf, "TokenizePropertyEnum", tokenizedProperties);
 			enumQName(buf, "BooleanPropertyEnum", propertiesByType.get(GraphQlType.Boolean));
 			enumQName(buf, "IntPropertyEnum", propertiesByType.get(GraphQlType.Int));
 			

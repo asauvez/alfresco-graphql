@@ -101,9 +101,9 @@ input Predicate {
 
 	and: [Predicate!]
 	or: [Predicate!]
+	eq: EqPredicate
+	eqInt: IntEqPredicate
 	match: MatchPredicate
-	eq: MatchPredicate
-	eqInt: IntMatchPredicate
 	range: RangePredicate
 	rangeInt: IntRangePredicate
 	isTrue: BooleanPropertyEnum
@@ -114,11 +114,15 @@ input Predicate {
 	exactAspect: AspectEnum
 	natif: String
 }
-input MatchPredicate {
+input EqPredicate {
 	property: PropertyEnum!
 	value: String!
 }
-input IntMatchPredicate {
+input MatchPredicate {
+	property: TokenizePropertyEnum!
+	value: String!
+}
+input IntEqPredicate {
 	property: IntPropertyEnum!
 	value: Int!
 }

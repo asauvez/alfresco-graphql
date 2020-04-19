@@ -54,7 +54,6 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
-- match with only text and content
 - mutation
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863

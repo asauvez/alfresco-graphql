@@ -6,19 +6,20 @@ import java.util.Base64;
 import java.util.Optional;
 
 import org.alfresco.repo.admin.SysAdminParams;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.util.UrlUtil;
 import org.apache.commons.io.IOUtils;
+
+import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class ContentReaderQL extends AbstractQLModel {
 
 	private NodeRef nodeRef;
 	private ContentReader reader;
 
-	public ContentReaderQL(ServiceRegistry serviceRegistry, NodeRef nodeRef, ContentReader reader) {
-		super(serviceRegistry);
+	public ContentReaderQL(QueryContext queryContext, NodeRef nodeRef, ContentReader reader) {
+		super(queryContext);
 		this.nodeRef = nodeRef;
 		this.reader = reader;
 	}
@@ -54,7 +55,7 @@ public class ContentReaderQL extends AbstractQLModel {
 		// TODO gérer propriété autre que cm:content
 		// TODO gérer rendition
 		
-		SysAdminParams sysAdminParams = getServiceRegistry().getSysAdminParams();
+		SysAdminParams sysAdminParams = getQueryContext().getSysAdminParams();
 		return UrlUtil.getAlfrescoUrl(sysAdminParams) + "/s/api/node/" 
 			+ nodeRef.getStoreRef().getProtocol() + "/" + nodeRef.getStoreRef().getIdentifier() + "/" 
 			+ nodeRef.getId() + "/content";

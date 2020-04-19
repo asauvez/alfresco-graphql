@@ -3,14 +3,14 @@ package fr.smile.alfresco.graphql.model;
 import java.util.Optional;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 
+import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 
 public class AuthorityQueryQL extends AbstractQLModel {
 
-	public AuthorityQueryQL(ServiceRegistry serviceRegistry) {
-		super(serviceRegistry);
+	public AuthorityQueryQL(QueryContext queryContext) {
+		super(queryContext);
 	}
 
 	public AuthorityQL getCurrentUser() {

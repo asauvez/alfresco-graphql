@@ -2,10 +2,11 @@ package fr.smile.alfresco.graphql.model;
 
 import java.util.Optional;
 
-import org.alfresco.service.ServiceRegistry;
+import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
@@ -15,42 +16,50 @@ import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.service.namespace.RegexQNamePattern;
 
 import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
+import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public abstract class AbstractQLModel {
 
-	private ServiceRegistry serviceRegistry;
+	private QueryContext queryContext;
 
-	protected AbstractQLModel(ServiceRegistry serviceRegistry) {
-		this.serviceRegistry = serviceRegistry;
+	protected AbstractQLModel(QueryContext queryContext) {
+		this.queryContext = queryContext;
 	}
 	
-	protected ServiceRegistry getServiceRegistry() {
-		return serviceRegistry;
+	protected QueryContext getQueryContext() {
+		return queryContext;
 	}
+	
 	protected NodeService getNodeService() {
-		return serviceRegistry.getNodeService();
+		return queryContext.getNodeService();
 	}
 	protected NamespacePrefixResolver getNamespaceService() {
-		return serviceRegistry.getNamespaceService();
+		return queryContext.getNamespaceService();
 	}
 	protected AuthorityService getAuthorityService() {
-		return serviceRegistry.getAuthorityService();
+		return queryContext.getAuthorityService();
 	}
 	protected PermissionService getPermissionService() {
-		return serviceRegistry.getPermissionService();
+		return queryContext.getPermissionService();
 	}
 	protected ContentService getContentService() {
-		return serviceRegistry.getContentService();
+		return queryContext.getContentService();
+	}
+	protected SearchService getSearchService() {
+		return queryContext.getSearchService();
+	}
+	protected NodeLocatorService getNodeLocatorService() {
+		return queryContext.getNodeLocatorService();
 	}
 
 	protected NodeQL newNode(NodeRef nodeRef) {
-		return new NodeQL(serviceRegistry, nodeRef);
+		return new NodeQL(queryContext, nodeRef);
 	}
 	protected AuthorityQL newAuthority(String name) {
-		return new AuthorityQL(serviceRegistry, name);
+		return new AuthorityQL(queryContext, name);
 	}
 	protected AccessPermissionQL newAccessPermission(AccessPermission accessPermission) {
-		return new AccessPermissionQL(serviceRegistry, accessPermission);
+		return new AccessPermissionQL(queryContext, accessPermission);
 	}
 
 	@SuppressWarnings("unchecked")

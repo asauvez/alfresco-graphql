@@ -9,7 +9,6 @@ import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.SharedHomeNodeLocator;
 import org.alfresco.repo.nodelocator.SitesHomeNodeLocator;
 import org.alfresco.repo.nodelocator.UserHomeNodeLocator;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.QueryConsistency;
@@ -20,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import fr.smile.alfresco.graphql.helper.PredicateHelper;
+import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 
 public class NodeQueryQL extends AbstractQLModel {
@@ -28,13 +28,13 @@ public class NodeQueryQL extends AbstractQLModel {
 	
 	private PredicateHelper predicateHelper;
 	
-	public NodeQueryQL(ServiceRegistry serviceRegistry) {
-		super(serviceRegistry);
+	public NodeQueryQL(QueryContext queryContext) {
+		super(queryContext);
 		this.predicateHelper = new PredicateHelper(getNamespaceService());
 	}
 
 	private NodeQL getNodeByLocator(String locatorName) {
-		return newNode(getServiceRegistry().getNodeLocatorService().getNode(locatorName, null, null));
+		return newNode(getQueryContext().getNodeLocatorService().getNode(locatorName, null, null));
 	}
 	public NodeQL getCompanyHome() {
 		return getNodeByLocator(CompanyHomeNodeLocator.NAME);
@@ -93,7 +93,7 @@ public class NodeQueryQL extends AbstractQLModel {
 		
 		// TODO close resultset
 		
-		ResultSet resultSet = getServiceRegistry().getSearchService().query(searchParameters);
-		return new ResultSetQL(getServiceRegistry(), resultSet);
+		ResultSet resultSet = getSearchService().query(searchParameters);
+		return new ResultSetQL(getQueryContext(), resultSet);
 	}
 }

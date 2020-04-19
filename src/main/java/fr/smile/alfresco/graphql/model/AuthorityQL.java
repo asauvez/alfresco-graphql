@@ -5,19 +5,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.QName;
 
+import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 
 public class AuthorityQL extends AbstractQLModel {
 
 	private String name;
 
-	public AuthorityQL(ServiceRegistry serviceRegistry, String name) {
-		super(serviceRegistry);
+	public AuthorityQL(QueryContext queryContext, String name) {
+		super(queryContext);
 		this.name = name;
 	}
 	

@@ -1,16 +1,17 @@
 package fr.smile.alfresco.graphql.model;
 
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.AuthorityType;
+
+import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class AccessPermissionQL extends AbstractQLModel implements Comparable<AccessPermissionQL> {
 
 	private AccessPermission accessPermission;
 
-	public AccessPermissionQL(ServiceRegistry serviceRegistry, AccessPermission accessPermission) {
-		super(serviceRegistry);
+	public AccessPermissionQL(QueryContext queryContext, AccessPermission accessPermission) {
+		super(queryContext);
 		this.accessPermission = accessPermission;
 	}
 

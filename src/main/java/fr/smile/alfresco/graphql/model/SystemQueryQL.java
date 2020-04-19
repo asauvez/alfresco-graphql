@@ -4,32 +4,33 @@ import java.util.List;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.rest.framework.core.exceptions.PermissionDeniedException;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.module.ModuleDetails;
 import org.alfresco.service.descriptor.DescriptorService;
 
+import fr.smile.alfresco.graphql.helper.QueryContext;
+
 public class SystemQueryQL extends AbstractQLModel {
 
-	public SystemQueryQL(ServiceRegistry serviceRegistry) {
-		super(serviceRegistry);
+	public SystemQueryQL(QueryContext queryContext) {
+		super(queryContext);
 	}
 	
 	protected DescriptorService getDescriptor() {
 		checkAdmin();
-		return getServiceRegistry().getDescriptorService();
+		return getQueryContext().getServiceRegistry().getDescriptorService();
 	}
 	
 	public List<ModuleDetails> getModules() {
 		checkAdmin();
-		return getServiceRegistry().getModuleService().getAllModules();
+		return getQueryContext().getServiceRegistry().getModuleService().getAllModules();
 	}
 	public List<ModuleDetails> getMissingModules() {
 		checkAdmin();
-		return getServiceRegistry().getModuleService().getMissingModules();
+		return getQueryContext().getServiceRegistry().getModuleService().getMissingModules();
 	}
 	
 	private void checkAdmin() {
-		if (! getServiceRegistry().getAuthorityService().isAdminAuthority(AuthenticationUtil.getFullyAuthenticatedUser())) {
+		if (! getAuthorityService().isAdminAuthority(AuthenticationUtil.getFullyAuthenticatedUser())) {
 			throw new PermissionDeniedException("Not an admin");
 		}
 	}
