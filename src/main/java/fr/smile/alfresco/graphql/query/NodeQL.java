@@ -224,4 +224,12 @@ public class NodeQL extends AbstractQLModel {
 	public Serializable getPropertyValue(QName property) {
 		return getNodeService().getProperty(nodeRef, property);
 	}
+	public void setPropertyValue(QName property, Serializable newValue) {
+		getNodeService().setProperty(nodeRef, property, newValue);
+	}
+	
+	public boolean delete() {
+		getNodeService().deleteNode(nodeRef);
+		return true;
+	}
 }

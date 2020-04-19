@@ -55,6 +55,15 @@ Can be integrated in an existing Alfresco by declaring:
 
 # TODO
 - mutation
+	- protection against unwanted mutation
+	- add directly on node
+		delete node
+		add or remove aspect
+		addChild : Node
+	test
+	create
+	delete
+
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863
 - gérer plusieurs consommation du flux par RetryngTransaction ?

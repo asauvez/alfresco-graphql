@@ -20,7 +20,7 @@ public class PredicateHelper {
 		return buf.toString();
 	}
 
-	public void parseBooleanOperator(StringBuilder buf, String operator, List<Map<String, Object>> predicates) {
+	private void parseBooleanOperator(StringBuilder buf, String operator, List<Map<String, Object>> predicates) {
 		boolean first = true;
 		for (Map<String, Object> predicate : predicates) {
 			if (first) {

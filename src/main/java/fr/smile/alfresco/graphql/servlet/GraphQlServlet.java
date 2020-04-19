@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.ServiceRegistry;
 import org.apache.commons.logging.Log;
@@ -22,6 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
+import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.kickstart.servlet.GraphQLHttpServlet;
 
@@ -47,17 +47,17 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 
 	private static Log log = LogFactory.getLog(GraphQlServlet.class);
 	
+	private QueryContext queryContext;
 	private ServletAuthenticatorFactory servletAuthenticatorFactory;
-	private RetryingTransactionHelper retryingTransactionHelper;
 	
 	@Override
 	public void init() {
 		try {
 			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 			ServiceRegistry serviceRegistry = applicationContext.getBean(ServiceRegistry.class);
-			
+
+			queryContext = new QueryContext(serviceRegistry);
 			servletAuthenticatorFactory = (ServletAuthenticatorFactory) applicationContext.getBean("webscripts.authenticator.remoteuser");
-			retryingTransactionHelper = serviceRegistry.getRetryingTransactionHelper();
 			
 			super.init();
 		} catch (RuntimeException ex) {
@@ -67,7 +67,7 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 	
 	@Override
 	protected GraphQLConfiguration getConfiguration() {
-		return new GraphQlConfigurationHelper(getServletContext()).getConfiguration();
+		return new GraphQlConfigurationHelper(queryContext).getConfiguration();
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 			
 			boolean readOnly = ! request.getServletPath().startsWith(GRAPHQL_MUTATION_PATH);
 			
-			retryingTransactionHelper.doInTransaction(new RetryingTransactionCallback<Void>() {
+			queryContext.getServiceRegistry().getRetryingTransactionHelper().doInTransaction(new RetryingTransactionCallback<Void>() {
 				@Override
 				public Void execute() throws Throwable {
 					GraphQlServlet.super.service(request, response);

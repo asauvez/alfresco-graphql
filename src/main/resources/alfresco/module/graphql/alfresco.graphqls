@@ -34,6 +34,8 @@ type Node {
 	uuid: ID!
 	type: String!
 	aspects: [String!]!
+
+	delete
 	
 	pathDisplay: String!
 	pathPrefixString: String!
