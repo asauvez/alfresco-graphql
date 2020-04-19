@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.model;
+package fr.smile.alfresco.graphql.helper;
 
 import java.util.Optional;
 
@@ -15,8 +15,9 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.service.namespace.RegexQNamePattern;
 
-import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
-import fr.smile.alfresco.graphql.helper.QueryContext;
+import fr.smile.alfresco.graphql.query.AccessPermissionQL;
+import fr.smile.alfresco.graphql.query.AuthorityQL;
+import fr.smile.alfresco.graphql.query.NodeQL;
 
 public abstract class AbstractQLModel {
 

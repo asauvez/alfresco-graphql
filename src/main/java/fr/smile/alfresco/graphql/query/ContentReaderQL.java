@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.model;
+package fr.smile.alfresco.graphql.query;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.util.UrlUtil;
 import org.apache.commons.io.IOUtils;
 
+import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class ContentReaderQL extends AbstractQLModel {

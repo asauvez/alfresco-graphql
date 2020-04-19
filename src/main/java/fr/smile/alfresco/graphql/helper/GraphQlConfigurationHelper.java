@@ -27,10 +27,10 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import fr.smile.alfresco.graphql.model.ContentReaderQL;
-import fr.smile.alfresco.graphql.model.DateQL;
-import fr.smile.alfresco.graphql.model.NodeQL;
-import fr.smile.alfresco.graphql.model.QueryQL;
+import fr.smile.alfresco.graphql.query.ContentReaderQL;
+import fr.smile.alfresco.graphql.query.DateQL;
+import fr.smile.alfresco.graphql.query.NodeQL;
+import fr.smile.alfresco.graphql.query.QueryQL;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;

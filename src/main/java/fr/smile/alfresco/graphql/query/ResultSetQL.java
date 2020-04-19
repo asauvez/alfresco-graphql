@@ -1,10 +1,11 @@
-package fr.smile.alfresco.graphql.model;
+package fr.smile.alfresco.graphql.query;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.alfresco.service.cmr.search.ResultSet;
 
+import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class ResultSetQL extends AbstractQLModel implements AutoCloseable {

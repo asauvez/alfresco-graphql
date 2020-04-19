@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.model;
+package fr.smile.alfresco.graphql.query;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.PredicateHelper;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;

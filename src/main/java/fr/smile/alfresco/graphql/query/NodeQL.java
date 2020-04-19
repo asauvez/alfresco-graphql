@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.model;
+package fr.smile.alfresco.graphql.query;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,6 +14,7 @@ import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 
+import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 

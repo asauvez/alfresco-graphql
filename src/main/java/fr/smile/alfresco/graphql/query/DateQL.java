@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.model;
+package fr.smile.alfresco.graphql.query;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
