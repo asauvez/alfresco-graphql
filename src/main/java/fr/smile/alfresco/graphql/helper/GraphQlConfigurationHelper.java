@@ -112,14 +112,14 @@ public class GraphQlConfigurationHelper {
 						
 						String fullType = (def.isMultiValued() ? "[" : "") + scalarType.name() + (def.isMultiValued() ? "]" : "");
 						String fullInput = (def.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (def.isMultiValued() ? "]" : "");
-						buf.append("	").append(toFieldName(property))
-							.append(" (newValue: ").append(fullInput)
-							.append(") : ").append(fullType).append("\n");
 						
 						if (DataTypeDefinition.CONTENT.equals(dataType)) {
 							builder.dataFetcher(toFieldName(property), new DataFetcher<Optional<ContentReaderQL>>() {
 								@Override
 								public Optional<ContentReaderQL> get(DataFetchingEnvironment env) throws Exception {
+									buf.append("	").append(toFieldName(property))
+										.append(" : ").append(fullType).append("\n");
+
 									NodeQL node = env.getSource();
 									return node.getContent(property);
 								}
@@ -128,6 +128,10 @@ public class GraphQlConfigurationHelper {
 							builder.dataFetcher(toFieldName(property), new DataFetcher<Optional<Object>>() {
 								@Override
 								public Optional<Object> get(DataFetchingEnvironment env) throws Exception {
+									buf.append("	").append(toFieldName(property))
+										.append(" (newValue: ").append(fullInput)
+										.append(") : ").append(fullType).append("\n");
+
 									NodeQL node = env.getSource();
 
 									Serializable newValue = env.getArgument("newValue");

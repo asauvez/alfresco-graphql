@@ -147,7 +147,7 @@ public class NodeQL extends AbstractQLModel {
 	public Optional<ContentReaderQL> getContent(QName property) {
 		Optional<ContentReader> contentData = Optional.ofNullable(getContentService().getReader(nodeRef, property));
 		return contentData
-				.map(reader -> new ContentReaderQL(getQueryContext(), nodeRef, reader));
+				.map(reader -> new ContentReaderQL(getQueryContext(), nodeRef, property, reader));
 	}
 
 	// ======= Permissions ==============================================================

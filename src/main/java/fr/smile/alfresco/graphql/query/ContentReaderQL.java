@@ -8,20 +8,26 @@ import java.util.Optional;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.apache.commons.io.IOUtils;
 
+import com.sun.xml.messaging.saaj.util.ByteInputStream;
+
 import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
+import graphql.schema.DataFetchingEnvironment;
 
 public class ContentReaderQL extends AbstractQLModel {
 
 	private NodeRef nodeRef;
+	private QName property;
 	private ContentReader reader;
 
-	public ContentReaderQL(QueryContext queryContext, NodeRef nodeRef, ContentReader reader) {
+	public ContentReaderQL(QueryContext queryContext, NodeRef nodeRef, QName property, ContentReader reader) {
 		super(queryContext);
 		this.nodeRef = nodeRef;
+		this.property = property;
 		this.reader = reader;
 	}
 
@@ -42,10 +48,21 @@ public class ContentReaderQL extends AbstractQLModel {
 				.map(locale -> locale.toString());
 	}
 
-	public String getAsString() {
+	public String getAsString(DataFetchingEnvironment env) {
+		String newValue = env.getArgument("newValue");
+		if (newValue != null) {
+			getContentService().getWriter(nodeRef, property, true).putContent(newValue);
+		}
+		
 		return reader.getContentString();
 	}
-	public String getAsBase64() throws IOException {
+	public String getAsBase64(DataFetchingEnvironment env) throws IOException {
+		String newValue = env.getArgument("newValue");
+		if (newValue != null) {
+			byte[] buf = Base64.getDecoder().decode(newValue);
+			getContentService().getWriter(nodeRef, property, true).putContent(new ByteInputStream(buf, buf.length));
+		}
+		
 		try (InputStream input = reader.getContentInputStream()) {
 			byte[] buf = IOUtils.toByteArray(input);
 			return Base64.getEncoder().encodeToString(buf);

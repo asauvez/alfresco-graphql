@@ -79,8 +79,8 @@ type Date {
 	format(format: String!) : String!
 }
 type ContentData {
-	asString: String!
-	asBase64: String!
+	asString(newValue: String) : String!
+	asBase64(newValue: String) : String!
 	downloadUrl: String!
 
 	mimetype: String!
