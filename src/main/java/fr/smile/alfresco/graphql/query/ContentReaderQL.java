@@ -12,8 +12,6 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.apache.commons.io.IOUtils;
 
-import com.sun.xml.messaging.saaj.util.ByteInputStream;
-
 import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
@@ -31,6 +29,9 @@ public class ContentReaderQL extends AbstractQLModel {
 		this.reader = reader;
 	}
 
+	public String getProperty() {
+		return property.toPrefixString(getNamespaceService());
+	}
 	public String getMimetype() {
 		return reader.getMimetype();
 	}
@@ -49,20 +50,9 @@ public class ContentReaderQL extends AbstractQLModel {
 	}
 
 	public String getAsString(DataFetchingEnvironment env) {
-		String newValue = env.getArgument("newValue");
-		if (newValue != null) {
-			getContentService().getWriter(nodeRef, property, true).putContent(newValue);
-		}
-		
 		return reader.getContentString();
 	}
 	public String getAsBase64(DataFetchingEnvironment env) throws IOException {
-		String newValue = env.getArgument("newValue");
-		if (newValue != null) {
-			byte[] buf = Base64.getDecoder().decode(newValue);
-			getContentService().getWriter(nodeRef, property, true).putContent(new ByteInputStream(buf, buf.length));
-		}
-		
 		try (InputStream input = reader.getContentInputStream()) {
 			byte[] buf = IOUtils.toByteArray(input);
 			return Base64.getEncoder().encodeToString(buf);
@@ -70,8 +60,8 @@ public class ContentReaderQL extends AbstractQLModel {
 	}
 	
 	public String getDownloadUrl() {
-		// TODO gérer propriété autre que cm:content
-		// TODO gérer rendition
+		// TODO manage propertis other than cm:content
+		// TODO manage rendition
 		
 		SysAdminParams sysAdminParams = getQueryContext().getSysAdminParams();
 		return UrlUtil.getAlfrescoUrl(sysAdminParams) + "/s/api/node/" 

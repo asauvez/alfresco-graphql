@@ -35,6 +35,9 @@ type Node {
 	type: String!
 	aspects: [String!]!
 
+	addChild(name: String!, type: TypeEnum!, assocType: String = "cm:contains") : Node
+	addChildFolder(name: String!) : Node
+	addChildContent(name: String!) : Node
 	delete: Boolean
 	
 	pathDisplay: String!
@@ -43,8 +46,8 @@ type Node {
 	
 	propertyAsString(name: PropertyEnum!) : String
 	name(newValue: String) : String
-	title: String
-	description: String
+	title(newValue: String) : String
+	description(newValue: String) : String
 	creator: Authority
 	created: Date
 	createdIso: String
@@ -55,13 +58,12 @@ type Node {
 	properties: PropertiesType
 	propertiesList: [PropertyValue!]!
 	
-	content(property: PropertyEnum! = cm_content, rendition: String) : ContentData
+	content(property: PropertyEnum! = cm_content, rendition: String, newValue: String) : ContentData
 	
 	inheritParentPermissions: Boolean!
 	permissions: [AccessPermission!]!
 	allSetPermissions: [AccessPermission!]!
 	hasPermission(permission: String!) : Boolean!
-	hasReadPermission: Boolean!
 	hasWritePermission: Boolean!
 	hasDeletePermission: Boolean!
 	
@@ -79,10 +81,11 @@ type Date {
 	format(format: String!) : String!
 }
 type ContentData {
-	asString(newValue: String) : String!
-	asBase64(newValue: String) : String!
+	asString : String!
+	asBase64 : String!
 	downloadUrl: String!
 
+	property: String!
 	mimetype: String!
 	size: Int!
 	encoding: String

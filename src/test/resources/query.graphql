@@ -30,7 +30,6 @@ query {
             }
             allSetPermissions { permission }
             hasPermission(permission:"DeleteAssociations")
-            hasReadPermission
             hasWritePermission
             hasDeletePermission
           }

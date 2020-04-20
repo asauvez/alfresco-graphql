@@ -4,6 +4,7 @@ import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
@@ -24,6 +25,7 @@ public class QueryContext {
 	private NodeLocatorService nodeLocatorService;
 	private SysAdminParams sysAdminParams;
 	private RenditionService2 renditionService2;
+	private FileFolderService fileFolderService;
 
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
@@ -37,6 +39,7 @@ public class QueryContext {
 		nodeLocatorService = serviceRegistry.getNodeLocatorService();
 		sysAdminParams = serviceRegistry.getSysAdminParams();
 		renditionService2 = serviceRegistry.getRenditionService2();
+		fileFolderService = serviceRegistry.getFileFolderService();
 	}
 	
 	public ServiceRegistry getServiceRegistry() {
@@ -69,5 +72,8 @@ public class QueryContext {
 	}
 	public RenditionService2 getRenditionService2() {
 		return renditionService2;
+	}
+	public FileFolderService getFileFolderService() {
+		return fileFolderService;
 	}
 }

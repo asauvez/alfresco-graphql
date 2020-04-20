@@ -3,6 +3,7 @@ package fr.smile.alfresco.graphql.helper;
 import java.util.Optional;
 
 import org.alfresco.repo.nodelocator.NodeLocatorService;
+import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -51,6 +52,9 @@ public abstract class AbstractQLModel {
 	}
 	protected NodeLocatorService getNodeLocatorService() {
 		return queryContext.getNodeLocatorService();
+	}
+	protected FileFolderService getFileFolderService() {
+		return queryContext.getFileFolderService();
 	}
 
 	protected NodeQL newNode(NodeRef nodeRef) {

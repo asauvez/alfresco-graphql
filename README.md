@@ -55,20 +55,17 @@ Can be integrated in an existing Alfresco by declaring:
 ```
 
 # TODO
+- integration test
+	rename
+	add aspect
+	
 - close resultset ?
 		https://github.com/graphql-java/graphql-java/issues/1863
 		InstrumentationContext
 
 - mutation
-	addChild : Node
 	use Map with get() override on NodeQL for properties
-	
 	moveNode
-	create
-	integration test
-		set property
-		rename
-		delete
 
 - gérer plusieurs consommation du flux par RetryngTransaction ?
 - query by path

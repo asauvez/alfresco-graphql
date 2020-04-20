@@ -47,6 +47,7 @@ public class NodeQL extends AbstractQLModel {
 	public List<String> getAspects() {
 		return getNodeService().getAspects(nodeRef).stream()
 				.map(qname -> qname.toPrefixString(getNamespaceService()))
+				.sorted()
 				.collect(Collectors.toList());
 	}
 	public String getPathDisplay() {
@@ -93,20 +94,28 @@ public class NodeQL extends AbstractQLModel {
 				.collect(Collectors.toList());
 	}
 	
-	public String getName(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
+	public Optional<String> getName(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
 		String newValue = env.getArgument("newValue");
 		if (newValue != null) {
-			getQueryContext().getServiceRegistry().getFileFolderService().rename(nodeRef, newValue);
+			getFileFolderService().rename(nodeRef, newValue);
 		}
-		return getProperty(nodeRef, ContentModel.PROP_NAME).get().toString();
+		return getProperty(nodeRef, ContentModel.PROP_NAME);
 	}
 
-	public String getTitle() {
-		return getProperty(nodeRef, ContentModel.PROP_TITLE).get().toString();
+	private <T extends Serializable> Optional<T> getProperty(DataFetchingEnvironment env, QName property) {
+		T newValue = env.getArgument("newValue");
+		if (newValue != null) {
+			getNodeService().setProperty(nodeRef, property, newValue);
+		}
+		
+		return getProperty(nodeRef, property);
+	}
+	public Optional<String> getTitle(DataFetchingEnvironment env) {
+		return getProperty(env, ContentModel.PROP_TITLE);
 	}
 
-	public String getDescription() {
-		return getProperty(nodeRef, ContentModel.PROP_DESCRIPTION).get().toString();
+	public Optional<String> getDescription(DataFetchingEnvironment env) {
+		return getProperty(env, ContentModel.PROP_DESCRIPTION);
 	}
 
 	public Optional<DateQL> getCreated() {
@@ -145,9 +154,16 @@ public class NodeQL extends AbstractQLModel {
 			return Optional.of(getQueryContext().getRenditionService2().getRenditionByName(nodeRef, rendition))
 					.flatMap(assoc -> newNode(assoc.getChildRef()).getContent(property));
 		}
+		return getContent(env, property);
+	}
+	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env, QName property) {
+		String newValue = env.getArgument("newValue");
+		if (newValue != null) {
+			getContentService().getWriter(nodeRef, property, true).putContent(newValue);
+		}
 		return getContent(property);
 	}
-	public Optional<ContentReaderQL> getContent(QName property) {
+	private Optional<ContentReaderQL> getContent(QName property) {
 		Optional<ContentReader> contentData = Optional.ofNullable(getContentService().getReader(nodeRef, property));
 		return contentData
 				.map(reader -> new ContentReaderQL(getQueryContext(), nodeRef, property, reader));
@@ -173,9 +189,6 @@ public class NodeQL extends AbstractQLModel {
 	public boolean getHasPermission(DataFetchingEnvironment env) {
 		String permission = env.getArgument("permission");
 		return getPermissionService().hasPermission(nodeRef, permission) == AccessStatus.ALLOWED;
-	}
-	public boolean getHasReadPermission() {
-		return getPermissionService().hasReadPermission(nodeRef) == AccessStatus.ALLOWED;
 	}
 	public boolean getHasWritePermission() {
 		return getPermissionService().hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
@@ -237,6 +250,22 @@ public class NodeQL extends AbstractQLModel {
 		getNodeService().setProperty(nodeRef, property, newValue);
 	}
 	
+	public NodeQL getAddChild(DataFetchingEnvironment env) {
+		String name = env.getArgument("name");
+		QName type = getQName(env.getArgument("type"));
+		QName assocType = getQName(env.getArgument("assocType"));
+		
+		return newNode(getFileFolderService().create(nodeRef, name, type, assocType).getNodeRef());
+	}
+	public NodeQL getAddChildFolder(DataFetchingEnvironment env) {
+		String name = env.getArgument("name");
+		return newNode(getFileFolderService().create(nodeRef, name, ContentModel.TYPE_FOLDER).getNodeRef());
+	}
+	public NodeQL getAddChildContent(DataFetchingEnvironment env) {
+		String name = env.getArgument("name");
+		return newNode(getFileFolderService().create(nodeRef, name, ContentModel.TYPE_CONTENT).getNodeRef());
+	}
+
 	public boolean getDelete() {
 		getNodeService().deleteNode(nodeRef);
 		return true;
