@@ -2,7 +2,7 @@ version: '3.4'
 services:
   graphql-share:
     image: ${docker.share.image}:${alfresco.share.version}
-#    entrypoint: ["echo", "Solr6 disabled. Comment this line to activate it."]
+    entrypoint: ["echo", "Solr6 disabled. Comment this line to activate it."]
     environment:
       REPO_HOST: graphql-acs
       REPO_PORT: 8080
@@ -35,7 +35,7 @@ services:
       - graphql-db-volume:/var/lib/postgresql/data
   graphql-ass:
     image: alfresco/alfresco-search-services:1.2.0
-#    entrypoint: ["echo", "Solr6 disabled. Comment this line to activate it."]
+    entrypoint: ["echo", "Solr6 disabled. Comment this line to activate it."]
     environment:
       SOLR_ALFRESCO_HOST: graphql-acs
       SOLR_ALFRESCO_PORT: 8080

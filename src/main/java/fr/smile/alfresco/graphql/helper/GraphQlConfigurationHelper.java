@@ -2,7 +2,7 @@ package fr.smile.alfresco.graphql.helper;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class GraphQlConfigurationHelper {
 	
 	public GraphQLConfiguration getConfiguration() {
 		try {
-			String schemaString = IOUtils.resourceToString(ALFRESCO_SCHEMA, Charset.defaultCharset());
+			String schemaString = IOUtils.resourceToString(ALFRESCO_SCHEMA, StandardCharsets.UTF_8);
 			DictionaryService dictionaryService = queryContext.getServiceRegistry().getDictionaryService();
 			
 			// Generate field for all types and aspects

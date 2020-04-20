@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.model.FileExistsException;
+import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
@@ -88,7 +90,11 @@ public class NodeQL extends AbstractQLModel {
 				.collect(Collectors.toList());
 	}
 	
-	public String getName() {
+	public String getName(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
+		String newValue = env.getArgument("newValue");
+		if (newValue != null) {
+			getQueryContext().getServiceRegistry().getFileFolderService().rename(nodeRef, newValue);
+		}
 		return getProperty(nodeRef, ContentModel.PROP_NAME).get().toString();
 	}
 
@@ -228,7 +234,7 @@ public class NodeQL extends AbstractQLModel {
 		getNodeService().setProperty(nodeRef, property, newValue);
 	}
 	
-	public boolean delete() {
+	public boolean getDelete() {
 		getNodeService().deleteNode(nodeRef);
 		return true;
 	}

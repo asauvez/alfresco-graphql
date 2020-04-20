@@ -2,7 +2,7 @@ package fr.smile.alfresco.graphql.integrationtest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,8 +44,8 @@ public class GraphQlServletIT {
 				.setDefaultCredentialsProvider(provider)
 				.build();
 
-		String query = IOUtils.toString(getClass().getResourceAsStream("/query.graphql"), Charset.defaultCharset());
-		String expectedResponse = IOUtils.toString(getClass().getResourceAsStream("/expectedResponse.json"), Charset.defaultCharset());
+		String query = IOUtils.toString(getClass().getResourceAsStream("/query.graphql"), StandardCharsets.UTF_8);
+		String expectedResponse = IOUtils.toString(getClass().getResourceAsStream("/expectedResponse.json"), StandardCharsets.UTF_8);
 		
 		query = "{ \"query\": \"" + query.replace("\"", "\\\"").replace("\n", " ") + "\", \"variables\": null }";
 		

@@ -8,6 +8,7 @@ Declare the following endpoints:
 - http://localhost:8080/alfresco/graphql : GraphQL endpoint read only.
 - http://localhost:8080/alfresco/graphql_mutation : GraphQL endpoint that allows mutations.
 - http://localhost:8080/alfresco/graphiql : UI to create queries. Test with that one.
+- http://localhost:8080/alfresco/graphiql_mutation : UI to create queries and mutations.
 
 Interesting files:
 - The GraphQL schema:  [alfresco.graphqls](src/main/resources/alfresco/module/graphql/alfresco.graphqls)
@@ -55,14 +56,14 @@ Can be integrated in an existing Alfresco by declaring:
 
 # TODO
 - mutation
-	- protection against unwanted mutation
-	- add directly on node
-		delete node
+	delete
+	use Map with get() override on NodeQL for properties
+	
+	add directly on node
 		add or remove aspect
 		addChild : Node
 	test
 	create
-	delete
 
 - close resultset ?
 	https://github.com/graphql-java/graphql-java/issues/1863

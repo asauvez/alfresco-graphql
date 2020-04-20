@@ -35,14 +35,14 @@ type Node {
 	type: String!
 	aspects: [String!]!
 
-	delete
+	delete: Boolean
 	
 	pathDisplay: String!
 	pathPrefixString: String!
 	pathQualifiedName: String!
 	
 	propertyAsString(name: PropertyEnum!) : String
-	name: String
+	name(newValue: String) : String
 	title: String
 	description: String
 	creator: Authority

@@ -1,6 +1,7 @@
 package fr.smile.alfresco.graphql.servlet;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.ServiceRegistry;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.Authenticator;
@@ -37,13 +39,15 @@ import graphql.kickstart.servlet.GraphQLHttpServlet;
 	urlPatterns = { 
 			GraphQlServlet.GRAPHQL_PATH, GraphQlServlet.GRAPHQL_PATH + "/*", 
 			GraphQlServlet.GRAPHQL_MUTATION_PATH, GraphQlServlet.GRAPHQL_MUTATION_PATH + "/*", 
-			GraphQlServlet.GRAPHIQL_PATH 
+			GraphQlServlet.GRAPHIQL_PATH,
+			GraphQlServlet.GRAPHIQL_MUTATION_PATH
 		})
 public class GraphQlServlet extends GraphQLHttpServlet {
 	
-	static final String GRAPHQL_PATH = "/graphql";
-	static final String GRAPHQL_MUTATION_PATH = "/graphql_mutation";
-	static final String GRAPHIQL_PATH    = "/graphiql";
+	static final String GRAPHQL_PATH			= "/graphql";
+	static final String GRAPHQL_MUTATION_PATH	= "/graphql_mutation";
+	static final String GRAPHIQL_PATH			= "/graphiql";
+	static final String GRAPHIQL_MUTATION_PATH	= "/graphiql_mutation";
 
 	private static Log log = LogFactory.getLog(GraphQlServlet.class);
 	
@@ -79,8 +83,13 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 			return;
 		}
 		try {
-			if (GRAPHIQL_PATH.equals(request.getServletPath())) {
-				request.getRequestDispatcher("/graphiql.html").forward(request, response);
+			if (GRAPHIQL_PATH.equals(request.getServletPath()) || GRAPHIQL_MUTATION_PATH.equals(request.getServletPath())) {
+				String html = IOUtils.resourceToString("/META-INF/resources/graphiql.html", StandardCharsets.UTF_8);
+				html = html.replace("#TARGET#", GRAPHIQL_MUTATION_PATH.equals(request.getServletPath()) 
+						? "/alfresco/graphql_mutation" 
+						: "/alfresco/graphql");
+				response.setContentType("text/html");
+				response.getWriter().write(html);
 				return;
 			}
 			
