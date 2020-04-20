@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,8 +21,8 @@ import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.io.IOUtils;
 
+import fr.smile.alfresco.graphql.query.ContainerNodeQL;
 import fr.smile.alfresco.graphql.query.ContentReaderQL;
-import fr.smile.alfresco.graphql.query.NodeQL;
 import fr.smile.alfresco.graphql.query.QueryQL;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.schema.DataFetcher;
@@ -56,7 +57,8 @@ public class GraphQlConfigurationHelper {
 			
 			// Generate field for all types and aspects
 			Collection<QName> classes = new TreeSet<>();
-			classes.addAll(dictionaryService.getAllTypes());
+			Collection<QName> allTypes = new HashSet<>(dictionaryService.getAllTypes());
+			classes.addAll(allTypes);
 			classes.addAll(dictionaryService.getAllAspects());
 
 			QueryQL query = new QueryQL(queryContext);
@@ -71,10 +73,10 @@ public class GraphQlConfigurationHelper {
 			buf.append("\n\ntype PropertiesType {\n");
 			runtimeWiringBuilder.type("PropertiesType", builder -> {
 				for (QName container : classes) {
-					builder.dataFetcher(toFieldName(container), new DataFetcher<NodeQL>() {
+					builder.dataFetcher(toFieldName(container), new DataFetcher<ContainerNodeQL>() {
 						@Override
-						public NodeQL get(DataFetchingEnvironment environment) throws Exception {
-							return environment.getSource();
+						public ContainerNodeQL get(DataFetchingEnvironment environment) throws Exception {
+							return new ContainerNodeQL(environment.getSource(), container) ;
 						}
 					});
 					buf.append("	").append(toFieldName(container)).append(": ").append(toFieldName(container)).append("\n");
@@ -89,6 +91,14 @@ public class GraphQlConfigurationHelper {
 			
 			for (QName container : classes) {
 				buf.append("type ").append(toFieldName(container)).append(" {\n");
+				if (allTypes.contains(container)) {
+					buf.append("	isType: Boolean\n");
+					buf.append("	setType: Boolean\n");
+				} else {
+					buf.append("	hasAspect: Boolean\n");
+					buf.append("	addAspect: Boolean\n");
+					buf.append("	removeAspect: Boolean\n");
+				}
 
 				runtimeWiringBuilder.type(toFieldName(container), builder -> {
 					for (Entry<QName, PropertyDefinition> entry : dictionaryService.getClass(container).getProperties().entrySet()) {
@@ -114,32 +124,31 @@ public class GraphQlConfigurationHelper {
 						String fullInput = (def.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (def.isMultiValued() ? "]" : "");
 						
 						if (DataTypeDefinition.CONTENT.equals(dataType)) {
+							buf.append("	").append(toFieldName(property))
+								.append(" : ").append(fullType).append("\n");
 							builder.dataFetcher(toFieldName(property), new DataFetcher<Optional<ContentReaderQL>>() {
 								@Override
 								public Optional<ContentReaderQL> get(DataFetchingEnvironment env) throws Exception {
-									buf.append("	").append(toFieldName(property))
-										.append(" : ").append(fullType).append("\n");
-
-									NodeQL node = env.getSource();
-									return node.getContent(property);
+									ContainerNodeQL cnode = env.getSource();
+									return cnode.getNode().getContent(property);
 								}
 							});
 						} else {
+							buf.append("	").append(toFieldName(property))
+								.append(" (newValue: ").append(fullInput)
+								.append(") : ").append(fullType).append("\n");
+							
 							builder.dataFetcher(toFieldName(property), new DataFetcher<Optional<Object>>() {
 								@Override
 								public Optional<Object> get(DataFetchingEnvironment env) throws Exception {
-									buf.append("	").append(toFieldName(property))
-										.append(" (newValue: ").append(fullInput)
-										.append(") : ").append(fullType).append("\n");
-
-									NodeQL node = env.getSource();
+									ContainerNodeQL cnode = env.getSource();
 
 									Serializable newValue = env.getArgument("newValue");
 									if (newValue != null) {
-										node.setPropertyValue(property, newValue);
+										cnode.getNode().setPropertyValue(property, newValue);
 									}
 									
-									Serializable value = node.getPropertyValue(property);
+									Serializable value = cnode.getNode().getPropertyValue(property);
 									return Optional.ofNullable(value)
 											.map(alfrescoDataType::toGraphQl);
 								}

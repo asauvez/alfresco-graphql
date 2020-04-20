@@ -60,11 +60,10 @@ Can be integrated in an existing Alfresco by declaring:
 		InstrumentationContext
 
 - mutation
+	addChild : Node
 	use Map with get() override on NodeQL for properties
 	
-	add directly on node
-		add or remove aspect
-		addChild : Node
+	moveNode
 	create
 	integration test
 		set property

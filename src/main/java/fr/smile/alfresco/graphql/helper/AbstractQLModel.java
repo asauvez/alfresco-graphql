@@ -27,7 +27,7 @@ public abstract class AbstractQLModel {
 		this.queryContext = queryContext;
 	}
 	
-	protected QueryContext getQueryContext() {
+	public QueryContext getQueryContext() {
 		return queryContext;
 	}
 	

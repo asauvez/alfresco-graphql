@@ -32,6 +32,9 @@ public class NodeQL extends AbstractQLModel {
 	public String getNodeRef() {
 		return nodeRef.toString();
 	}
+	public NodeRef getNodeRefInternal() {
+		return nodeRef;
+	}
 
 	public String getUuid() {
 		return nodeRef.getId();
