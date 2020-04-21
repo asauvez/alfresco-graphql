@@ -54,23 +54,12 @@ Can be integrated in an existing Alfresco by declaring:
 </dependency>
 ```
 
-# TODO
-- integration test
-	rename
-	add aspect
-	
-- close resultset ?
-		https://github.com/graphql-java/graphql-java/issues/1863
-		InstrumentationContext
-
-- mutation
-	use Map with get() override on NodeQL for properties
-	moveNode
-
-- gérer plusieurs consommation du flux par RetryngTransaction ?
-- query by path
-- Optimisation ?
+# TODO	
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
-	SubmissionPublisher
+	return SubmissionPublisher
+- moveNode
+- change permissions
+
+- manage several reads of request.getInputStream() by RetryngTransaction?
 

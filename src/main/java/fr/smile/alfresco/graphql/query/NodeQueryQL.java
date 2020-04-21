@@ -92,9 +92,9 @@ public class NodeQueryQL extends AbstractQLModel {
 					(direction == null) || "ASCENDING".equals(direction));
 		}
 		
-		// TODO close resultset
-		
 		ResultSet resultSet = getSearchService().query(searchParameters);
-		return new ResultSetQL(getQueryContext(), resultSet);
+		ResultSetQL resultSetQL = new ResultSetQL(getQueryContext(), resultSet);
+		getQueryContext().addCloseable(resultSetQL);
+		return resultSetQL;
 	}
 }
