@@ -4,23 +4,25 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.namespace.NamespacePrefixResolver;
-import org.alfresco.service.namespace.QName;
 
+@SuppressWarnings("unchecked")
 public class PredicateHelper {
 
-	private NamespacePrefixResolver namespaceService;
+	private NamespacePrefixResolver namespacePrefixResolver;
 
-	public PredicateHelper(NamespacePrefixResolver namespaceService) {
-		this.namespaceService = namespaceService;
+	private StringBuilder buf = new StringBuilder();
+
+	private PredicateHelper(NamespacePrefixResolver namespacePrefixResolver) {
+		this.namespacePrefixResolver = namespacePrefixResolver;
 	}
 
-	public String getQuery(List<Map<String, Object>> predicates) {
-		StringBuilder buf = new StringBuilder();
-		parseBooleanOperator(buf, "AND", predicates);
-		return buf.toString();
+	public static String getQuery(NamespacePrefixResolver namespacePrefixResolver, List<Map<String, Object>> predicates) {
+		PredicateHelper helper = new PredicateHelper(namespacePrefixResolver);
+		helper.parseBooleanOperator("AND", predicates);
+		return helper.buf.toString();
 	}
 
-	private void parseBooleanOperator(StringBuilder buf, String operator, List<Map<String, Object>> predicates) {
+	private void parseBooleanOperator(String operator, List<Map<String, Object>> predicates) {
 		boolean first = true;
 		for (Map<String, Object> predicate : predicates) {
 			if (first) {
@@ -38,7 +40,6 @@ public class PredicateHelper {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void parsePredicate(StringBuilder buf, Map<String, Object> predicate) {
 		boolean not = (Boolean) predicate.getOrDefault("not", Boolean.FALSE);
 		if (not) {
@@ -46,113 +47,146 @@ public class PredicateHelper {
 		}
 		
 		int nbOperator = 0;
-		List<Map<String, Object>> andPredicates = (List<Map<String, Object>>) predicate.get("and");
-		if (andPredicates != null) {
-			parseBooleanOperator(buf, "AND", andPredicates);
-			nbOperator ++;
-		}
-		
-		List<Map<String, Object>> orPredicates = (List<Map<String, Object>>) predicate.get("or");
-		if (orPredicates != null) {
-			parseBooleanOperator(buf, "OR", orPredicates);
-			nbOperator ++;
-		}
-		
-		String typePredicate = (String) predicate.get("type");
-		if (typePredicate != null) {
-			buf.append("TYPE:").append(getQName(typePredicate));
-			nbOperator ++;
-		}
-		String exactTypePredicate = (String) predicate.get("exactType");
-		if (exactTypePredicate != null) {
-			buf.append("EXACTTYPE:").append(getQName(exactTypePredicate));
-			nbOperator ++;
-		}
-		String aspectPredicate = (String) predicate.get("aspect");
-		if (aspectPredicate != null) {
-			buf.append("ASPECT:").append(getQName(aspectPredicate));
-			nbOperator ++;
-		}
-		String exactAspectPredicate = (String) predicate.get("exactAspect");
-		if (exactAspectPredicate != null) {
-			buf.append("EXACTASPECT:").append(getQName(exactAspectPredicate));
-			nbOperator ++;
-		}
-
-		String natifPredicate = (String) predicate.get("natif");
-		if (natifPredicate != null) {
-			buf.append(natifPredicate);
-			nbOperator ++;
-		}
-
-		Map<String, Object> matchPredicate = (Map<String, Object>) predicate.get("match");
-		if (matchPredicate != null) {
-			String property = (String) matchPredicate.get("property");
-			String value = (String) matchPredicate.get("value");
-			buf.append("@").append(getQName(property).toPrefixString(namespaceService))
-				.append(":").append(toFtsValue(value));
-			nbOperator ++;
-		}
-
-		for (String valueType : new String[] { "", "Int" }) {
-			Map<String, Object> eqPredicate = (Map<String, Object>) predicate.get("eq" + valueType);
-			if (eqPredicate != null) {
-				String property = (String) eqPredicate.get("property");
-				Object value = eqPredicate.get("value");
-				buf.append("=").append(getQName(property).toPrefixString(namespaceService))
-					.append(":").append(toFtsValue(value));
+		for (PredicateType type : PredicateType.values()) {
+			Object value = predicate.get(type.name());
+			if (value != null) {
+				type.parse(this, value);
 				nbOperator ++;
 			}
-			Map<String, Object> rangePredicate = (Map<String, Object>) predicate.get("range" + valueType);
-			if (rangePredicate != null) {
-				String property = (String) rangePredicate.get("property");
-				Object min = rangePredicate.get("min");
-				Object max = rangePredicate.get("max");
-				boolean minInclusive = (Boolean) rangePredicate.getOrDefault("minInclusive", Boolean.TRUE);
-				boolean maxInclusive = (Boolean) rangePredicate.getOrDefault("maxInclusive", Boolean.TRUE);
-				
-				buf.append(getQName(property).toPrefixString(namespaceService))
-					.append(minInclusive ? ":[" : ":<")
-					.append((min != null) ? toFtsValue(min): "MIN")
-					.append(" TO ")
-					.append((max != null) ? toFtsValue(max): "MAX")
-					.append(maxInclusive ? "]" : ">");
-				
-				nbOperator ++;
-			}
-		} 
-		String isTruePredicate = (String) predicate.get("isTrue");
-		if (isTruePredicate != null) {
-			buf.append("=").append(getQName(isTruePredicate).toPrefixString(namespaceService))
-				.append(":true");
-			nbOperator ++;
 		}
-		String isFalsePredicate = (String) predicate.get("isFalse");
-		if (isFalsePredicate != null) {
-			buf.append("=").append(getQName(isFalsePredicate).toPrefixString(namespaceService))
-				.append(":false");
-			nbOperator ++;
+		if (nbOperator != 1) {
+			throw new IllegalArgumentException("There should be exactly one operator but got " + predicate);
 		}
 		
 		if (not) {
 			buf.append(")");
 		}
+	}
+	
+	private enum PredicateType {
+		and {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.parseBooleanOperator("AND", (List<Map<String, Object>>) detail);
+			}
+		},
+		or {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.parseBooleanOperator("OR", (List<Map<String, Object>>) detail);
+			}
+		},
 
-		if (nbOperator != 1) {
-			throw new IllegalArgumentException("There should be exactly one operator but got " + predicate);
+		type {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append("TYPE:").appendFullyQualified((String) detail);
+			}
+		},
+		exactType {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append("EXACTTYPE:").appendFullyQualified((String) detail);
+			}
+		},
+		aspect {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append("ASPECT:").appendFullyQualified((String) detail);
+			}
+		},
+		exactAspect {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append("EXACTASPECT:").appendFullyQualified((String) detail);
+			}
+		},
+
+		natif {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append((String) detail);
+			}
+		},
+
+		match {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.appendComparaison("@", (Map<String, Object>) detail);
+			}
+		},
+
+		eq {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.appendComparaison("=", (Map<String, Object>) detail);
+			}
+		},
+		eqInt {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.appendComparaison("=", (Map<String, Object>) detail);
+			}
+		},
+
+		range {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.appendRange((Map<String, Object>) detail);
+			}
+		},
+		rangeInt {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.appendRange((Map<String, Object>) detail);
+			}
+		},
+
+		isTrue {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append("=").appendPrefixString((String) detail).append(":true");
+			}
+		},
+		isFalse {
+			@Override public void parse(PredicateHelper helper, Object detail) {
+				helper.append("=").appendPrefixString((String) detail).append(":false");
+			}
 		}
+		;
+		public abstract void parse(PredicateHelper helper, Object detail);
+
 	}
-		
-	private QName getQName(String name) {
-		return GraphQlConfigurationHelper.getQName(name);
+
+	protected PredicateHelper append(String value) {
+		buf.append(value);
+		return this;
 	}
-	private String toFtsValue(Object value) {
-		if (value instanceof Number) {
-			return value.toString();
+	protected PredicateHelper appendFullyQualified(String property) {
+		return append(GraphQlConfigurationHelper.getQName(property).toString());
+	}
+	protected PredicateHelper appendPrefixString(String property) {
+		return append(GraphQlConfigurationHelper.getQName(property).toPrefixString(namespacePrefixResolver));
+	}
+	protected PredicateHelper appendFtsValue(Object value, String defaultValue) {
+		if (value == null) {
+			return append(defaultValue);
+		} else if (value instanceof Number) {
+			return append(value.toString());
 		} else if (value instanceof String) {
-			return "\"" + value.toString().replace("\"", "\\\"").replace("\n", "\\n") + "\"";
+			return append("\"").append(value.toString().replace("\"", "\\\"").replace("\n", "\\n")).append("\"");
 		} else {
 			throw new IllegalStateException(value.getClass().toString());
 		}
+	}
+	
+	protected PredicateHelper appendComparaison(String prefix, Map<String, Object> detail) {
+		String property = (String) detail.get("property");
+		Object value = detail.get("value");
+
+		return append(prefix).appendPrefixString(property)
+			.append(":").appendFtsValue(value, "");
+	}
+	
+	protected PredicateHelper appendRange(Map<String, Object> detail) {
+		String property = (String) detail.get("property");
+		Object min = detail.get("min");
+		Object max = detail.get("max");
+		boolean minInclusive = (Boolean) detail.getOrDefault("minInclusive", Boolean.TRUE);
+		boolean maxInclusive = (Boolean) detail.getOrDefault("maxInclusive", Boolean.TRUE);
+		
+		return appendPrefixString(property)
+			.append(minInclusive ? ":[" : ":<")
+			.appendFtsValue(min, "MIN")
+			.append(" TO ")
+			.appendFtsValue(max, "MAX")
+			.append(maxInclusive ? "]" : ">");
 	}
 }

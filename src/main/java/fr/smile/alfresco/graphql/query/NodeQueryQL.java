@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.SharedHomeNodeLocator;
@@ -27,11 +28,8 @@ public class NodeQueryQL extends AbstractQLModel {
 
 	private static Log log = LogFactory.getLog(NodeQueryQL.class);
 	
-	private PredicateHelper predicateHelper;
-	
 	public NodeQueryQL(QueryContext queryContext) {
 		super(queryContext);
-		this.predicateHelper = new PredicateHelper(getNamespaceService());
 	}
 
 	private NodeQL getNodeByLocator(String locatorName) {
@@ -60,29 +58,46 @@ public class NodeQueryQL extends AbstractQLModel {
 	}
 	
 	public ResultSetQL getQueryNative(DataFetchingEnvironment env) {
-		return query(env, 
-				env.getArgument("query"), 
-				env.getArgument("language"));
+		return query(env, sp -> {});
 	}
 	public ResultSetQL getQuery(DataFetchingEnvironment env) {
-		List<Map<String, Object>> predicates = env.getArgument("query");
-		String query = predicateHelper.getQuery(predicates);
-		return query(env, 
-				query, 
-				SearchService.LANGUAGE_FTS_ALFRESCO);
+		return query(env, sp -> {});
+	}
+	public Optional<NodeQL> getQueryFirst(DataFetchingEnvironment env) {
+		return query(env, sp -> {
+			sp.setMaxItems(1);
+		}).getNodes().stream().findFirst();
+	}
+	public Optional<NodeQL> getQueryUnique(DataFetchingEnvironment env) {
+		ResultSetQL resultSet = query(env, sp -> {
+			sp.setMaxItems(2);
+		});
+		List<NodeQL> nodes = resultSet.getNodes();
+		if (nodes.size() > 1) {
+			throw new IllegalStateException("There should not be more than one result but got " + resultSet.getNumberFound());
+		}
+		return nodes.stream().findFirst();
 	}
 	
-	private ResultSetQL query(DataFetchingEnvironment env, String query, String language) {
-		log.debug("Query: " + query);
-
+	private ResultSetQL query(DataFetchingEnvironment env, Consumer<SearchParameters> consumer) {
+		Object queryObject = env.getArgument("query");
+		@SuppressWarnings("unchecked")
+		String query = (queryObject instanceof String) 
+				? (String) queryObject 
+				: PredicateHelper.getQuery(getNamespaceService(), (List<Map<String, Object>>) queryObject);
+		
 		SearchParameters searchParameters = new SearchParameters();
 		searchParameters.setQuery(query);
-		searchParameters.setLanguage(language);
-		searchParameters.setMaxItems(env.getArgument("maxItems"));
-		searchParameters.setSkipCount(env.getArgument("skipCount"));
+		searchParameters.setLanguage(env.getArgumentOrDefault("language", SearchService.LANGUAGE_FTS_ALFRESCO));
+		searchParameters.setMaxItems(env.getArgumentOrDefault("maxItems", -1));
+		searchParameters.setSkipCount(env.getArgumentOrDefault("skipCount", 0));
 		searchParameters.setQueryConsistency(QueryConsistency.valueOf(env.getArgument("queryConsistency")));
 		searchParameters.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+
+		consumer.accept(searchParameters);
 		
+		log.debug("Query: " + searchParameters.getQuery());
+
 		List<Map<String, Object>> sorts = env.getArgumentOrDefault("sort", Collections.emptyList());
 		for (Map<String, Object> sort : sorts) {
 			String property = (String) sort.get("property");

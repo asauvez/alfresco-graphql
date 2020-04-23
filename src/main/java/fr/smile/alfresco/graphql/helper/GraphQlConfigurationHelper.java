@@ -123,7 +123,7 @@ public class GraphQlConfigurationHelper {
 						String fullType = (def.isMultiValued() ? "[" : "") + scalarType.name() + (def.isMultiValued() ? "]" : "");
 						String fullInput = (def.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (def.isMultiValued() ? "]" : "");
 						buf.append("	").append(toFieldName(property))
-							.append(" (newValue: ").append(fullInput)
+							.append(" (setValue: ").append(fullInput)
 							.append(") : ").append(fullType).append("\n");
 						
 						if (DataTypeDefinition.CONTENT.equals(dataType)) {
@@ -140,9 +140,9 @@ public class GraphQlConfigurationHelper {
 								public Optional<Object> get(DataFetchingEnvironment env) throws Exception {
 									ContainerNodeQL cnode = env.getSource();
 
-									Serializable newValue = env.getArgument("newValue");
-									if (newValue != null) {
-										cnode.getNode().setPropertyValue(property, newValue);
+									Serializable setValue = env.getArgument("setValue");
+									if (setValue != null) {
+										cnode.getNode().setPropertyValue(property, setValue);
 									}
 									
 									Serializable value = cnode.getNode().getPropertyValue(property);

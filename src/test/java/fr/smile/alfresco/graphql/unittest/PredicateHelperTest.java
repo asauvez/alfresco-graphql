@@ -23,18 +23,17 @@ import fr.smile.alfresco.graphql.helper.PredicateHelper;
 
 public class PredicateHelperTest {
 	
-	private PredicateHelper predicateHelper;
 	private ObjectMapper mapper = new ObjectMapper();
+	private NamespaceMap namespaceService;
 	
 	@Before
 	public void init() {
 		mapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 		
-		NamespaceMap namespaceService = new NamespaceMap();
+		namespaceService = new NamespaceMap();
 		namespaceService.map("cm", "http://www.alfresco.org/model/content/1.0");
 		namespaceService.map("exif", "http://www.alfresco.org/model/exif/1.0");
 		
-		predicateHelper = new PredicateHelper(namespaceService);
 		GraphQlConfigurationHelper.namespaceService = namespaceService;
 	}
 	
@@ -84,7 +83,7 @@ public class PredicateHelperTest {
 	@SuppressWarnings("unchecked")
 	private void assertTransformation(String expectedFts, String jsonQuery) throws Exception {
 		List<Map<String, Object>> predicates = mapper.readValue(jsonQuery, List.class);
-		String fts = predicateHelper.getQuery(predicates);
+		String fts = PredicateHelper.getQuery(namespaceService, predicates);
 		Assert.assertEquals(expectedFts, fts);
 	}
 	

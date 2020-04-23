@@ -95,17 +95,17 @@ public class NodeQL extends AbstractQLModel {
 	}
 	
 	public Optional<String> getName(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
-		String newValue = env.getArgument("newValue");
-		if (newValue != null) {
-			getFileFolderService().rename(nodeRef, newValue);
+		String setValue = env.getArgument("setValue");
+		if (setValue != null) {
+			getFileFolderService().rename(nodeRef, setValue);
 		}
 		return getProperty(nodeRef, ContentModel.PROP_NAME);
 	}
 
 	private <T extends Serializable> Optional<T> getProperty(DataFetchingEnvironment env, QName property) {
-		T newValue = env.getArgument("newValue");
-		if (newValue != null) {
-			getNodeService().setProperty(nodeRef, property, newValue);
+		T setValue = env.getArgument("setValue");
+		if (setValue != null) {
+			getNodeService().setProperty(nodeRef, property, setValue);
 		}
 		
 		return getProperty(nodeRef, property);
@@ -157,9 +157,9 @@ public class NodeQL extends AbstractQLModel {
 		return getContent(env, property);
 	}
 	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env, QName property) {
-		String newValue = env.getArgument("newValue");
-		if (newValue != null) {
-			getContentService().getWriter(nodeRef, property, true).putContent(newValue);
+		String setValue = env.getArgument("setValue");
+		if (setValue != null) {
+			getContentService().getWriter(nodeRef, property, true).putContent(setValue);
 		}
 		return getContent(property);
 	}
@@ -246,8 +246,8 @@ public class NodeQL extends AbstractQLModel {
 	public Serializable getPropertyValue(QName property) {
 		return getNodeService().getProperty(nodeRef, property);
 	}
-	public void setPropertyValue(QName property, Serializable newValue) {
-		getNodeService().setProperty(nodeRef, property, newValue);
+	public void setPropertyValue(QName property, Serializable setValue) {
+		getNodeService().setProperty(nodeRef, property, setValue);
 	}
 	
 	public NodeQL getAddChild(DataFetchingEnvironment env) {

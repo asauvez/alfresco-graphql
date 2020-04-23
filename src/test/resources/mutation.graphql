@@ -1,0 +1,15 @@
+// create
+{ node { sharedHome { foo: addChildContent(name: "Foo.txt") { content(setValue: "Hello world") { size }} }}}
+{"data":{"node":{"sharedHome":{"foo":{"content":{"size":11}}}}}}
+
+// query
+{ node { sharedHome { foo: childByName (name: "Foo.txt") { content { asString } } }}}
+{"data":{"node":{"sharedHome":{"foo":{"content":{"asString":"Hello world"}}}}}}
+
+// delete
+{ node { sharedHome { foo: childByName (name: "Foo.txt") { delete } }}}
+{"data":{"node":{"sharedHome":{"foo":{"delete":true}}}}}
+
+// test really deleted
+{ node { sharedHome { foo: childByName (name: "Foo.txt") { title } }}}
+{"data":{"node":{"sharedHome":{"foo":null}}}}

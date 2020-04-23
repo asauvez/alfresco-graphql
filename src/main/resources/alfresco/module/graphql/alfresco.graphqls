@@ -18,7 +18,17 @@ type NodeQuery {
 		skipCount: Int = 0,
 		queryConsistency: QueryConsistency = DEFAULT,
 		sort: [SortDefinition!]
-	): ResultSet
+	): ResultSet!
+	queryFirst(
+		query: [Predicate!]!, 
+		queryConsistency: QueryConsistency = DEFAULT,
+		sort: [SortDefinition!]
+	): Node
+	queryUnique(
+		query: [Predicate!]!, 
+		queryConsistency: QueryConsistency = DEFAULT,
+		sort: [SortDefinition!]
+	): Node
 	queryNative(
 		query: String!, 
 		language: String = "fts-alfresco",
@@ -26,7 +36,7 @@ type NodeQuery {
 		maxItems: Int = -1,
 		queryConsistency: QueryConsistency = DEFAULT,
 		sort: [SortDefinition!]
-	): ResultSet
+	): ResultSet!
 }
 
 type Node {
@@ -45,9 +55,9 @@ type Node {
 	pathQualifiedName: String!
 	
 	propertyAsString(name: PropertyEnum!) : String
-	name(newValue: String) : String
-	title(newValue: String) : String
-	description(newValue: String) : String
+	name(setValue: String) : String
+	title(setValue: String) : String
+	description(setValue: String) : String
 	creator: Authority
 	created: Date
 	createdIso: String
@@ -58,7 +68,7 @@ type Node {
 	properties: PropertiesType
 	propertiesList: [PropertyValue!]!
 	
-	content(property: PropertyEnum! = cm_content, rendition: String, newValue: String) : ContentData
+	content(property: PropertyEnum! = cm_content, rendition: String, setValue: String) : ContentData
 	
 	inheritParentPermissions: Boolean!
 	permissions: [AccessPermission!]!

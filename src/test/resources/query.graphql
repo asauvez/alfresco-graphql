@@ -37,24 +37,21 @@ query {
       }
     }
     
-    readmeFile: query(query: [
+    readmeFile: queryFirst(query: [
       { type: cm_content }
       { eq: { property: cm_name, value:"readme.ftl"} }
     ]) {
-      numberFound
-      nodes {
-        name
-        type
-        aspects
-        content {
-          asString
-          mimetype
-          size
-          encoding
-          locale
-        }
-        primaryParent { name }
+      name
+      type
+      aspects
+      content {
+        asString
+        mimetype
+        size
+        encoding
+        locale
       }
+      primaryParent { name }
     }
 
     readmeFile2 : queryNative(query: "=cm:name:readme.ftl") {

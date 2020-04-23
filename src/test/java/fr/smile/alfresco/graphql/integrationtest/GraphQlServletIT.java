@@ -2,7 +2,9 @@ package fr.smile.alfresco.graphql.integrationtest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
@@ -38,28 +40,25 @@ public class GraphQlServletIT {
 	@Test
 	public void testWebScriptCall() throws Exception {
 		String query = IOUtils.toString(getClass().getResourceAsStream("/query.graphql"), StandardCharsets.UTF_8);
-		String expectedResponse = IOUtils.toString(getClass().getResourceAsStream("/expectedResponse.json"), StandardCharsets.UTF_8);
+		String expectedResponse = IOUtils.toString(getClass().getResourceAsStream("/queryResponse.json"), StandardCharsets.UTF_8);
 		
 		assertCall(expectedResponse, query, false, true);
 	}
 
 	@Test
 	public void testMutation() throws Exception {
-		try {
-			assertCall( // create
-				"{\"data\":{\"node\":{\"sharedHome\":{\"foo\":{\"content\":{\"size\":11}}}}}}",
-				"{ node { sharedHome { foo: addChildContent(name: \"Foo.txt\") { content(newValue: \"Hello world\") { size }} }}}");
-			assertCall( // query
-				"{\"data\":{\"node\":{\"sharedHome\":{\"foo\":{\"content\":{\"asString\":\"Hello world\"}}}}}}",
-				"{ node { sharedHome { foo: childByName (name: \"Foo.txt\") { content { asString } } }}}");
-		} finally {
-			assertCall( // delete
-				"{\"data\":{\"node\":{\"sharedHome\":{\"foo\":{\"delete\":true}}}}}",
-				"{ node { sharedHome { foo: childByName (name: \"Foo.txt\") { delete } }}}");
+		StringBuilder expectedResponse = new StringBuilder();
+		StringBuilder actualResponse = new StringBuilder();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/mutation.graphql"), StandardCharsets.UTF_8))) {
+			String query;
+			while ((query = reader.readLine()) != null) {
+				if (! query.isBlank() && ! query.startsWith("//")) {
+					expectedResponse.append(reader.readLine()).append("\n");
+					actualResponse.append(callGraphQL(query, true)).append("\n");
+				}
+			}
 		}
-		assertCall( // test really deleted
-				"{\"data\":{\"node\":{\"sharedHome\":{\"foo\":null}}}}",
-				"{ node { sharedHome { foo: childByName (name: \"Foo.txt\") { title } }}}");
+		assertEquals("Incorrect Web Script Response", expectedResponse.toString(), actualResponse.toString());
 	}
 	
 	@Before
@@ -74,13 +73,7 @@ public class GraphQlServletIT {
 				.build();
 	}
 	
-	private void assertCall(String expectedResponse, String query) throws IOException {
-		assertCall(expectedResponse, query, true, false);
-	}
-
 	private void assertCall(String expectedResponse, String query, boolean mutation, boolean pretty) throws IOException {
-		query = "{ \"query\": \"" + query.replace("\"", "\\\"").replace("\n", " ") + "\", \"variables\": null }";
-		
 		String body = callGraphQL(query, mutation);
 		if (pretty) {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -92,6 +85,8 @@ public class GraphQlServletIT {
 	}
 	
 	private String callGraphQL(String query, boolean mutation) throws IOException {
+		query = "{ \"query\": \"" + query.replace("\"", "\\\"").replace("\n", " ") + "\", \"variables\": null }";
+
 		String webscriptURL = getPlatformEndpoint() + "/graphql" + (mutation ? "_mutation" : "");
 		HttpPost post = new HttpPost(webscriptURL);
 		post.setEntity(new StringEntity(query, ContentType.create("application/json")));

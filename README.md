@@ -13,7 +13,7 @@ Declare the following endpoints:
 Interesting files:
 - The GraphQL schema:  [alfresco.graphqls](src/main/resources/alfresco/module/graphql/alfresco.graphqls)
 - Sample query: [query.graphql](src/test/resources/query.graphql)
-- Sample results: [expectedResponse.json](src/test/resources/expectedResponse.json)
+- Sample results: [queryResponse.json](src/test/resources/queryResponse.json)
 
 # Author
 
@@ -54,10 +54,41 @@ Can be integrated in an existing Alfresco by declaring:
 </dependency>
 ```
 
+
+
 # TODO	
+
+- path
+	String path = "/app:company_home/app:dictionary/app:space_templates/cm:Litige_Client1_Client2";
+	ResultSet rs = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_XPATH, path);
+
+Resultset getnodes dès lors constructeur
+
+Code coverage avec test container
+
+Lien assoc one/many
+
+Type noderef renvoie node. Exemple sur  fileLink.
+
+Sort sur children
+
+
+PrimaryParents[Node!]! renvoie liste tous les parents
+
+Sur query, agrégation sum, AVG, min, max champs
+
+
+
+- naviguate assoc with one/many
+- contentCreate { asString(setValue:"hello") }
+
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
+		You need to use SubscriptionExecutionStrategy as your execution strategy as it has the support for the reactive-streams APIs.
 	return SubmissionPublisher
+	can be tested in graphiql
+	on a node or global?
+- 
 - moveNode
 - change permissions
 
