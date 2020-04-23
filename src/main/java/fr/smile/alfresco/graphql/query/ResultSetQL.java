@@ -3,32 +3,29 @@ package fr.smile.alfresco.graphql.query;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.repository.NodeRef;
 
 import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 
-public class ResultSetQL extends AbstractQLModel implements AutoCloseable {
+public class ResultSetQL extends AbstractQLModel {
 
-	private ResultSet resultSet;
+	private List<NodeRef> nodeRefs;
+	private long numberFound;
 
-	public ResultSetQL(QueryContext queryContext, ResultSet resultSet) {
+	public ResultSetQL(QueryContext queryContext, List<NodeRef> nodeRefs, long numberFound) {
 		super(queryContext);
-		this.resultSet = resultSet;
+		this.nodeRefs = nodeRefs;
+		this.numberFound = numberFound;
 	}
-	
+
 	public List<NodeQL> getNodes() {
-		return resultSet.getNodeRefs().stream()
+		return nodeRefs.stream()
 			.map(this::newNode)
 			.collect(Collectors.toList());
 	}
 	
 	public int getNumberFound() {
-		return (int) resultSet.getNumberFound();
-	}
-	
-	@Override
-	public void close() {
-		resultSet.close();
+		return (int) numberFound;
 	}
 }

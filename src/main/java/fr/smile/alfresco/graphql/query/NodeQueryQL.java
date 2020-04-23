@@ -108,8 +108,10 @@ public class NodeQueryQL extends AbstractQLModel {
 		}
 		
 		ResultSet resultSet = getSearchService().query(searchParameters);
-		ResultSetQL resultSetQL = new ResultSetQL(getQueryContext(), resultSet);
-		getQueryContext().addCloseable(resultSetQL);
-		return resultSetQL;
+		try {
+			return new ResultSetQL(getQueryContext(), resultSet.getNodeRefs(), resultSet.getNumberFound());
+		} finally {
+			resultSet.close();
+		}
 	}
 }

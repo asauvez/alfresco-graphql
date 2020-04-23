@@ -105,7 +105,6 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 			}, readOnly, true);
 		} finally {
 			AuthenticationUtil.clearCurrentSecurityContext();
-			queryContext.closeQuery();
 		}
 	}
 }

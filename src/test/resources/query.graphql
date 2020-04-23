@@ -52,6 +52,7 @@ query {
         locale
       }
       primaryParent { name }
+      primaryParents { name }
     }
 
     readmeFile2 : queryNative(query: "=cm:name:readme.ftl") {

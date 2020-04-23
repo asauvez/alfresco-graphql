@@ -1,8 +1,5 @@
 package fr.smile.alfresco.graphql.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
@@ -30,8 +27,6 @@ public class QueryContext {
 	private RenditionService2 renditionService2;
 	private FileFolderService fileFolderService;
 	
-	private ThreadLocal<List<AutoCloseable>> closeables = ThreadLocal.withInitial(() -> new ArrayList<>());
-
 	@SuppressWarnings("deprecation")
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
@@ -81,18 +76,5 @@ public class QueryContext {
 	}
 	public FileFolderService getFileFolderService() {
 		return fileFolderService;
-	}
-	
-	public void addCloseable(AutoCloseable closeable) {
-		closeables.get().add(closeable);
-	}
-	public void closeQuery() {
-		closeables.get().forEach(c -> {
-			try {
-				c.close();
-			} catch (Exception e) {
-				throw new IllegalStateException(e);
-			}
-		});
 	}
 }

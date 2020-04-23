@@ -78,6 +78,7 @@ type Node {
 	hasDeletePermission: Boolean!
 	
 	primaryParent: Node
+	primaryParents(ignoreFirst: Int = 1, reverse: Boolean = true): [Node!]!
 	parents(assocType: String): [Node!]!
 	children(assocType: String, skipCount: Int = 0, maxItems: Int = 2147483647): [Node!]!
 	childrenContains(skipCount: Int = 0, maxItems: Int = 2147483647): [Node!]!

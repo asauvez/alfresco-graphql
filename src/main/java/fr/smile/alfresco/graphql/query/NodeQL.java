@@ -1,6 +1,8 @@
 package fr.smile.alfresco.graphql.query;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -201,8 +203,26 @@ public class NodeQL extends AbstractQLModel {
 	// ======= Associations ==============================================================
 
 	public Optional<NodeQL> getPrimaryParent() {
-		return Optional.ofNullable(getNodeService().getPrimaryParent(nodeRef))
-			.map(assoc -> newNode(assoc.getParentRef()));
+		return Optional.ofNullable(getNodeService().getPrimaryParent(nodeRef).getParentRef())
+			.map(parent -> newNode(parent));
+	}
+	public List<NodeQL> getPrimaryParents(DataFetchingEnvironment env) {
+		int ignoreFirst = env.getArgument("ignoreFirst");
+		boolean reverse = env.getArgument("reverse");
+
+		NodeRef parent = getNodeService().getPrimaryParent(nodeRef).getParentRef();
+		List<NodeQL> result = new ArrayList<>();
+		
+		while (parent != null) {
+			result.add(newNode(parent));
+			parent = getNodeService().getPrimaryParent(parent).getParentRef();
+		}
+		result = result.subList(0, result.size() - ignoreFirst);
+		
+		if (reverse) {
+			Collections.reverse(result);
+		}
+		return result;
 	}
 	public List<NodeQL> getParents(DataFetchingEnvironment env) {
 		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));

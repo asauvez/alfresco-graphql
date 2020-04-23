@@ -3,7 +3,8 @@ package fr.smile.alfresco.graphql.integrationtest;
 import java.io.File;
 import java.time.Duration;
 
-import org.junit.Before;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -27,10 +28,13 @@ public class DockerTest {
 				.withExposedService(SERVICE_NAME, SERVICE_PORT, 
 						Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(120)))
 			//	.withTailChildContainers(true)
-				.withLocalCompose(true);
+			//	.withLocalCompose(true)
+				;
 
-	@Before
-	public void init() {
+	@BeforeClass
+	public static void init() {
+		Assume.assumeTrue(System.getProperty("docker-test") != null);
+		
 		System.setProperty("acs.endpoint.path", 
 				"http://" + environment.getServiceHost(SERVICE_NAME, SERVICE_PORT) 
 				+ ":" + environment.getServicePort(SERVICE_NAME, SERVICE_PORT) 

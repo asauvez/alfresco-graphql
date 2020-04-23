@@ -135,7 +135,18 @@
         },
         "primaryParent": {
           "name": "Presentation Templates"
-        }
+        },
+        "primaryParents": [
+          {
+            "name": "Company Home"
+          },
+          {
+            "name": "Data Dictionary"
+          },
+          {
+            "name": "Presentation Templates"
+          }
+        ]
       },
       "readmeFile2": {
         "numberFound": 1
