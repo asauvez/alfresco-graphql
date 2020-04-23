@@ -1,5 +1,7 @@
 query {
   node {
+    workspaceStoreRoot { pathPrefixString }
+    archiveStoreRoot { pathPrefixString }
     companyHome { pathPrefixString }
     userHome { pathPrefixString }
     sharedHome { pathPrefixString }
@@ -90,6 +92,9 @@ query {
       containedAuthorities { name }
       containingAuthorities { name }
     }
+    unknownGroup: byName(name:"GROUP_unknown") {
+      shortName
+    }
   }
   system {
     modules {
@@ -97,6 +102,9 @@ query {
       title
       description
       moduleVersionNumber
+    }
+    missingModules {
+      id
     }
   }
 }

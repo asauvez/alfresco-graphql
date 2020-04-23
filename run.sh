@@ -39,25 +39,14 @@ tail_all() {
     docker-compose -f "$COMPOSE_FILE_PATH" logs --tail="all"
 }
 
-prepare_test() {
-    $MVN_EXEC verify -DskipTests=true
-}
-
 test() {
-    $MVN_EXEC verify
+    $MVN_EXEC clean package verify -Dcode-coverage
 }
 
 case "$1" in
   build_start)
     down
     build
-    start
-    tail
-    ;;
-  build_start_it_supported)
-    down
-    build
-    prepare_test
     start
     tail
     ;;
@@ -75,18 +64,11 @@ case "$1" in
   tail)
     tail
     ;;
-  build_test)
-    down
-    build
-    prepare_test
-    start
-    test
-    tail_all
-    down
-    ;;
   test)
+    down
     test
+    xdg-open target/site/jacoco-it/index.html &
     ;;
   *)
-    echo "Usage: $0 {build_start|build_start_it_supported|start|stop|purge|tail|build_test|test}"
+    echo "Usage: $0 {build_start|start|stop|purge|tail|test}"
 esac

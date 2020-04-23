@@ -35,6 +35,12 @@ public class NodeQueryQL extends AbstractQLModel {
 	private NodeQL getNodeByLocator(String locatorName) {
 		return newNode(getQueryContext().getNodeLocatorService().getNode(locatorName, null, null));
 	}
+	public NodeQL getWorkspaceStoreRoot() {
+		return newNode(getNodeService().getRootNode(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE));
+	}
+	public NodeQL getArchiveStoreRoot() {
+		return newNode(getNodeService().getRootNode(StoreRef.STORE_REF_ARCHIVE_SPACESSTORE));
+	}
 	public NodeQL getCompanyHome() {
 		return getNodeByLocator(CompanyHomeNodeLocator.NAME);
 	}

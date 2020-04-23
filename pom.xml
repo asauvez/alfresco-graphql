@@ -37,6 +37,9 @@
         <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
         <test.acs.endpoint.path></test.acs.endpoint.path>
 
+		<jacoco.argLine></jacoco.argLine>
+		<jacoco.volume>/tmp:/tmp</jacoco.volume>
+
     </properties>
 
     <!-- Libs used in Unit and Integration tests -->
@@ -448,6 +451,65 @@
     </build>
 
     <profiles>
+		<profile>
+			<id>code-coverage</id>
+			<activation>
+				<property>
+					<name>code-coverage</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<jacoco.version>0.8.5</jacoco.version>
+				<jacoco.datafilename>jacoco-it.exec</jacoco.datafilename>
+				<jacoco.runtimeLib>/usr/local/tomcat/webapps/alfresco/WEB-INF/lib/org.jacoco.agent-${jacoco.version}-runtime.jar</jacoco.runtimeLib>
+				<jacoco.destfolder>/usr/local/tomcat/temp/jacoco</jacoco.destfolder>
+				<jacoco.destfile>${jacoco.destfolder}/${jacoco.datafilename}</jacoco.destfile>
+				<jacoco.argLine>-javaagent:${jacoco.runtimeLib}=destfile=${jacoco.destfile},includes=fr.smile.*</jacoco.argLine>
+				<jacoco.localdestfolder>${project.build.directory}/jacoco-dataFile</jacoco.localdestfolder>
+				<jacoco.localdestfile>${jacoco.localdestfolder}/${jacoco.datafilename}</jacoco.localdestfile>
+				<jacoco.volume>${jacoco.localdestfolder}:${jacoco.destfolder}</jacoco.volume>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.jacoco</groupId>
+					<artifactId>org.jacoco.agent</artifactId>
+					<version>${jacoco.version}</version>
+					<classifier>runtime</classifier>
+				</dependency>
+			</dependencies>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+								<configuration>
+									<destFile>${jacoco.localdestfile}</destFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>report-integraton</id>
+								<goals>
+									<goal>report-integration</goal>
+								</goals>
+								<configuration>
+									<dataFile>${jacoco.localdestfile}</dataFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+
         <profile>
             <id>java8</id>
             <activation>

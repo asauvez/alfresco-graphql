@@ -1,6 +1,12 @@
 {
   "data": {
     "node": {
+      "workspaceStoreRoot": {
+        "pathPrefixString": "/"
+      },
+      "archiveStoreRoot": {
+        "pathPrefixString": "/"
+      },
       "companyHome": {
         "pathPrefixString": "/app:company_home"
       },
@@ -222,7 +228,8 @@
           "description": "The Alfresco Trashcan Cleaner (Alfresco Module)",
           "moduleVersionNumber": "2.3"
         }
-      ]
+      ],
+      "missingModules": []
     }
   }
 }

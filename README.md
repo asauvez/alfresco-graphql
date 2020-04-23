@@ -14,6 +14,9 @@ Interesting files:
 - The GraphQL schema:  [alfresco.graphqls](src/main/resources/alfresco/module/graphql/alfresco.graphqls)
 - Sample query: [query.graphql](src/test/resources/query.graphql)
 - Sample results: [queryResponse.json](src/test/resources/queryResponse.json)
+- Sample mutations: [mutation.graphql](src/test/resources/mutation.graphql)
+
+Code coverage: 82% instructions, 74% branches.
 
 # Author
 
@@ -56,8 +59,11 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 
-# TODO	
-- Code coverage avec test container
+# TODO
+- Test setaspect
+
+- delete without trashbin
+- Test on another project
 - Type noderef return node. cm:destination.
 - path
 	String path = "/app:company_home/app:dictionary/app:space_templates/cm:Litige_Client1_Client2";

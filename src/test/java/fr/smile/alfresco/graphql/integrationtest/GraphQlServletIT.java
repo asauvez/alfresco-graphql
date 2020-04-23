@@ -15,6 +15,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -22,6 +23,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -90,11 +92,16 @@ public class GraphQlServletIT {
 		String webscriptURL = getPlatformEndpoint() + "/graphql" + (mutation ? "_mutation" : "");
 		HttpPost post = new HttpPost(webscriptURL);
 		post.setEntity(new StringEntity(query, ContentType.create("application/json")));
-		HttpResponse httpResponse = httpclient.execute(post);
-
-		String body = EntityUtils.toString(httpResponse.getEntity());
-		assertEquals("Incorrect HTTP Response Status " + httpResponse.getStatusLine() + "\n" + body, HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
-		return body;
+		try {
+			HttpResponse httpResponse = httpclient.execute(post);
+	
+			String body = EntityUtils.toString(httpResponse.getEntity());
+			assertEquals("Incorrect HTTP Response Status " + httpResponse.getStatusLine() + "\n" + body, HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
+			return body;
+		} catch (HttpHostConnectException ex) {
+			Assume.assumeTrue("Alfresco not started at " + webscriptURL, false);
+			throw ex;
+		}
 	}
 	
 	@After

@@ -14,12 +14,13 @@ services:
       dockerfile: ./Dockerfile
       context: ../../../target
     environment:
-      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888 ${jacoco.argLine}"
     ports:
       - "${acs.port}:8080"
       - "${acs.debug.port}:8888"
     volumes:
       - graphql-acs-volume:/usr/local/tomcat/alf_data
+      - ${jacoco.volume}
     depends_on:
       - graphql-postgres
   graphql-postgres:

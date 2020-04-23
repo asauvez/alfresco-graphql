@@ -5,6 +5,8 @@ type Query {
 }
 
 type NodeQuery {
+	workspaceStoreRoot: Node!
+	archiveStoreRoot: Node!
 	companyHome: Node!
 	userHome: Node!
 	sharedHome: Node!
