@@ -3,14 +3,17 @@ package fr.smile.alfresco.graphql.query;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.model.FileExistsException;
 import org.alfresco.service.cmr.model.FileNotFoundException;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
@@ -234,7 +237,26 @@ public class NodeQL extends AbstractQLModel {
 		return getChildren(ContentModel.ASSOC_CONTAINS, env);
 	}
 	private List<NodeQL> getChildren(QNamePattern assocType, DataFetchingEnvironment env) {
+		Comparator<ChildAssociationRef> comparator = new Comparator<ChildAssociationRef>() {
+			@Override public int compare(ChildAssociationRef o1, ChildAssociationRef o2) { return 0; }
+		};
+		List<Map<String, Object>> sorts = env.getArgumentOrDefault("sort", Collections.emptyList());
+		for (Map<String, Object> sort : sorts) {
+			QName property = getQName((String) sort.get("property"));
+			String direction = (String) sort.get("direction");
+			
+			@SuppressWarnings("rawtypes")
+			Comparator<ChildAssociationRef> fieldComparator = Comparator.comparing(
+					assoc -> (Comparable) getNodeService().getProperty(assoc.getChildRef(), property),
+					Comparator.nullsLast(Comparator.naturalOrder()));
+			if (direction != null && "DESCENDING".equals(direction)) {
+				fieldComparator = fieldComparator.reversed();
+			}
+			comparator = comparator.thenComparing(fieldComparator);
+		}
+		
 		return getNodeService().getChildAssocs(nodeRef, assocType, null).stream()
+			.sorted(comparator)
 			.skip((int) env.getArgument("skipCount"))
 			.limit((int) env.getArgument("maxItems"))
 			.map(assoc -> newNode(assoc.getChildRef()))

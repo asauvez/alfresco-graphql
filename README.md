@@ -60,10 +60,12 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
+- naviguate assoc with one/many
+
+
+
 - getDefaultDataFetcher
 	improve PropertyDataFetcher with argument
-
-- Sort sur children
 
 - delete without trashbin
 - Test on another project
@@ -72,7 +74,6 @@ Can be integrated in an existing Alfresco by declaring:
 	moveNode(variable: "destination")
 	createLink(variable: "destination")	
 - On query, agregation sum, AVG, min, max of field
-- naviguate assoc with one/many
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
 		You need to use SubscriptionExecutionStrategy as your execution strategy as it has the support for the reactive-streams APIs.

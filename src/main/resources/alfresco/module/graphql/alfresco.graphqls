@@ -84,8 +84,8 @@ type Node {
 	primaryParent: Node
 	primaryParents(ignoreFirst: Int = 1, reverse: Boolean = true): [Node!]!
 	parents(assocType: String): [Node!]!
-	children(assocType: String, skipCount: Int = 0, maxItems: Int = 2147483647): [Node!]!
-	childrenContains(skipCount: Int = 0, maxItems: Int = 2147483647): [Node!]!
+	children(assocType: String, skipCount: Int = 0, maxItems: Int = 2147483647, sort: [SortDefinition!]): [Node!]!
+	childrenContains(skipCount: Int = 0, maxItems: Int = 2147483647, sort: [SortDefinition!]): [Node!]!
 	childByName(name: String!, assocType: String = "cm:contains") : Node
 	sourceAssocs(assocType: String) : [Node!]!
 	targetAssocs(assocType: String) : [Node!]!
