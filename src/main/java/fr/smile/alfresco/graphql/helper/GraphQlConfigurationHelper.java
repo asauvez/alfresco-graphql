@@ -12,9 +12,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.alfresco.repo.dictionary.IndexTokenisationMode;
-import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
@@ -22,7 +23,6 @@ import org.alfresco.service.namespace.QName;
 import org.apache.commons.io.IOUtils;
 
 import fr.smile.alfresco.graphql.query.ContainerNodeQL;
-import fr.smile.alfresco.graphql.query.ContentReaderQL;
 import fr.smile.alfresco.graphql.query.QueryQL;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.schema.DataFetcher;
@@ -122,35 +122,30 @@ public class GraphQlConfigurationHelper {
 						
 						String fullType = (def.isMultiValued() ? "[" : "") + scalarType.name() + (def.isMultiValued() ? "]" : "");
 						String fullInput = (def.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (def.isMultiValued() ? "]" : "");
-						buf.append("	").append(toFieldName(property))
-							.append(" (setValue: ").append(fullInput)
-							.append(") : ").append(fullType).append("\n");
-						
-						if (DataTypeDefinition.CONTENT.equals(dataType)) {
-							builder.dataFetcher(toFieldName(property), new DataFetcher<Optional<ContentReaderQL>>() {
-								@Override
-								public Optional<ContentReaderQL> get(DataFetchingEnvironment env) throws Exception {
-									ContainerNodeQL cnode = env.getSource();
-									return cnode.getNode().getContent(env, property);
-								}
-							});
-						} else {
-							builder.dataFetcher(toFieldName(property), new DataFetcher<Optional<Object>>() {
-								@Override
-								public Optional<Object> get(DataFetchingEnvironment env) throws Exception {
-									ContainerNodeQL cnode = env.getSource();
-
-									Serializable setValue = env.getArgument("setValue");
-									if (setValue != null) {
-										cnode.getNode().setPropertyValue(property, setValue);
-									}
-									
-									Serializable value = cnode.getNode().getPropertyValue(property);
-									return Optional.ofNullable(value)
-											.map(alfrescoDataType::toGraphQl);
-								}
-							});
+						buf.append("	").append(toFieldName(property));
+						if (alfrescoDataType != AlfrescoDataType.CONTENT) {
+							buf.append(" (setValue: ").append(fullInput).append(")");
 						}
+						buf.append(": ").append(fullType).append("\n");
+						
+						builder.dataFetcher(toFieldName(property), new DataFetcher<Object>() {
+							@SuppressWarnings("unchecked")
+							@Override
+							public Object get(DataFetchingEnvironment env) throws Exception {
+								ContainerNodeQL cnode = env.getSource();
+
+								Serializable setValue = env.getArgument("setValue");
+								if (setValue != null) {
+									cnode.getNode().setPropertyValue(property, setValue);
+								}
+								
+								Serializable value = cnode.getNode().getPropertyValue(property);
+								Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(cnode.getNode(), property, item);
+								return (value instanceof List) 
+										? ((List<Serializable>) value).stream().map(function).collect(Collectors.toList())
+										: Optional.ofNullable(value).map(function);
+							}
+						});
 					}
 					return builder;
 				});

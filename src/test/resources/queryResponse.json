@@ -38,7 +38,10 @@
                   "displayName": "mjackson",
                   "firstName": "Mike",
                   "lastName": "Jackson",
-                  "email": "mjackson@example.com"
+                  "email": "mjackson@example.com",
+                  "avatar": {
+                    "mimetype": "image/jpeg"
+                  }
                 },
                 "modified": {
                   "format": "15/02/2011"
@@ -134,6 +137,7 @@
         ],
         "content": {
           "asString": "\u003c#-- Displays the contents of readme.html and/or the evaluated readme.ftl if they exist in the current space. --\u003e\n\u003c#assign filename \u003d \"readme\"/\u003e\n\u003c#assign htmlExt \u003d \"html\"/\u003e\n\u003c#assign suffix \u003d .lang /\u003e\n\u003c#assign ftlExt \u003d \"ftl\"/\u003e\n\u003c#assign htmlLangFilename \u003d \"${filename}_${suffix}.${htmlExt}\"/\u003e\n\u003c#assign htmlFilename \u003d \"${filename}.${htmlExt}\"/\u003e\n\u003c#assign ftlFilename \u003d \"${filename}.${ftlExt}\"/\u003e\n\u003c#assign messageError\u003d\"Readme file does not exist!\"/\u003e\n\u003c#assign found \u003d false\u003e\n\n\u003c#if space?exists\u003e\n    \u003c#if space.childByNamePath[\"${htmlLangFilename}\"]?exists\u003e\n        ${space.childByNamePath[htmlLangFilename].content}\n    \u003c#elseif space.childByNamePath[\"${htmlFilename}\"]?exists\u003e\n        ${space.childByNamePath[htmlFilename].content}\n    \u003c#elseif space.childByNamePath[\"${ftlFilename}\"]?exists\u003e\n        \u003c#include space.childByNamePath[\"${ftlFilename}\"].nodeRef\u003e \n    \u003c#else\u003e\n        ${messageError}\n    \u003c/#if\u003e\n\u003c/#if\u003e",
+          "asBase64": "PCMtLSBEaXNwbGF5cyB0aGUgY29udGVudHMgb2YgcmVhZG1lLmh0bWwgYW5kL29yIHRoZSBldmFsdWF0ZWQgcmVhZG1lLmZ0bCBpZiB0aGV5IGV4aXN0IGluIHRoZSBjdXJyZW50IHNwYWNlLiAtLT4KPCNhc3NpZ24gZmlsZW5hbWUgPSAicmVhZG1lIi8+CjwjYXNzaWduIGh0bWxFeHQgPSAiaHRtbCIvPgo8I2Fzc2lnbiBzdWZmaXggPSAubGFuZyAvPgo8I2Fzc2lnbiBmdGxFeHQgPSAiZnRsIi8+CjwjYXNzaWduIGh0bWxMYW5nRmlsZW5hbWUgPSAiJHtmaWxlbmFtZX1fJHtzdWZmaXh9LiR7aHRtbEV4dH0iLz4KPCNhc3NpZ24gaHRtbEZpbGVuYW1lID0gIiR7ZmlsZW5hbWV9LiR7aHRtbEV4dH0iLz4KPCNhc3NpZ24gZnRsRmlsZW5hbWUgPSAiJHtmaWxlbmFtZX0uJHtmdGxFeHR9Ii8+CjwjYXNzaWduIG1lc3NhZ2VFcnJvcj0iUmVhZG1lIGZpbGUgZG9lcyBub3QgZXhpc3QhIi8+CjwjYXNzaWduIGZvdW5kID0gZmFsc2U+Cgo8I2lmIHNwYWNlP2V4aXN0cz4KICAgIDwjaWYgc3BhY2UuY2hpbGRCeU5hbWVQYXRoWyIke2h0bWxMYW5nRmlsZW5hbWV9Il0/ZXhpc3RzPgogICAgICAgICR7c3BhY2UuY2hpbGRCeU5hbWVQYXRoW2h0bWxMYW5nRmlsZW5hbWVdLmNvbnRlbnR9CiAgICA8I2Vsc2VpZiBzcGFjZS5jaGlsZEJ5TmFtZVBhdGhbIiR7aHRtbEZpbGVuYW1lfSJdP2V4aXN0cz4KICAgICAgICAke3NwYWNlLmNoaWxkQnlOYW1lUGF0aFtodG1sRmlsZW5hbWVdLmNvbnRlbnR9CiAgICA8I2Vsc2VpZiBzcGFjZS5jaGlsZEJ5TmFtZVBhdGhbIiR7ZnRsRmlsZW5hbWV9Il0/ZXhpc3RzPgogICAgICAgIDwjaW5jbHVkZSBzcGFjZS5jaGlsZEJ5TmFtZVBhdGhbIiR7ZnRsRmlsZW5hbWV9Il0ubm9kZVJlZj4gCiAgICA8I2Vsc2U+CiAgICAgICAgJHttZXNzYWdlRXJyb3J9CiAgICA8LyNpZj4KPC8jaWY+",
           "mimetype": "text/plain",
           "size": 909,
           "encoding": "UTF-8",
@@ -165,6 +169,7 @@
             "width": "1120",
             "properties": {
               "exif_exif": {
+                "hasAspect": true,
                 "exif_manufacturer": "OLYMPUS OPTICAL CO.,LTD",
                 "exif_pixelXDimension": 1120,
                 "exif_pixelYDimension": 840
@@ -176,11 +181,17 @@
     },
     "authority": {
       "currentUser": {
-        "name": "admin"
+        "name": "admin",
+        "homeFolder": {
+          "pathPrefixString": "/app:company_home"
+        }
       },
       "swsdp_SiteManager": {
         "shortName": "site_swsdp_SiteManager",
         "type": "GROUP",
+        "node": {
+          "pathPrefixString": "/sys:system/sys:authorities/cm:GROUP_site_swsdp_SiteManager"
+        },
         "containedAuthorities": [
           {
             "name": "admin"

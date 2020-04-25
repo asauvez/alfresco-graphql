@@ -60,11 +60,14 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
-- Test setaspect
+- content en properties
+- commit
+
+
+- error with encoding
 
 - delete without trashbin
 - Test on another project
-- Type noderef return node. cm:destination.
 - path
 	String path = "/app:company_home/app:dictionary/app:space_templates/cm:Litige_Client1_Client2";
 	ResultSet rs = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_XPATH, path);
@@ -75,7 +78,6 @@ Can be integrated in an existing Alfresco by declaring:
 - Sort sur children
 - On query, agregation sum, AVG, min, max of field
 - naviguate assoc with one/many
-- contentCreate { asString(setValue:"hello") }
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
 		You need to use SubscriptionExecutionStrategy as your execution strategy as it has the support for the reactive-streams APIs.

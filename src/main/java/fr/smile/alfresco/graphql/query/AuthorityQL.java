@@ -60,7 +60,19 @@ public class AuthorityQL extends AbstractQLModel {
 		return getNodeRefInternal().flatMap(nodeRef -> getPropertyString(nodeRef, propertyName))
 				.map(Object::toString);
 	}
-	public Optional<NodeQL> getNodes() {
+	public Optional<NodeQL> getHomeFolder() {
+		return getNodeRefInternal().flatMap(nodeRef -> {
+			Optional<NodeRef> homeFolder = getProperty(nodeRef, ContentModel.PROP_HOMEFOLDER);
+			return homeFolder.map(this::newNode);
+		});
+	}	
+	public Optional<ContentDataQL> getAvatar() {
+		return getNode()
+			.flatMap(node -> node.getTargetAssocs(ContentModel.ASSOC_AVATAR).stream().findFirst())
+			.flatMap(avatar -> avatar.getContent(ContentModel.PROP_CONTENT));
+	}
+	
+	public Optional<NodeQL> getNode() {
 		return getNodeRefInternal().map(this::newNode);
 	}
 	

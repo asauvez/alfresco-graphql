@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.model.FileExistsException;
 import org.alfresco.service.cmr.model.FileNotFoundException;
-import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
@@ -149,26 +149,23 @@ public class NodeQL extends AbstractQLModel {
 				.map(o -> newAuthority((String) o));
 	}
 
-	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env) {
+	public Optional<ContentDataQL> getContent(DataFetchingEnvironment env) {
 		QName property = getQName(env.getArgument("property"));
 		String rendition = env.getArgument("rendition");
 		if (rendition != null) {
 			return Optional.of(getQueryContext().getRenditionService2().getRenditionByName(nodeRef, rendition))
 					.flatMap(assoc -> newNode(assoc.getChildRef()).getContent(property));
 		}
-		return getContent(env, property);
-	}
-	public Optional<ContentReaderQL> getContent(DataFetchingEnvironment env, QName property) {
-		String setValue = env.getArgument("setValue");
-		if (setValue != null) {
-			getContentService().getWriter(nodeRef, property, true).putContent(setValue);
-		}
 		return getContent(property);
 	}
-	private Optional<ContentReaderQL> getContent(QName property) {
-		Optional<ContentReader> contentData = Optional.ofNullable(getContentService().getReader(nodeRef, property));
+	public ContentDataQL getContentCreate(DataFetchingEnvironment env) {
+		QName property = getQName(env.getArgument("property"));
+		return new ContentDataQL(getQueryContext(), nodeRef, property, null);
+	}
+	public Optional<ContentDataQL> getContent(QName property) {
+		Optional<ContentData> contentData = getProperty(nodeRef, property);
 		return contentData
-				.map(reader -> new ContentReaderQL(getQueryContext(), nodeRef, property, reader));
+				.map(data -> new ContentDataQL(getQueryContext(), nodeRef, property, data));
 	}
 
 	// ======= Permissions ==============================================================
@@ -258,9 +255,18 @@ public class NodeQL extends AbstractQLModel {
 	}
 	public List<NodeQL> getTargetAssocs(DataFetchingEnvironment env) {
 		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+		return getTargetAssocs(assocType);
+	}
+	public List<NodeQL> getTargetAssocs(QNamePattern assocType) {
 		return getNodeService().getTargetAssocs(nodeRef, assocType).stream()
 			.map(assoc -> newNode(assoc.getTargetRef()))
 			.collect(Collectors.toList());
+	}
+	public Optional<NodeQL> getSourceAssoc(DataFetchingEnvironment env) {
+		return getSourceAssocs(env).stream().findFirst();
+	}
+	public Optional<NodeQL> getTargetAssoc(DataFetchingEnvironment env) {
+		return getTargetAssocs(env).stream().findFirst();
 	}
 
 	public Serializable getPropertyValue(QName property) {

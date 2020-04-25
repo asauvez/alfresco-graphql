@@ -17,7 +17,7 @@ query {
             title
             created { iso }
             createdIso
-            creator { displayName, firstName, lastName, email }
+            creator { displayName, firstName, lastName, email, avatar { mimetype } }
             modified { format(format:"dd/MM/yyyy") }
             modifiedIso
             modifier { name }
@@ -48,6 +48,7 @@ query {
       aspects
       content {
         asString
+        asBase64
         mimetype
         size
         encoding
@@ -73,6 +74,7 @@ query {
         width: propertyAsString(name: exif_pixelXDimension)
         properties {
           exif_exif {
+            hasAspect
             exif_manufacturer
             exif_pixelXDimension
             exif_pixelYDimension
@@ -83,7 +85,7 @@ query {
   }
   
   authority {
-    currentUser { name }
+    currentUser { name, homeFolder { pathPrefixString} }
     swsdp_SiteManager: byName(name:"GROUP_site_swsdp_SiteManager") {
       shortName
       type

@@ -70,7 +70,8 @@ type Node {
 	properties: PropertiesType
 	propertiesList: [PropertyValue!]!
 	
-	content(property: PropertyEnum! = cm_content, rendition: String, setValue: String) : ContentData
+	content(property: PropertyEnum! = cm_content, rendition: String) : ContentData
+	contentCreate(property: PropertyEnum! = cm_content) : ContentData!
 	
 	inheritParentPermissions: Boolean!
 	permissions: [AccessPermission!]!
@@ -87,6 +88,8 @@ type Node {
 	childByName(name: String!, assocType: String = "cm:contains") : Node
 	sourceAssocs(assocType: String) : [Node!]!
 	targetAssocs(assocType: String) : [Node!]!
+	sourceAssoc(assocType: String) : Node
+	targetAssoc(assocType: String) : Node
 }
 
 type Date {
@@ -94,8 +97,8 @@ type Date {
 	format(format: String!) : String!
 }
 type ContentData {
-	asString : String!
-	asBase64 : String!
+	asString(setValue: String, setEncoding: String, setLocal: String, setMimetype: String) : String
+	asBase64(setValue: String, setEncoding: String, setLocal: String, setMimetype: String) : String
 	downloadUrl: String!
 
 	property: String!
@@ -181,6 +184,8 @@ type Authority {
 	firstName: String
 	lastName: String
 	email: String
+	homeFolder: Node
+	avatar: ContentData
 	propertyAsString(name: PropertyEnum!) : String
 	
 	containedAuthorities(type: AuthorityType, immediate: Boolean = false) : [Authority!]!

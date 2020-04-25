@@ -1,6 +1,6 @@
 // create
-{ node { sharedHome { foo: addChildContent(name: "Foo.txt") { title(setValue: "Hello"), content(setValue: "Hello world") { size }} }}}
-{"data":{"node":{"sharedHome":{"foo":{"title":"Hello","content":{"size":11}}}}}}
+{ node { sharedHome { foo: addChildContent(name: "Foo.txt") { title(setValue: "Hello"), contentCreate { asString(setValue: "Hello world")}} }}}
+{"data":{"node":{"sharedHome":{"foo":{"title":"Hello","contentCreate":{"asString":"Hello world"}}}}}}
 
 // query
 { node { sharedHome { foo: childByName (name: "Foo.txt") { content { asString } } }}}
