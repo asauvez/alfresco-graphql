@@ -53,16 +53,15 @@ public class NodeQueryQL extends AbstractQLModel {
 		return getNodeByLocator(SitesHomeNodeLocator.NAME);
 	}
 
-	public Optional<NodeQL> getByNodeRef(DataFetchingEnvironment env) {
-		NodeRef nodeRef = new NodeRef(env.getArgument("nodeRef"));
-		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
+	public Optional<NodeQL> getByNodeRef(String nodeRef) {
+		NodeRef nodeRefInternal = new NodeRef(nodeRef);
+		return Optional.ofNullable(getNodeService().exists(nodeRefInternal) ? newNode(nodeRefInternal) : null);
 	}
 	public Optional<NodeQL> getByUuid(DataFetchingEnvironment env) {
 		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, env.getArgument("uuid"));
 		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
 	}
-	public Optional<NodeQL> getByPath(DataFetchingEnvironment env) {
-		String path = env.getArgument("path");
+	public Optional<NodeQL> getByPath(String path) {
 		ResultSet rs = getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_XPATH, path);
 		return rs.getNodeRefs().stream().findFirst().map(this::newNode);
 	}

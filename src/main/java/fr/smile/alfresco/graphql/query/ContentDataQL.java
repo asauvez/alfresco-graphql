@@ -52,15 +52,13 @@ public class ContentDataQL extends AbstractQLModel {
 				.map(locale -> locale.toString());
 	}
 
-	public String getAsString(DataFetchingEnvironment env) {
-		String setValue = env.getArgument("setValue");
+	public String getAsString(DataFetchingEnvironment env, String setValue) {
 		if (setValue != null) {
 			getWriter(env).putContent(setValue);
 		}
 		return getContentService().getReader(nodeRef, property).getContentString();
 	}
-	public String getAsBase64(DataFetchingEnvironment env) throws IOException {
-		String setValue = env.getArgument("setValue");
+	public String getAsBase64(DataFetchingEnvironment env, String setValue) throws IOException {
 		if (setValue != null) {
 			byte[] buf = Base64.getDecoder().decode(setValue);
 			getWriter(env).putContent(new ByteInputStream(buf, buf.length));
@@ -72,7 +70,7 @@ public class ContentDataQL extends AbstractQLModel {
 		}
 	}
 	public String getAsDataUrl(DataFetchingEnvironment env) throws IOException {
-		return "data:" + getMimetype() + ";base64," + getAsBase64(env); 
+		return "data:" + getMimetype() + ";base64," + getAsBase64(env, null); 
 	}
 	
 	private ContentWriter getWriter(DataFetchingEnvironment env) {

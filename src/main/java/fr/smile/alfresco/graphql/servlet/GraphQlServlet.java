@@ -70,7 +70,7 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 	
 	@Override
 	protected GraphQLConfiguration getConfiguration() {
-		return new GraphQlConfigurationHelper(queryContext).getConfiguration();
+		return new GraphQlConfiguration(queryContext).getConfiguration();
 	}
 	
 	@Override

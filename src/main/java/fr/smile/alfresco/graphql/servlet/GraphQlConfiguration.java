@@ -23,6 +23,7 @@ import org.alfresco.service.namespace.QName;
 import org.apache.commons.io.IOUtils;
 
 import fr.smile.alfresco.graphql.helper.AlfrescoDataType;
+import fr.smile.alfresco.graphql.helper.ArgumentPropertyDataFetcher;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import fr.smile.alfresco.graphql.helper.ScalarType;
 import fr.smile.alfresco.graphql.query.ContainerNodeQL;
@@ -32,13 +33,15 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.StaticDataFetcher;
+import graphql.schema.idl.FieldWiringEnvironment;
+import graphql.schema.idl.NoopWiringFactory;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.RuntimeWiring.Builder;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 
-public class GraphQlConfigurationHelper {
+public class GraphQlConfiguration {
 	
 	private static final String ALFRESCO_SCHEMA = "/alfresco/module/graphql/alfresco.graphqls";
 	
@@ -48,7 +51,7 @@ public class GraphQlConfigurationHelper {
 	public static NamespacePrefixResolver namespaceService;
 	
 
-	public GraphQlConfigurationHelper(QueryContext queryContext) {
+	public GraphQlConfiguration(QueryContext queryContext) {
 		this.queryContext = queryContext;
 		namespaceService = queryContext.getNamespaceService();
 	}
@@ -66,6 +69,11 @@ public class GraphQlConfigurationHelper {
 
 			QueryQL query = new QueryQL(queryContext);
 			Builder runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
+					.wiringFactory(new NoopWiringFactory() {
+						public DataFetcher<?> getDefaultDataFetcher(FieldWiringEnvironment environment) {
+							return new ArgumentPropertyDataFetcher<>(environment.getFieldDefinition().getName());
+						};
+					})
 					.type("Query", builder -> builder
 						.dataFetcher("node", new StaticDataFetcher(query.getNode()))
 						.dataFetcher("authority", new StaticDataFetcher(query.getAuthority()))

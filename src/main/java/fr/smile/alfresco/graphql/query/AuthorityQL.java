@@ -10,7 +10,6 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.QName;
 
 import fr.smile.alfresco.graphql.helper.QueryContext;
-import graphql.schema.DataFetchingEnvironment;
 
 public class AuthorityQL extends AbstractQLModel {
 
@@ -54,9 +53,8 @@ public class AuthorityQL extends AbstractQLModel {
 	public Optional<String> getEmail() {
 		return getNodeRefInternal().flatMap(nodeRef -> getPropertyString(nodeRef, ContentModel.PROP_EMAIL));
 	}
-	public Optional<String> getPropertyAsString(DataFetchingEnvironment env) {
-		QName propertyName = getQName(env.getArgument("name"));
-		return getNodeRefInternal().flatMap(nodeRef -> getPropertyString(nodeRef, propertyName))
+	public Optional<String> getPropertyAsString(QName name) {
+		return getNodeRefInternal().flatMap(nodeRef -> getPropertyString(nodeRef, name))
 				.map(Object::toString);
 	}
 	public Optional<NodeQL> getHomeFolder() {
@@ -75,18 +73,12 @@ public class AuthorityQL extends AbstractQLModel {
 		return getNodeRefInternal().map(this::newNode);
 	}
 	
-	public List<AuthorityQL> getContainedAuthorities(DataFetchingEnvironment env) {
-		String typeS = env.getArgument("type");
-		AuthorityType type = (typeS != null) ? AuthorityType.valueOf(typeS) : null;
-		boolean immediate = env.getArgument("immediate");
+	public List<AuthorityQL> getContainedAuthorities(AuthorityType type, boolean immediate) {
 		return getAuthorityService().getContainedAuthorities(type, name, immediate).stream()
 				.map(s -> newAuthority(s))
 				.collect(Collectors.toList());
 	}
-	public List<AuthorityQL> getContainingAuthorities(DataFetchingEnvironment env) {
-		String typeS = env.getArgument("type");
-		AuthorityType type = (typeS != null) ? AuthorityType.valueOf(typeS) : null;
-		boolean immediate = env.getArgument("immediate");
+	public List<AuthorityQL> getContainingAuthorities(AuthorityType type, boolean immediate) {
 		return getAuthorityService().getContainingAuthorities(type, name, immediate).stream()
 				.map(s -> newAuthority(s))
 				.collect(Collectors.toList());

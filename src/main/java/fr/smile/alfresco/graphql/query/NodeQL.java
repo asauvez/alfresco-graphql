@@ -19,7 +19,6 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 
 import fr.smile.alfresco.graphql.helper.QueryContext;
-import graphql.schema.DataFetchingEnvironment;
 
 public class NodeQL extends AbstractQLModel {
 
@@ -63,9 +62,8 @@ public class NodeQL extends AbstractQLModel {
 
 	// ======= Properties ==============================================================
 	
-	public Optional<String> getPropertyAsString(DataFetchingEnvironment env) {
-		QName propertyName = getQName(env.getArgument("name"));
-		return getProperty(nodeRef, propertyName)
+	public Optional<String> getPropertyAsString(QName name) {
+		return getProperty(nodeRef, name)
 				.map(Object::toString);
 	}
 	public NodeQL getProperties() {
@@ -95,28 +93,26 @@ public class NodeQL extends AbstractQLModel {
 				.collect(Collectors.toList());
 	}
 	
-	public Optional<String> getName(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
-		String setValue = env.getArgument("setValue");
+	public Optional<String> getName(String setValue) throws FileExistsException, FileNotFoundException {
 		if (setValue != null) {
 			getFileFolderService().rename(nodeRef, setValue);
 		}
 		return getProperty(nodeRef, ContentModel.PROP_NAME);
 	}
 
-	private <T extends Serializable> Optional<T> getProperty(DataFetchingEnvironment env, QName property) {
-		T setValue = env.getArgument("setValue");
+	private <T extends Serializable> Optional<T> getProperty(Serializable setValue, QName property) {
 		if (setValue != null) {
 			getNodeService().setProperty(nodeRef, property, setValue);
 		}
 		
 		return getProperty(nodeRef, property);
 	}
-	public Optional<String> getTitle(DataFetchingEnvironment env) {
-		return getProperty(env, ContentModel.PROP_TITLE);
+	public Optional<String> getTitle(Serializable setValue) {
+		return getProperty(setValue, ContentModel.PROP_TITLE);
 	}
 
-	public Optional<String> getDescription(DataFetchingEnvironment env) {
-		return getProperty(env, ContentModel.PROP_DESCRIPTION);
+	public Optional<String> getDescription(Serializable setValue) {
+		return getProperty(setValue, ContentModel.PROP_DESCRIPTION);
 	}
 
 	public Optional<DateQL> getCreated() {
@@ -148,17 +144,14 @@ public class NodeQL extends AbstractQLModel {
 				.map(o -> newAuthority((String) o));
 	}
 
-	public Optional<ContentDataQL> getContent(DataFetchingEnvironment env) {
-		QName property = getQName(env.getArgument("property"));
-		String rendition = env.getArgument("rendition");
+	public Optional<ContentDataQL> getContent(QName property, String rendition) {
 		if (rendition != null) {
 			return Optional.of(getQueryContext().getRenditionService2().getRenditionByName(nodeRef, rendition))
 					.flatMap(assoc -> newNode(assoc.getChildRef()).getContent(property));
 		}
 		return getContent(property);
 	}
-	public ContentDataQL getContentCreate(DataFetchingEnvironment env) {
-		QName property = getQName(env.getArgument("property"));
+	public ContentDataQL getContentCreate(QName property) {
 		return new ContentDataQL(getQueryContext(), nodeRef, property, null);
 	}
 	public Optional<ContentDataQL> getContent(QName property) {
@@ -184,8 +177,7 @@ public class NodeQL extends AbstractQLModel {
 				.sorted() // to have predictable tests
 				.collect(Collectors.toList());
 	}
-	public boolean getHasPermission(DataFetchingEnvironment env) {
-		String permission = env.getArgument("permission");
+	public boolean getHasPermission(String permission) {
 		return getPermissionService().hasPermission(nodeRef, permission) == AccessStatus.ALLOWED;
 	}
 	public boolean getHasWritePermission() {
@@ -202,10 +194,7 @@ public class NodeQL extends AbstractQLModel {
 		return Optional.ofNullable(getNodeService().getPrimaryParent(nodeRef).getParentRef())
 			.map(parent -> newNode(parent));
 	}
-	public List<NodeQL> getPrimaryParents(DataFetchingEnvironment env) {
-		int ignoreFirst = env.getArgument("ignoreFirst");
-		boolean reverse = env.getArgument("reverse");
-
+	public List<NodeQL> getPrimaryParents(int ignoreFirst, boolean reverse) {
 		NodeRef parent = getNodeService().getPrimaryParent(nodeRef).getParentRef();
 		List<NodeQL> result = new ArrayList<>();
 		
@@ -220,52 +209,49 @@ public class NodeQL extends AbstractQLModel {
 		}
 		return result;
 	}
-	public List<NodeQL> getParents(DataFetchingEnvironment env) {
-		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
-		return getNodeService().getParentAssocs(nodeRef, assocType, null).stream()
+	public List<NodeQL> getParents(String assocType) {
+		QNamePattern pattern = getQNameFilter(assocType);
+		return getNodeService().getParentAssocs(nodeRef, pattern, null).stream()
 			.map(assoc -> newNode(assoc.getChildRef()))
 			.collect(Collectors.toList());
 	}
-	public List<NodeQL> getChildren(DataFetchingEnvironment env) {
-		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
-		return getChildren(assocType, env);
+	public List<NodeQL> getChildren(String assocType, int skipCount, int maxItems) {
+		QNamePattern pattern = getQNameFilter(assocType);
+		return getChildren(pattern, skipCount, maxItems);
 	}
-	public List<NodeQL> getChildrenContains(DataFetchingEnvironment env) {
-		return getChildren(ContentModel.ASSOC_CONTAINS, env);
+	public List<NodeQL> getChildrenContains(int skipCount, int maxItems) {
+		return getChildren(ContentModel.ASSOC_CONTAINS, skipCount, maxItems);
 	}
-	private List<NodeQL> getChildren(QNamePattern assocType, DataFetchingEnvironment env) {
+	private List<NodeQL> getChildren(QNamePattern assocType, int skipCount, int maxItems) {
 		return getNodeService().getChildAssocs(nodeRef, assocType, null).stream()
-			.skip((int) env.getArgument("skipCount"))
-			.limit((int) env.getArgument("maxItems"))
+			.skip(skipCount)
+			.limit(maxItems)
 			.map(assoc -> newNode(assoc.getChildRef()))
 			.collect(Collectors.toList());
 	} 
-	public Optional<NodeQL> getChildByName(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
-		QName assocType = getQName(env.getArgument("assocType"));
+	public Optional<NodeQL> getChildByName(String name, QName assocType) {
 		return Optional.ofNullable(getNodeService().getChildByName(nodeRef, assocType, name))
 			.map(child -> newNode(child));
 	}
-	public List<NodeQL> getSourceAssocs(DataFetchingEnvironment env) {
-		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
+	public List<NodeQL> getSourceAssocs(QName assocType) {
 		return getNodeService().getSourceAssocs(nodeRef, assocType).stream()
 			.map(assoc -> newNode(assoc.getSourceRef()))
 			.collect(Collectors.toList());
 	}
-	public List<NodeQL> getTargetAssocs(DataFetchingEnvironment env) {
-		QNamePattern assocType = getQNameFilter(env.getArgument("assocType"));
-		return getTargetAssocs(assocType);
+	public List<NodeQL> getTargetAssocs(String assocType) {
+		QNamePattern pattern = getQNameFilter(assocType);
+		return getTargetAssocs(pattern);
 	}
 	public List<NodeQL> getTargetAssocs(QNamePattern assocType) {
 		return getNodeService().getTargetAssocs(nodeRef, assocType).stream()
 			.map(assoc -> newNode(assoc.getTargetRef()))
 			.collect(Collectors.toList());
 	}
-	public Optional<NodeQL> getSourceAssoc(DataFetchingEnvironment env) {
-		return getSourceAssocs(env).stream().findFirst();
+	public Optional<NodeQL> getSourceAssoc(QName assocType) {
+		return getSourceAssocs(assocType).stream().findFirst();
 	}
-	public Optional<NodeQL> getTargetAssoc(DataFetchingEnvironment env) {
-		return getTargetAssocs(env).stream().findFirst();
+	public Optional<NodeQL> getTargetAssoc(String assocType) {
+		return getTargetAssocs(assocType).stream().findFirst();
 	}
 
 	public Serializable getPropertyValue(QName property) {
@@ -275,19 +261,13 @@ public class NodeQL extends AbstractQLModel {
 		getNodeService().setProperty(nodeRef, property, setValue);
 	}
 	
-	public NodeQL getAddChild(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
-		QName type = getQName(env.getArgument("type"));
-		QName assocType = getQName(env.getArgument("assocType"));
-		
+	public NodeQL getAddChild(String name, QName type, QName assocType) {
 		return newNode(getFileFolderService().create(nodeRef, name, type, assocType).getNodeRef());
 	}
-	public NodeQL getAddChildFolder(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
+	public NodeQL getAddChildFolder(String name) {
 		return newNode(getFileFolderService().create(nodeRef, name, ContentModel.TYPE_FOLDER).getNodeRef());
 	}
-	public NodeQL getAddChildContent(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
+	public NodeQL getAddChildContent(String name) {
 		return newNode(getFileFolderService().create(nodeRef, name, ContentModel.TYPE_CONTENT).getNodeRef());
 	}
 

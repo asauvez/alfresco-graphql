@@ -63,6 +63,9 @@ Can be integrated in an existing Alfresco by declaring:
 - getDefaultDataFetcher
 	improve PropertyDataFetcher with argument
 
+
+
+
 - Sort sur children
 
 - delete without trashbin
