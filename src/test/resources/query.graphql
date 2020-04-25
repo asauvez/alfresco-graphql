@@ -93,6 +93,22 @@ query {
       propertyAsString(name:cm_email)
       containedAuthorities { name }
       containingAuthorities { name }
+      node {
+        properties {
+          cm_authorityContainer {
+            cm_member {
+              pathPrefixString
+              properties {
+                cm_authority {
+                  cm_inZoneParent {
+                    pathPrefixString
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
     unknownGroup: byName(name:"GROUP_unknown") {
       shortName

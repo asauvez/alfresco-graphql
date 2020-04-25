@@ -190,7 +190,36 @@
         "shortName": "site_swsdp_SiteManager",
         "type": "GROUP",
         "node": {
-          "pathPrefixString": "/sys:system/sys:authorities/cm:GROUP_site_swsdp_SiteManager"
+          "pathPrefixString": "/sys:system/sys:authorities/cm:GROUP_site_swsdp_SiteManager",
+          "properties": {
+            "cm_authorityContainer": {
+              "cm_member": [
+                {
+                  "pathPrefixString": "/sys:system/sys:people/cm:admin",
+                  "properties": {
+                    "cm_authority": {
+                      "cm_inZoneParent": [
+                        {
+                          "pathPrefixString": "/sys:system/sys:zones/cm:AUTH.ALF"
+                        },
+                        {
+                          "pathPrefixString": "/sys:system/sys:zones/cm:APP.DEFAULT"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "pathPrefixString": "/sys:system/sys:people/cm:mjackson",
+                  "properties": {
+                    "cm_authority": {
+                      "cm_inZoneParent": []
+                    }
+                  }
+                }
+              ]
+            }
+          }
         },
         "containedAuthorities": [
           {

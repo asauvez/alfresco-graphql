@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.smile.alfresco.graphql.helper.PredicateHelper;
-import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationHelper;
+import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationBuilder;
 
 
 public class PredicateHelperTest {
@@ -34,7 +34,7 @@ public class PredicateHelperTest {
 		namespaceService.map("cm", "http://www.alfresco.org/model/content/1.0");
 		namespaceService.map("exif", "http://www.alfresco.org/model/exif/1.0");
 		
-		GraphQlConfigurationHelper.namespaceService = namespaceService;
+		GraphQlConfigurationBuilder.namespaceService = namespaceService;
 	}
 	
 	@Test

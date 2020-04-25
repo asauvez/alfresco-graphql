@@ -60,10 +60,6 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
-- naviguate assoc with one/many
-
-
-
 - getDefaultDataFetcher
 	improve PropertyDataFetcher with argument
 

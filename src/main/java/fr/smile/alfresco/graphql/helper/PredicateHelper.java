@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 
-import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationHelper;
+import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationBuilder;
 
 @SuppressWarnings("unchecked")
 public class PredicateHelper {
@@ -152,10 +152,10 @@ public class PredicateHelper {
 		return this;
 	}
 	protected PredicateHelper appendFullyQualified(String property) {
-		return append(GraphQlConfigurationHelper.getQName(property).toString());
+		return append(GraphQlConfigurationBuilder.getQName(property).toString());
 	}
 	protected PredicateHelper appendPrefixString(String property) {
-		return append(GraphQlConfigurationHelper.getQName(property).toPrefixString(namespacePrefixResolver));
+		return append(GraphQlConfigurationBuilder.getQName(property).toPrefixString(namespacePrefixResolver));
 	}
 	protected PredicateHelper appendFtsValue(Object value, String defaultValue) {
 		if (value == null) {

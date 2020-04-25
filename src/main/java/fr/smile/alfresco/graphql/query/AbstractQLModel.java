@@ -17,7 +17,7 @@ import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.service.namespace.RegexQNamePattern;
 
 import fr.smile.alfresco.graphql.helper.QueryContext;
-import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationHelper;
+import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationBuilder;
 
 public abstract class AbstractQLModel {
 
@@ -74,7 +74,7 @@ public abstract class AbstractQLModel {
 		return Optional.ofNullable((String) getNodeService().getProperty(nodeRef, propertyName));
 	}
 	protected QName getQName(String name) {
-		return GraphQlConfigurationHelper.getQName(name);
+		return GraphQlConfigurationBuilder.getQName(name);
 	}
 	protected QNamePattern getQNameFilter(String name) {
 		if (name == null) {

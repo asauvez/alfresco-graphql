@@ -25,6 +25,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.kickstart.servlet.GraphQLHttpServlet;
+import graphql.schema.idl.RuntimeWiring;
 
 
 /**
@@ -39,7 +40,8 @@ import graphql.kickstart.servlet.GraphQLHttpServlet;
 			GraphQlServlet.GRAPHQL_PATH, GraphQlServlet.GRAPHQL_PATH + "/*", 
 			GraphQlServlet.GRAPHQL_MUTATION_PATH, GraphQlServlet.GRAPHQL_MUTATION_PATH + "/*", 
 			GraphQlServlet.GRAPHIQL_PATH,
-			GraphQlServlet.GRAPHIQL_MUTATION_PATH
+			GraphQlServlet.GRAPHIQL_MUTATION_PATH,
+			GraphQlServlet.SCHEMA_PATH,
 		})
 public class GraphQlServlet extends GraphQLHttpServlet {
 	
@@ -47,11 +49,13 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 	static final String GRAPHQL_MUTATION_PATH	= "/graphql_mutation";
 	static final String GRAPHIQL_PATH			= "/graphiql";
 	static final String GRAPHIQL_MUTATION_PATH	= "/graphiql_mutation";
+	static final String SCHEMA_PATH				= "/graphql.schema";
 
 	private static Log log = LogFactory.getLog(GraphQlServlet.class);
 	
 	private QueryContext queryContext;
 	private ServletAuthenticatorFactory servletAuthenticatorFactory;
+	private GraphQlConfigurationBuilder configurationBuilder;
 	
 	@Override
 	public void init() {
@@ -61,6 +65,7 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 
 			queryContext = new QueryContext(serviceRegistry);
 			servletAuthenticatorFactory = (ServletAuthenticatorFactory) applicationContext.getBean("webscripts.authenticator.remoteuser");
+			configurationBuilder = new GraphQlConfigurationBuilder(queryContext);
 			
 			super.init();
 		} catch (RuntimeException ex) {
@@ -70,7 +75,11 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 	
 	@Override
 	protected GraphQLConfiguration getConfiguration() {
-		return new GraphQlConfigurationHelper(queryContext).getConfiguration();
+		try {
+			return configurationBuilder.getConfiguration();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 	
 	@Override
@@ -91,7 +100,14 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 				response.getWriter().write(html);
 				return;
 			}
-			
+
+			if (SCHEMA_PATH.equals(request.getServletPath())) {
+				String schema = configurationBuilder.getSchema(RuntimeWiring.newRuntimeWiring());
+				response.setContentType("text/plain");
+				response.getWriter().write(schema);
+				return;
+			}
+
 			boolean readOnly = ! request.getServletPath().startsWith(GRAPHQL_MUTATION_PATH);
 			
 			queryContext.getServiceRegistry().getRetryingTransactionHelper().doInTransaction(new RetryingTransactionCallback<Void>() {
