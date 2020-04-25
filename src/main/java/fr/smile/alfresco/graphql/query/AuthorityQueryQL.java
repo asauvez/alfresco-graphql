@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 
-import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 

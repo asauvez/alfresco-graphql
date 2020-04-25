@@ -19,7 +19,6 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.PredicateHelper;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
@@ -61,6 +60,11 @@ public class NodeQueryQL extends AbstractQLModel {
 	public Optional<NodeQL> getByUuid(DataFetchingEnvironment env) {
 		NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, env.getArgument("uuid"));
 		return Optional.ofNullable(getNodeService().exists(nodeRef) ? newNode(nodeRef) : null);
+	}
+	public Optional<NodeQL> getByPath(DataFetchingEnvironment env) {
+		String path = env.getArgument("path");
+		ResultSet rs = getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_XPATH, path);
+		return rs.getNodeRefs().stream().findFirst().map(this::newNode);
 	}
 	
 	public ResultSetQL getQueryNative(DataFetchingEnvironment env) {

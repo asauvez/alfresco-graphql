@@ -17,8 +17,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
 import fr.smile.alfresco.graphql.helper.PredicateHelper;
+import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationHelper;
 
 
 public class PredicateHelperTest {

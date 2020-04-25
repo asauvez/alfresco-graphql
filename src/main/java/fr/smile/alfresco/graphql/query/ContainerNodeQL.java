@@ -2,8 +2,6 @@ package fr.smile.alfresco.graphql.query;
 
 import org.alfresco.service.namespace.QName;
 
-import fr.smile.alfresco.graphql.helper.AbstractQLModel;
-
 public class ContainerNodeQL extends AbstractQLModel {
 
 	private NodeQL node;

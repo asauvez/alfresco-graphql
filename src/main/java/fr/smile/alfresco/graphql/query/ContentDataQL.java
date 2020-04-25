@@ -16,7 +16,6 @@ import org.apache.commons.io.IOUtils;
 
 import com.sun.xml.messaging.saaj.util.ByteInputStream;
 
-import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 
@@ -72,6 +71,10 @@ public class ContentDataQL extends AbstractQLModel {
 			return Base64.getEncoder().encodeToString(buf);
 		}
 	}
+	public String getAsDataUrl(DataFetchingEnvironment env) throws IOException {
+		return "data:" + getMimetype() + ";base64," + getAsBase64(env); 
+	}
+	
 	private ContentWriter getWriter(DataFetchingEnvironment env) {
 		ContentWriter writer = getContentService().getWriter(nodeRef, property, true);
 		

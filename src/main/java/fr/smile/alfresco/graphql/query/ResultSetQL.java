@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 
-import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class ResultSetQL extends AbstractQLModel {

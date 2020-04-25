@@ -7,7 +7,6 @@ import org.alfresco.rest.framework.core.exceptions.PermissionDeniedException;
 import org.alfresco.service.cmr.module.ModuleDetails;
 import org.alfresco.service.descriptor.DescriptorService;
 
-import fr.smile.alfresco.graphql.helper.AbstractQLModel;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 
 public class SystemQueryQL extends AbstractQLModel {

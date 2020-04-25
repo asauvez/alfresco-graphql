@@ -60,22 +60,17 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
-- content en properties
-- commit
+- getDefaultDataFetcher
+	improve PropertyDataFetcher with argument
 
-
-- error with encoding
+- Sort sur children
 
 - delete without trashbin
 - Test on another project
-- path
-	String path = "/app:company_home/app:dictionary/app:space_templates/cm:Litige_Client1_Client2";
-	ResultSet rs = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_XPATH, path);
 - moveNode with variable
 	byNodeRef(nodeRef: "...") { saveAsVariable("destination") }
 	moveNode(variable: "destination")
 	createLink(variable: "destination")	
-- Sort sur children
 - On query, agregation sum, AVG, min, max of field
 - naviguate assoc with one/many
 - Subscription

@@ -22,7 +22,6 @@ import org.springframework.extensions.webscripts.servlet.WebScriptServletRespons
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import fr.smile.alfresco.graphql.helper.GraphQlConfigurationHelper;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.kickstart.servlet.GraphQLHttpServlet;

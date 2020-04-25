@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 
+import fr.smile.alfresco.graphql.servlet.GraphQlConfigurationHelper;
+
 @SuppressWarnings("unchecked")
 public class PredicateHelper {
 

@@ -1,4 +1,4 @@
-package fr.smile.alfresco.graphql.helper;
+package fr.smile.alfresco.graphql.servlet;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -22,6 +22,9 @@ import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.io.IOUtils;
 
+import fr.smile.alfresco.graphql.helper.AlfrescoDataType;
+import fr.smile.alfresco.graphql.helper.QueryContext;
+import fr.smile.alfresco.graphql.helper.ScalarType;
 import fr.smile.alfresco.graphql.query.ContainerNodeQL;
 import fr.smile.alfresco.graphql.query.QueryQL;
 import graphql.kickstart.servlet.GraphQLConfiguration;

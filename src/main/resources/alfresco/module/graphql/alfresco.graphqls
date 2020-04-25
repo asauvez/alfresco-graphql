@@ -14,6 +14,7 @@ type NodeQuery {
 	
 	byNodeRef(nodeRef: String!) : Node
 	byUuid(uuid: String!) : Node
+	byPath(path: String!) : Node
 	query(
 		query: [Predicate!]!, 
 		maxItems: Int = -1,
@@ -99,6 +100,7 @@ type Date {
 type ContentData {
 	asString(setValue: String, setEncoding: String, setLocal: String, setMimetype: String) : String
 	asBase64(setValue: String, setEncoding: String, setLocal: String, setMimetype: String) : String
+	asDataUrl: String
 	downloadUrl: String!
 
 	property: String!
