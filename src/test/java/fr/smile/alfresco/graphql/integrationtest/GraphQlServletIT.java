@@ -97,6 +97,11 @@ public class GraphQlServletIT {
 	
 			String body = EntityUtils.toString(httpResponse.getEntity());
 			assertEquals("Incorrect HTTP Response Status " + httpResponse.getStatusLine() + "\n" + body, HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
+			
+			body = body.replaceAll(
+					"[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}", 
+					"00000000-0000-0000-0000-000000000000");
+			
 			return body;
 		} catch (HttpHostConnectException ex) {
 			Assume.assumeTrue("Alfresco not started at " + webscriptURL, false);

@@ -27,7 +27,7 @@ import org.alfresco.service.namespace.QNamePattern;
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.schema.DataFetchingEnvironment;
 
-public class NodeQL extends AbstractQLModel {
+public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 
 	private NodeRef nodeRef;
 
@@ -45,6 +45,11 @@ public class NodeQL extends AbstractQLModel {
 
 	public String getUuid() {
 		return nodeRef.getId();
+	}
+	
+	@Override
+	public int compareTo(NodeQL o) {
+		return nodeRef.getId().compareTo(o.nodeRef.getId());
 	}
 	
 	public String getType() {

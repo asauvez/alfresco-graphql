@@ -263,7 +263,7 @@ public class GraphQlConfigurationBuilder {
 						.stream().map(assoc -> assoc.getSourceRef()))
 					.map(n -> new NodeQL(queryContext, n));
 				return def.isSourceMany()
-					? nodes.collect(Collectors.toList())
+					? nodes.sorted().collect(Collectors.toList())
 					: nodes.findFirst();
 			}
 		});

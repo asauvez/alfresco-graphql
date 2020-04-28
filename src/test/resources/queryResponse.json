@@ -27,8 +27,8 @@
           "documentLibrary": {
             "childrenContains": [
               {
-                "nodeRef": "workspace://SpacesStore/8bb36efb-c26d-4d2b-9199-ab6922f53c28",
-                "uuid": "8bb36efb-c26d-4d2b-9199-ab6922f53c28",
+                "nodeRef": "workspace://SpacesStore/00000000-0000-0000-0000-000000000000",
+                "uuid": "00000000-0000-0000-0000-000000000000",
                 "name": "Agency Files",
                 "title": "Agency related files",
                 "created": {
@@ -144,9 +144,9 @@
           "encoding": "UTF-8",
           "locale": "en_US"
         },
-        "onlineEditionUrl": "http://localhost:8080/alfresco/s/api/node/workspace/SpacesStore/dbf7e98b-4ee7-4d60-a9c8-1f06210e2bd6/content",
+        "onlineEditionUrl": "http://localhost:8080/alfresco/s/api/node/workspace/SpacesStore/00000000-0000-0000-0000-000000000000/content",
         "webDavUrl": "http://localhost:8080/alfresco/webdav/Data%20Dictionary/Presentation%20Templates/readme.ftl",
-        "shareUrl": "http://localhost:8180/share/page//document-details?nodeRef\u003dworkspace://SpacesStore/dbf7e98b-4ee7-4d60-a9c8-1f06210e2bd6",
+        "shareUrl": "http://localhost:8180/share/page//document-details?nodeRef\u003dworkspace://SpacesStore/00000000-0000-0000-0000-000000000000",
         "primaryParent": {
           "name": "Presentation Templates"
         },
@@ -204,10 +204,10 @@
                     "cm_authority": {
                       "cm_inZoneParent": [
                         {
-                          "pathPrefixString": "/sys:system/sys:zones/cm:AUTH.ALF"
+                          "pathPrefixString": "/sys:system/sys:zones/cm:APP.DEFAULT"
                         },
                         {
-                          "pathPrefixString": "/sys:system/sys:zones/cm:APP.DEFAULT"
+                          "pathPrefixString": "/sys:system/sys:zones/cm:AUTH.ALF"
                         }
                       ]
                     }
