@@ -33,7 +33,7 @@ public class VersionQL extends AbstractQLModel {
 		return newAuthority(version.getFrozenModifier());
 	}
 
-	public NodeQL getFrozenStateNodeRef() {
+	public NodeQL getFrozenStateNode() {
 		return newNode(version.getFrozenStateNodeRef());
 	}
 }

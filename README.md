@@ -60,6 +60,8 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
+- Make run.sh test work again
+
 - manage several reads of request.getInputStream() by RetryngTransaction?
 - test mutation
 	- change type

@@ -126,7 +126,7 @@ type Version {
 	description: String
 	frozenModifiedDate: Date!
 	frozenModifier: Authority!
-	frozenStateNodeRef: Node
+	frozenStateNode: Node
 }
 type ResultSet {
 	nodes: [Node!]!

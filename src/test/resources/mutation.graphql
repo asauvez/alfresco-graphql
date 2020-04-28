@@ -10,22 +10,22 @@
 // --------- Properties ---------
 
 // set property
-{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude(setValue: 5) } } }}}
-{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":5.0}}}}}}
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_longitude(setValue: 4.8901709), cm_latitude(setValue: 45.771944) } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_longitude":4.890171,"cm_latitude":45.771942}}}}}}
 
 // get property
-{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude } } }}}
-{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":5.0}}}}}}
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_longitude, cm_latitude } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_longitude":4.890171,"cm_latitude":45.771942}}}}}}
 
 // get remove property
-{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude(remove: true) } } }}}
-{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":null}}}}}}
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_longitude(remove: true), cm_latitude(remove: true) } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_longitude":null,"cm_latitude":null}}}}}}
 
 // check property
-{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude } } }}}
-{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":null}}}}}}
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_longitude, cm_latitude } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_longitude":null,"cm_latitude":null}}}}}}
 
-// Remove aspect
+// Clean aspect
 {node{foo:byUuid(uuid:"foobar"){ properties {cm_geographic { removeAspect } } }}}
 {"data":{"node":{"foo":{"properties":{"cm_geographic":{"removeAspect":true}}}}}}
 
@@ -50,6 +50,20 @@
 // Check aspect
 {node{foo:byUuid(uuid:"foobar"){ aspects, properties {cm_versionable {hasAspect} }  }}}
 {"data":{"node":{"foo":{"aspects":["cm:auditable","cm:titled","sys:localized","sys:referenceable"],"properties":{"cm_versionable":{"hasAspect":false}}}}}}
+
+// --------- Versions ---------
+
+// set property
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_versionable { cm_autoVersionOnUpdateProps(setValue: true) } }, title(setValue: "New title") }}}
+{"data":{"node":{"foo":{"properties":{"cm_versionable":{"cm_autoVersionOnUpdateProps":true}},"title":"New title"}}}}
+
+// set property
+{node{foo:byUuid(uuid:"foobar"){ title(setValue: "New title 2") }}}
+{"data":{"node":{"foo":{"title":"New title 2"}}}}
+
+// check version
+{node{foo:byUuid(uuid:"foobar"){ currentVersion { versionLabel, versionType, description, frozenModifiedDate {format(format:"G")}, frozenModifier {name}, frozenStateNode {uuid} }, allVersions {versionLabel} }}}
+{"data":{"node":{"foo":{"currentVersion":{"versionLabel":"1.1","versionType":"MINOR","description":null,"frozenModifiedDate":{"format":"AD"},"frozenModifier":{"name":"admin"},"frozenStateNode":{"uuid":"00000000-0000-0000-0000-000000000000"}},"allVersions":[{"versionLabel":"1.1"},{"versionLabel":"1.0"}]}}}}
 
 // --------- Delete ---------
 
