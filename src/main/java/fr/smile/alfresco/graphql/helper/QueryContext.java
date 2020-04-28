@@ -1,6 +1,5 @@
 package fr.smile.alfresco.graphql.helper;
 
-import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.service.ServiceRegistry;
@@ -10,6 +9,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 
@@ -23,11 +23,11 @@ public class QueryContext {
 	private ContentService contentService;
 	private SearchService searchService;
 	private NodeLocatorService nodeLocatorService;
-	private SysAdminParams sysAdminParams;
 	private RenditionService2 renditionService2;
 	private FileFolderService fileFolderService;
+	private VersionService versionService;
+	private DocumentLinkHelper documentLinkHelper;
 	
-	@SuppressWarnings("deprecation")
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 		
@@ -38,9 +38,10 @@ public class QueryContext {
 		contentService = serviceRegistry.getContentService();
 		searchService = serviceRegistry.getSearchService();
 		nodeLocatorService = serviceRegistry.getNodeLocatorService();
-		sysAdminParams = serviceRegistry.getSysAdminParams();
 		renditionService2 = serviceRegistry.getRenditionService2();
 		fileFolderService = serviceRegistry.getFileFolderService();
+		versionService = serviceRegistry.getVersionService();
+		documentLinkHelper = new DocumentLinkHelper(serviceRegistry);
 	}
 	
 	public ServiceRegistry getServiceRegistry() {
@@ -68,13 +69,16 @@ public class QueryContext {
 	public NodeLocatorService getNodeLocatorService() {
 		return nodeLocatorService;
 	}
-	public SysAdminParams getSysAdminParams() {
-		return sysAdminParams;
-	}
 	public RenditionService2 getRenditionService2() {
 		return renditionService2;
 	}
 	public FileFolderService getFileFolderService() {
 		return fileFolderService;
+	}
+	public VersionService getVersionService() {
+		return versionService;
+	}
+	public DocumentLinkHelper getDocumentLinkHelper() {
+		return documentLinkHelper;
 	}
 }

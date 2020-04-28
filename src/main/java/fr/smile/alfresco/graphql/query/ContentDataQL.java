@@ -6,12 +6,10 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.util.UrlUtil;
 import org.apache.commons.io.IOUtils;
 
 import com.sun.xml.messaging.saaj.util.ByteInputStream;
@@ -96,12 +94,6 @@ public class ContentDataQL extends AbstractQLModel {
 	}
 	
 	public String getDownloadUrl() {
-		// TODO manage propertis other than cm:content
-		// TODO manage rendition
-		
-		SysAdminParams sysAdminParams = getQueryContext().getSysAdminParams();
-		return UrlUtil.getAlfrescoUrl(sysAdminParams) + "/s/api/node/" 
-			+ nodeRef.getStoreRef().getProtocol() + "/" + nodeRef.getStoreRef().getIdentifier() + "/" 
-			+ nodeRef.getId() + "/content";
+		return getQueryContext().getDocumentLinkHelper().getDownloadUrl(nodeRef);
 	}
 }

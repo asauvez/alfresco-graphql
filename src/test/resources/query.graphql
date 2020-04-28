@@ -13,6 +13,7 @@ query {
         documentLibrary: childByName(name: "documentLibrary") {
           childrenContains(maxItems:1) {
             nodeRef,
+            uuid,
             name,
             title
             created { iso }
@@ -54,6 +55,9 @@ query {
         encoding
         locale
       }
+      onlineEditionUrl
+      webDavUrl
+      shareUrl
       primaryParent { name }
       primaryParents { name }
     }
@@ -85,7 +89,7 @@ query {
   }
   
   authority {
-    currentUser { name, homeFolder { pathPrefixString} }
+    currentUser { name, homeFolder { pathPrefixString } }
     swsdp_SiteManager: byName(name:"GROUP_site_swsdp_SiteManager") {
       shortName
       type

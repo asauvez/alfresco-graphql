@@ -1,10 +1,12 @@
 package fr.smile.alfresco.graphql.query;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
 
@@ -64,6 +67,19 @@ public class NodeQL extends AbstractQLModel {
 		return getNodeService().getPath(nodeRef).toString();
 	}
 
+	// ======= URL ==============================================================
+	
+	public String getOnlineEditionUrl() throws IOException {
+		return getQueryContext().getDocumentLinkHelper().getOnlineEditionUrl(nodeRef);
+	}
+	
+	public String getWebDavUrl() {
+		return getQueryContext().getDocumentLinkHelper().getWebDavUrl(nodeRef);
+	}
+	public String getShareUrl() {
+		return getQueryContext().getDocumentLinkHelper().getShareUrl(nodeRef);
+	}
+	
 	// ======= Properties ==============================================================
 	
 	public Optional<String> getPropertyAsString(DataFetchingEnvironment env) {
@@ -296,25 +312,52 @@ public class NodeQL extends AbstractQLModel {
 	public void setPropertyValue(QName property, Serializable setValue) {
 		getNodeService().setProperty(nodeRef, property, setValue);
 	}
+	public void removeProperty(QName property) {
+		getNodeService().removeProperty(nodeRef, property);
+	}
 	
 	public NodeQL getAddChild(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
 		QName type = getQName(env.getArgument("type"));
 		QName assocType = getQName(env.getArgument("assocType"));
 		
-		return newNode(getFileFolderService().create(nodeRef, name, type, assocType).getNodeRef());
+		return addChild(env, type, assocType);
 	}
 	public NodeQL getAddChildFolder(DataFetchingEnvironment env) {
-		String name = env.getArgument("name");
-		return newNode(getFileFolderService().create(nodeRef, name, ContentModel.TYPE_FOLDER).getNodeRef());
+		return addChild(env, ContentModel.TYPE_FOLDER, ContentModel.ASSOC_CONTAINS);
 	}
 	public NodeQL getAddChildContent(DataFetchingEnvironment env) {
+		return addChild(env, ContentModel.TYPE_CONTENT, ContentModel.ASSOC_CONTAINS);
+	}
+
+	public NodeQL addChild(DataFetchingEnvironment env, QName type, QName assocType) {
 		String name = env.getArgument("name");
-		return newNode(getFileFolderService().create(nodeRef, name, ContentModel.TYPE_CONTENT).getNodeRef());
+		QName assocQName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(name));
+		Map<QName, Serializable> properties = new HashMap<>();
+		properties.put(ContentModel.PROP_NAME, (Serializable) name);
+		
+		String uuid = env.getArgument("uuid");
+		if (uuid != null) {
+			properties.put(ContentModel.PROP_NODE_UUID, uuid);
+		}
+		
+		return newNode(getNodeService().createNode(nodeRef, assocType, assocQName, type, properties).getChildRef());
 	}
 
 	public boolean getDelete() {
 		getNodeService().deleteNode(nodeRef);
 		return true;
+	}
+
+	// ======= Versions ==============================================================
+
+	public Optional<VersionQL> getCurrentVersion() {
+		return Optional.ofNullable(getVersionService().getCurrentVersion(nodeRef))
+				.map(v -> new VersionQL(getQueryContext(), v));
+	}
+	public Optional<List<VersionQL>> getAllVersions() {
+		return Optional.ofNullable(getVersionService().getVersionHistory(nodeRef))
+				.map(vh -> vh.getAllVersions().stream()
+						.map(v -> new VersionQL(getQueryContext(), v))
+						.collect(Collectors.toList()));
 	}
 }

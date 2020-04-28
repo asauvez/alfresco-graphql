@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
@@ -54,6 +55,9 @@ public abstract class AbstractQLModel {
 	}
 	protected FileFolderService getFileFolderService() {
 		return queryContext.getFileFolderService();
+	}
+	protected VersionService getVersionService() {
+		return queryContext.getVersionService();
 	}
 
 	protected NodeQL newNode(NodeRef nodeRef) {

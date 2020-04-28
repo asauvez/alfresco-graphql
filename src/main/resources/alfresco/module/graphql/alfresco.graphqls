@@ -48,14 +48,18 @@ type Node {
 	type: String!
 	aspects: [String!]!
 
-	addChild(name: String!, type: TypeEnum!, assocType: String = "cm:contains") : Node
-	addChildFolder(name: String!) : Node
-	addChildContent(name: String!) : Node
+	addChild(name: String!, type: TypeEnum!, assocType: String = "cm:contains", uuid: String) : Node!
+	addChildFolder(name: String!, uuid: String) : Node!
+	addChildContent(name: String!, uuid: String) : Node!
 	delete: Boolean
 	
 	pathDisplay: String!
 	pathPrefixString: String!
 	pathQualifiedName: String!
+
+	onlineEditionUrl: String!
+	webDavUrl: String!
+	shareUrl: String!
 	
 	propertyAsString(name: PropertyEnum!) : String
 	name(setValue: String) : String
@@ -91,6 +95,9 @@ type Node {
 	targetAssocs(assocType: String) : [Node!]!
 	sourceAssoc(assocType: String) : Node
 	targetAssoc(assocType: String) : Node
+
+	currentVersion: Version
+	allVersions: [Version!]
 }
 
 type Date {
@@ -112,6 +119,14 @@ type ContentData {
 type PropertyValue {
 	property: String!
 	valueAsString: String
+}
+type Version {
+	versionLabel: String!
+	versionType: String!
+	description: String
+	frozenModifiedDate: Date!
+	frozenModifier: Authority!
+	frozenStateNodeRef: Node
 }
 type ResultSet {
 	nodes: [Node!]!

@@ -187,7 +187,7 @@ public class GraphQlConfigurationBuilder {
 		String fullInput = (def.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (def.isMultiValued() ? "]" : "");
 		buf.append("	").append(toFieldName(property));
 		if (alfrescoDataType != AlfrescoDataType.CONTENT) {
-			buf.append(" (setValue: ").append(fullInput).append(")");
+			buf.append(" (setValue: ").append(fullInput).append(", remove: Boolean = false)");
 		}
 		buf.append(": ").append(fullType).append("\n");
 		
@@ -200,6 +200,10 @@ public class GraphQlConfigurationBuilder {
 				Serializable setValue = env.getArgument("setValue");
 				if (setValue != null) {
 					cnode.getNode().setPropertyValue(property, setValue);
+				}
+				boolean remove = env.getArgument("remove");
+				if (remove) {
+					cnode.getNode().removeProperty(property);
 				}
 				
 				Serializable value = cnode.getNode().getPropertyValue(property);

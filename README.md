@@ -60,6 +60,19 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
+- manage several reads of request.getInputStream() by RetryngTransaction?
+- test mutation
+	- add/remove aspect
+	- change type
+	- set/remove property
+	- Uuid on creation. 
+	- versions
+	
+- versions mutation
+- Checkout
+- Lance action sur Node. 
+- Categories
+
 - getDefaultDataFetcher
 	improve PropertyDataFetcher with argument
 
@@ -77,5 +90,4 @@ Can be integrated in an existing Alfresco by declaring:
 	can be tested in graphiql
 	on a node or global?
 - change permissions
-- manage several reads of request.getInputStream() by RetryngTransaction?
 
