@@ -62,10 +62,7 @@ Can be integrated in an existing Alfresco by declaring:
 # TODO
 - manage several reads of request.getInputStream() by RetryngTransaction?
 - test mutation
-	- add/remove aspect
 	- change type
-	- set/remove property
-	- Uuid on creation. 
 	- versions
 	
 - versions mutation

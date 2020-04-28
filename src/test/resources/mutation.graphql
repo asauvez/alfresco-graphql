@@ -1,14 +1,61 @@
 // create
-{ node { sharedHome { foo: addChildContent(name: "Foo.txt") { title(setValue: "Hello"), contentCreate { asString(setValue: "Hello world")}} }}}
+{ node { sharedHome { foo: addChildContent(name: "Foo.txt", uuid: "foobar") { title(setValue: "Hello"), contentCreate { asString(setValue: "Hello world")}} }}}
 {"data":{"node":{"sharedHome":{"foo":{"title":"Hello","contentCreate":{"asString":"Hello world"}}}}}}
 
 // query
-{ node { sharedHome { foo: childByName (name: "Foo.txt") { content { asString } } }}}
-{"data":{"node":{"sharedHome":{"foo":{"content":{"asString":"Hello world"}}}}}}
+{ node { sharedHome { foo: childByName (name: "Foo.txt") { nodeRef, uuid, content { asString } } }}}
+{"data":{"node":{"sharedHome":{"foo":{"nodeRef":"workspace://SpacesStore/foobar","uuid":"foobar","content":{"asString":"Hello world"}}}}}}
 
-// delete
-{ node { sharedHome { foo: childByName (name: "Foo.txt") { delete } }}}
-{"data":{"node":{"sharedHome":{"foo":{"delete":true}}}}}
+
+// --------- Properties ---------
+
+// set property
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude(setValue: 5) } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":5.0}}}}}}
+
+// get property
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":5.0}}}}}}
+
+// get remove property
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude(remove: true) } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":null}}}}}}
+
+// check property
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_latitude } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_latitude":null}}}}}}
+
+// Remove aspect
+{node{foo:byUuid(uuid:"foobar"){ properties {cm_geographic { removeAspect } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"removeAspect":true}}}}}}
+
+// --------- Aspect ---------
+
+// query
+{node{foo:byUuid(uuid:"foobar"){ aspects } }}
+{"data":{"node":{"foo":{"aspects":["cm:auditable","cm:titled","sys:localized","sys:referenceable"]}}}}
+
+// add aspect
+{node{foo:byUuid(uuid:"foobar"){ properties {cm_versionable { addAspect } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_versionable":{"addAspect":true}}}}}}
+
+// Check aspect
+{node{foo:byUuid(uuid:"foobar"){ aspects, properties {cm_versionable {hasAspect} }  }}}
+{"data":{"node":{"foo":{"aspects":["cm:auditable","cm:titled","cm:versionable","sys:localized","sys:referenceable"],"properties":{"cm_versionable":{"hasAspect":true}}}}}}
+
+// Remove aspect
+{node{foo:byUuid(uuid:"foobar"){ properties {cm_versionable { removeAspect } } }}}
+{"data":{"node":{"foo":{"properties":{"cm_versionable":{"removeAspect":true}}}}}}
+
+// Check aspect
+{node{foo:byUuid(uuid:"foobar"){ aspects, properties {cm_versionable {hasAspect} }  }}}
+{"data":{"node":{"foo":{"aspects":["cm:auditable","cm:titled","sys:localized","sys:referenceable"],"properties":{"cm_versionable":{"hasAspect":false}}}}}}
+
+// --------- Delete ---------
+
+// delete node
+{node{foo:byUuid(uuid:"foobar"){ delete } }}
+{"data":{"node":{"foo":{"delete":true}}}}
 
 // test really deleted
 { node { sharedHome { foo: childByName (name: "Foo.txt") { title } }}}
