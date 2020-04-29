@@ -108,7 +108,7 @@ public class DocumentLinkHelper {
 			+ "/document-details?nodeRef=" + nodeRef;
 	}
 	
-	public String getDownloadUrl(NodeRef nodeRef) {
+	public String getDownloadUrl(NodeRef nodeRef, QName property) {
 		// TODO manage properties other than cm:content
 		return UrlUtil.getAlfrescoUrl(sysAdminParams) + "/s/api/node/" 
 			+ nodeRef.getStoreRef().getProtocol() + "/" + nodeRef.getStoreRef().getIdentifier() + "/" 

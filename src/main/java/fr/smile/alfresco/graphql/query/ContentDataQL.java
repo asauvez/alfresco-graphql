@@ -94,6 +94,6 @@ public class ContentDataQL extends AbstractQLModel {
 	}
 	
 	public String getDownloadUrl() {
-		return getQueryContext().getDocumentLinkHelper().getDownloadUrl(nodeRef);
+		return getQueryContext().getDocumentLinkHelper().getDownloadUrl(nodeRef, property);
 	}
 }

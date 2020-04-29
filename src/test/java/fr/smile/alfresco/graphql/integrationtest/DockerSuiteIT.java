@@ -24,6 +24,7 @@ public class DockerSuiteIT {
 			new File("target/classes/docker/docker-compose.yml"))
 				.withExposedService(SERVICE_NAME, SERVICE_PORT, 
 						Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(120)))
+				.withBuild(true)
 				.withTailChildContainers(true)
 //				.withLocalCompose(true)
 				;

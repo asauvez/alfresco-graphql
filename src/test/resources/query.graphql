@@ -54,6 +54,7 @@ query {
         size
         encoding
         locale
+        downloadUrl
       }
       onlineEditionUrl
       webDavUrl
@@ -62,8 +63,11 @@ query {
       primaryParents { name }
     }
 
-    readmeFile2 : queryNative(query: "=cm:name:readme.ftl") {
+    budget : queryNative(query: "=cm:name:budget.xls") {
       numberFound
+      nodes {
+        onlineEditionUrl
+      }
     }
     image: query(
         query: [

@@ -142,7 +142,8 @@
           "mimetype": "text/plain",
           "size": 909,
           "encoding": "UTF-8",
-          "locale": "en_US"
+          "locale": "en_US",
+          "downloadUrl": "http://localhost:8080/alfresco/s/api/node/workspace/SpacesStore/00000000-0000-0000-0000-000000000000/content"
         },
         "onlineEditionUrl": "http://localhost:8080/alfresco/s/api/node/workspace/SpacesStore/00000000-0000-0000-0000-000000000000/content",
         "webDavUrl": "http://localhost:8080/alfresco/webdav/Data%20Dictionary/Presentation%20Templates/readme.ftl",
@@ -162,8 +163,13 @@
           }
         ]
       },
-      "readmeFile2": {
-        "numberFound": 1
+      "budget": {
+        "numberFound": 1,
+        "nodes": [
+          {
+            "onlineEditionUrl": "ms-excel:ofe|u|http://localhost:8080/alfresco/aos/sites/swsdp/documentLibrary/Budget%20Files/budget.xls"
+          }
+        ]
       },
       "image": {
         "nodes": [
