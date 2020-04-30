@@ -184,7 +184,7 @@
           }
         ]
       },
-      "image": {
+      "coinsJpg": {
         "nodes": [
           {
             "name": "coins.JPG",
@@ -200,6 +200,39 @@
             }
           }
         ]
+      },
+      "images": {
+        "sum": {
+          "content": {
+            "size": 4932145
+          }
+        },
+        "min": {
+          "properties": {
+            "exif_exif": {
+              "exif_pixelXDimension": 400,
+              "exif_pixelYDimension": 192
+            }
+          }
+        },
+        "max": {
+          "properties": {
+            "exif_exif": {
+              "exif_pixelXDimension": 3264,
+              "exif_pixelYDimension": 3008
+            }
+          }
+        },
+        "and": {
+          "inheritParentPermissions": true
+        },
+        "or": {
+          "properties": {
+            "cm_indexControl": {
+              "hasAspect": false
+            }
+          }
+        }
       }
     },
     "authority": {

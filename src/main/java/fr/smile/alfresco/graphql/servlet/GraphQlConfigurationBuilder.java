@@ -85,7 +85,8 @@ public class GraphQlConfigurationBuilder {
 				builder.dataFetcher(toFieldName(container), new DataFetcher<ContainerNodeQL>() {
 					@Override
 					public ContainerNodeQL get(DataFetchingEnvironment environment) throws Exception {
-						return new ContainerNodeQL(environment.getSource(), container) ;
+						NodeQL node = environment.getSource();
+						return node.newContainerNode(container);
 					}
 				});
 				buf.append("	").append(toFieldName(container)).append(": ").append(toFieldName(container)).append("\n");
@@ -203,33 +204,34 @@ public class GraphQlConfigurationBuilder {
 			@Override
 			public Object get(DataFetchingEnvironment env) throws Exception {
 				ContainerNodeQL cnode = env.getSource();
+				NodeQL node = cnode.getNode();
 
 				Serializable setValue = env.getArgument("setValue");
 				if (setValue != null) {
-					cnode.getNode().setPropertyValue(property, setValue);
+					node.setPropertyValue(property, setValue);
 				}
 				boolean remove = env.getArgument("remove");
 				if (remove) {
-					cnode.getNode().removeProperty(property);
+					node.removeProperty(property);
 				}
 				
-				Serializable value = cnode.getNode().getPropertyValue(property);
+				Serializable value = node.getPropertyValue(property);
 				
 				Serializable append = env.getArgument("append");
 				if (append != null) {
 					List<Serializable> list = (List<Serializable>) value;
 					list.add(append);
-					cnode.getNode().setPropertyValue(property, value);
+					node.setPropertyValue(property, value);
 				}
 
 				Integer increment = env.getArgument("increment");
 				if (increment != null) {
 					Number number = (Number) value;
 					long newValue = number.longValue() + increment.intValue();
-					cnode.getNode().setPropertyValue(property, newValue);
+					node.setPropertyValue(property, newValue);
 				}
 
-				Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(cnode.getNode(), property, item);
+				Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(node, property, item);
 				return (value instanceof List) 
 						? ((List<Serializable>) value).stream().map(function).collect(Collectors.toList())
 						: Optional.ofNullable(value).map(function);
@@ -251,10 +253,10 @@ public class GraphQlConfigurationBuilder {
 				
 				Stream<NodeQL> nodes = (def.isChild()
 					? queryContext.getNodeService()
-						.getChildAssocs(cnode.getNode().getNodeRefInternal(), assocType, RegexQNamePattern.MATCH_ALL)
+						.getChildAssocs(cnode.getNodeRef(), assocType, RegexQNamePattern.MATCH_ALL)
 						.stream().map(assoc -> assoc.getChildRef()) 
 					: queryContext.getNodeService()
-						.getTargetAssocs(cnode.getNode().getNodeRefInternal(), assocType)
+						.getTargetAssocs(cnode.getNodeRef(), assocType)
 						.stream().map(assoc -> assoc.getTargetRef()))
 					.map(n -> new NodeQL(queryContext, n));
 				return def.isTargetMany()
@@ -278,10 +280,10 @@ public class GraphQlConfigurationBuilder {
 				
 				Stream<NodeQL> nodes = (def.isChild()
 					? queryContext.getNodeService()
-						.getParentAssocs(cnode.getNode().getNodeRefInternal(), assocType, RegexQNamePattern.MATCH_ALL)
+						.getParentAssocs(cnode.getNodeRef(), assocType, RegexQNamePattern.MATCH_ALL)
 						.stream().map(assoc -> assoc.getParentRef()) 
 					: queryContext.getNodeService()
-						.getSourceAssocs(cnode.getNode().getNodeRefInternal(), assocType)
+						.getSourceAssocs(cnode.getNodeRef(), assocType)
 						.stream().map(assoc -> assoc.getSourceRef()))
 					.map(n -> new NodeQL(queryContext, n));
 				return def.isSourceMany()

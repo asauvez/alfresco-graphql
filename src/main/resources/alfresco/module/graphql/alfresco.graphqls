@@ -137,6 +137,11 @@ type Version {
 type ResultSet {
 	nodes: [Node!]!
 	numberFound: Int!
+	min: Node!
+	max: Node!
+	sum: Node!
+	and: Node!
+	or: Node!
 }
 enum QueryConsistency { EVENTUAL, TRANSACTIONAL, DEFAULT, TRANSACTIONAL_IF_POSSIBLE, HYBRID }
 

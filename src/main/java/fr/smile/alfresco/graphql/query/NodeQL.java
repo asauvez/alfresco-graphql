@@ -41,6 +41,7 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 	public String getNodeRef() {
 		return nodeRef.toString();
 	}
+	
 	public NodeRef getNodeRefInternal() {
 		return nodeRef;
 	}
@@ -70,6 +71,10 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 				.sorted()
 				.collect(Collectors.toList());
 	}
+	public ContainerNodeQL newContainerNode(QName container) {
+		return new ContainerNodeQL(getQueryContext(), nodeRef, container);
+	}
+	
 	public String getPathDisplay() {
 		return getNodeService().getPath(nodeRef).toDisplayPath(getNodeService(), getPermissionService());
 	}

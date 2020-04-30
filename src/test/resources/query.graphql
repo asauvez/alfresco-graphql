@@ -76,7 +76,7 @@ query {
         }
       }
     }
-    image: query(
+    coinsJpg: query(
         query: [
            {aspect: exif_exif}, 
            {eq: {property: cm_name, value:"coins.JPG"}}
@@ -94,6 +94,27 @@ query {
             exif_pixelXDimension
             exif_pixelYDimension
           } 
+        }
+      }
+    }
+    images: query(query: [{aspect: exif_exif}]) {
+      sum {
+        content { size }
+      }
+      min {
+        properties {
+          exif_exif { exif_pixelXDimension, exif_pixelYDimension }
+        }
+      }
+      max {
+        properties {
+          exif_exif { exif_pixelXDimension, exif_pixelYDimension }
+        }
+      }
+      and { inheritParentPermissions }
+      or {
+        properties {
+          cm_indexControl { hasAspect }
         }
       }
     }

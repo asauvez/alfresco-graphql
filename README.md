@@ -64,12 +64,9 @@ Can be integrated in an existing Alfresco by declaring:
 
 - manage several reads of request.getInputStream() by RetryngTransaction?
 
-- On query, agregation sum, AVG, min, max, and, or of field, delete
-	returns proxy
-	https://stackoverflow.com/questions/14277608/creating-java-proxy-instance-for-a-class-type
-
-
 - test append and increment
+
+
 locked (setValue: Boolean)
 favorite(setValue: Boolean)
 	
