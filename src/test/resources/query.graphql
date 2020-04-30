@@ -35,6 +35,7 @@ query {
             hasPermission(permission:"DeleteAssociations")
             hasWritePermission
             hasDeletePermission
+            settablePermissions
           }
         }
       }
@@ -46,12 +47,15 @@ query {
     ]) {
       name
       type
+      isContent
+      isFolder
       aspects
       content {
         asString
         asBase64
         mimetype
         size
+        sizeHumanReadable
         encoding
         locale
         downloadUrl
@@ -67,6 +71,9 @@ query {
       numberFound
       nodes {
         onlineEditionUrl
+        content {
+          sizeHumanReadable
+        }
       }
     }
     image: query(

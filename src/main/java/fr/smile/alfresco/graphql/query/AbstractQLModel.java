@@ -8,7 +8,6 @@ import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.version.VersionService;
@@ -65,9 +64,6 @@ public abstract class AbstractQLModel {
 	}
 	protected AuthorityQL newAuthority(String name) {
 		return new AuthorityQL(queryContext, name);
-	}
-	protected AccessPermissionQL newAccessPermission(AccessPermission accessPermission) {
-		return new AccessPermissionQL(queryContext, accessPermission);
 	}
 
 	@SuppressWarnings("unchecked")

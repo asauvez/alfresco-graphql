@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
@@ -18,6 +19,7 @@ import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.NamespaceService;
@@ -55,7 +57,13 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 	public String getType() {
 		return getNodeService().getType(nodeRef).toPrefixString(getNamespaceService());
 	}
-
+	public boolean getIsContent() {
+		return getQueryContext().getDictionaryService().isSubClass(getNodeService().getType(nodeRef), ContentModel.TYPE_CONTENT);
+	}
+	public boolean getIsFolder() {
+		return getQueryContext().getDictionaryService().isSubClass(getNodeService().getType(nodeRef), ContentModel.TYPE_FOLDER);
+	}
+	
 	public List<String> getAspects() {
 		return getNodeService().getAspects(nodeRef).stream()
 				.map(qname -> qname.toPrefixString(getNamespaceService()))
@@ -193,7 +201,14 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 
 	// ======= Permissions ==============================================================
 
-	public boolean getInheritParentPermissions() {
+	private AccessPermissionQL newAccessPermission(AccessPermission accessPermission) {
+		return new AccessPermissionQL(this, accessPermission);
+	}
+	public boolean getInheritParentPermissions(DataFetchingEnvironment env) {
+		Boolean setValue = env.getArgument("setValue");
+		if (setValue != null) {
+			getPermissionService().setInheritParentPermissions(nodeRef, setValue);
+		}
 		return getPermissionService().getInheritParentPermissions(nodeRef);
 	}
 	public List<AccessPermissionQL> getPermissions() {
@@ -218,7 +233,24 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 	public boolean getHasDeletePermission() {
 		return getPermissionService().hasPermission(nodeRef, PermissionService.DELETE) == AccessStatus.ALLOWED;
 	}
-	
+	public Set<String> getSettablePermissions() {
+		return getPermissionService().getSettablePermissions(nodeRef);
+	}
+	public boolean getSetPermission(DataFetchingEnvironment env) {
+		String authority = env.getArgument("authority");
+		String permission = env.getArgument("permission");
+		boolean allow = env.getArgument("allow");
+		getPermissionService().setPermission(nodeRef, authority, permission, allow);
+		
+		return true; 
+	}
+	public boolean getDeletePermission(DataFetchingEnvironment env) {
+		String authority = env.getArgument("authority");
+		String permission = env.getArgument("permission");
+		getPermissionService().deletePermission(nodeRef, authority, permission);
+		
+		return true; 
+	}
 	
 	// ======= Associations ==============================================================
 

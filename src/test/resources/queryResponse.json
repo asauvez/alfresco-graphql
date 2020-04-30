@@ -119,7 +119,14 @@
                 ],
                 "hasPermission": true,
                 "hasWritePermission": true,
-                "hasDeletePermission": true
+                "hasDeletePermission": true,
+                "settablePermissions": [
+                  "Contributor",
+                  "Collaborator",
+                  "Coordinator",
+                  "Editor",
+                  "Consumer"
+                ]
               }
             ]
           }
@@ -128,6 +135,8 @@
       "readmeFile": {
         "name": "readme.ftl",
         "type": "cm:content",
+        "isContent": true,
+        "isFolder": false,
         "aspects": [
           "app:inlineeditable",
           "cm:auditable",
@@ -141,6 +150,7 @@
           "asBase64": "PCMtLSBEaXNwbGF5cyB0aGUgY29udGVudHMgb2YgcmVhZG1lLmh0bWwgYW5kL29yIHRoZSBldmFsdWF0ZWQgcmVhZG1lLmZ0bCBpZiB0aGV5IGV4aXN0IGluIHRoZSBjdXJyZW50IHNwYWNlLiAtLT4KPCNhc3NpZ24gZmlsZW5hbWUgPSAicmVhZG1lIi8+CjwjYXNzaWduIGh0bWxFeHQgPSAiaHRtbCIvPgo8I2Fzc2lnbiBzdWZmaXggPSAubGFuZyAvPgo8I2Fzc2lnbiBmdGxFeHQgPSAiZnRsIi8+CjwjYXNzaWduIGh0bWxMYW5nRmlsZW5hbWUgPSAiJHtmaWxlbmFtZX1fJHtzdWZmaXh9LiR7aHRtbEV4dH0iLz4KPCNhc3NpZ24gaHRtbEZpbGVuYW1lID0gIiR7ZmlsZW5hbWV9LiR7aHRtbEV4dH0iLz4KPCNhc3NpZ24gZnRsRmlsZW5hbWUgPSAiJHtmaWxlbmFtZX0uJHtmdGxFeHR9Ii8+CjwjYXNzaWduIG1lc3NhZ2VFcnJvcj0iUmVhZG1lIGZpbGUgZG9lcyBub3QgZXhpc3QhIi8+CjwjYXNzaWduIGZvdW5kID0gZmFsc2U+Cgo8I2lmIHNwYWNlP2V4aXN0cz4KICAgIDwjaWYgc3BhY2UuY2hpbGRCeU5hbWVQYXRoWyIke2h0bWxMYW5nRmlsZW5hbWV9Il0/ZXhpc3RzPgogICAgICAgICR7c3BhY2UuY2hpbGRCeU5hbWVQYXRoW2h0bWxMYW5nRmlsZW5hbWVdLmNvbnRlbnR9CiAgICA8I2Vsc2VpZiBzcGFjZS5jaGlsZEJ5TmFtZVBhdGhbIiR7aHRtbEZpbGVuYW1lfSJdP2V4aXN0cz4KICAgICAgICAke3NwYWNlLmNoaWxkQnlOYW1lUGF0aFtodG1sRmlsZW5hbWVdLmNvbnRlbnR9CiAgICA8I2Vsc2VpZiBzcGFjZS5jaGlsZEJ5TmFtZVBhdGhbIiR7ZnRsRmlsZW5hbWV9Il0/ZXhpc3RzPgogICAgICAgIDwjaW5jbHVkZSBzcGFjZS5jaGlsZEJ5TmFtZVBhdGhbIiR7ZnRsRmlsZW5hbWV9Il0ubm9kZVJlZj4gCiAgICA8I2Vsc2U+CiAgICAgICAgJHttZXNzYWdlRXJyb3J9CiAgICA8LyNpZj4KPC8jaWY+",
           "mimetype": "text/plain",
           "size": 909,
+          "sizeHumanReadable": "909 B",
           "encoding": "UTF-8",
           "locale": "en_US",
           "downloadUrl": "http://localhost:8080/alfresco/s/api/node/workspace/SpacesStore/00000000-0000-0000-0000-000000000000/content"
@@ -167,7 +177,10 @@
         "numberFound": 1,
         "nodes": [
           {
-            "onlineEditionUrl": "ms-excel:ofe|u|http://localhost:8080/alfresco/aos/sites/swsdp/documentLibrary/Budget%20Files/budget.xls"
+            "onlineEditionUrl": "ms-excel:ofe|u|http://localhost:8080/alfresco/aos/sites/swsdp/documentLibrary/Budget%20Files/budget.xls",
+            "content": {
+              "sizeHumanReadable": "25.5 KiB"
+            }
           }
         ]
       },

@@ -65,6 +65,25 @@
 {node{foo:byUuid(uuid:"foobar"){ currentVersion { versionLabel, versionType, description, frozenModifiedDate {format(format:"G")}, frozenModifier {name}, frozenStateNode {uuid} }, allVersions {versionLabel} }}}
 {"data":{"node":{"foo":{"currentVersion":{"versionLabel":"1.1","versionType":"MINOR","description":null,"frozenModifiedDate":{"format":"AD"},"frozenModifier":{"name":"admin"},"frozenStateNode":{"uuid":"00000000-0000-0000-0000-000000000000"}},"allVersions":[{"versionLabel":"1.1"},{"versionLabel":"1.0"}]}}}}
 
+// --------- Permissions ---------
+
+// set permission
+{node{foo:byUuid(uuid:"foobar"){ setPermission(authority: "admin", permission: "Consumer") }}}
+{"data":{"node":{"foo":{"setPermission":true}}}}
+
+
+// check permissions
+{node{foo:byUuid(uuid:"foobar"){ allSetPermissions { authority {name} permission } }}}
+{"data":{"node":{"foo":{"allSetPermissions":[{"authority":{"name":"GROUP_EVERYONE"},"permission":"Contributor"},{"authority":{"name":"admin"},"permission":"Consumer"}]}}}}
+
+// delete permission
+{node{foo:byUuid(uuid:"foobar"){ deletePermission(authority: "admin", permission: "Consumer") }}}
+{"data":{"node":{"foo":{"deletePermission":true}}}}
+
+// check permissions deleted
+{node{foo:byUuid(uuid:"foobar"){ allSetPermissions { authority {name} permission } }}}
+{"data":{"node":{"foo":{"allSetPermissions":[{"authority":{"name":"GROUP_EVERYONE"},"permission":"Contributor"}]}}}}
+
 // --------- Delete ---------
 
 // delete node

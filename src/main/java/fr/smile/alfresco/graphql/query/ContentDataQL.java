@@ -2,6 +2,8 @@ package fr.smile.alfresco.graphql.query;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,12 +38,29 @@ public class ContentDataQL extends AbstractQLModel {
 	public String getMimetype() {
 		return contentData.getMimetype();
 	}
+	
 	public int getSize() {
 		if (contentData.getSize() > Integer.MAX_VALUE) {
 			return -1;
 		}
 		return (int) contentData.getSize();
 	}
+	public String getSizeHumanReadable() {
+		long bytes = contentData.getSize();
+		long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
+		if (absB < 1024) {
+			return bytes + " B";
+		}
+		long value = absB;
+		CharacterIterator ci = new StringCharacterIterator("KMGTPE");
+		for (int i = 40; i >= 0 && absB > 0xfffccccccccccccL >> i; i -= 10) {
+			value >>= 10;
+			ci.next();
+		}
+		value *= Long.signum(bytes);
+		return String.format("%.1f %ciB", value / 1024.0, ci.current());
+	}
+	
 	public String getEncoding(DataFetchingEnvironment env) {
 		return contentData.getEncoding();
 	}

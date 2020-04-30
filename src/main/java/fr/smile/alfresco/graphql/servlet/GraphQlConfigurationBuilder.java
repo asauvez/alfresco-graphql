@@ -110,7 +110,8 @@ public class GraphQlConfigurationBuilder {
 		for (QName container : classes) {
 			buf.append("type ").append(toFieldName(container)).append(" {\n");
 			if (allTypes.contains(container)) {
-				buf.append("	isType: Boolean\n");
+				buf.append("	isExactType: Boolean\n");
+				buf.append("	isSubType: Boolean\n");
 				buf.append("	setType: Boolean\n");
 			} else {
 				buf.append("	hasAspect: Boolean\n");
@@ -187,7 +188,13 @@ public class GraphQlConfigurationBuilder {
 		String fullInput = (def.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (def.isMultiValued() ? "]" : "");
 		buf.append("	").append(toFieldName(property));
 		if (alfrescoDataType != AlfrescoDataType.CONTENT) {
-			buf.append(" (setValue: ").append(fullInput).append(", remove: Boolean = false)");
+			buf.append(" (setValue: ").append(fullInput).append(", remove: Boolean = false");
+			if (def.isMultiValued()) {
+				buf.append(", append: ").append(alfrescoDataType.getScalarInput().name());
+			} else if (alfrescoDataType == AlfrescoDataType.INT || alfrescoDataType == AlfrescoDataType.LONG) {
+				buf.append(", increment: ").append(alfrescoDataType.getScalarInput().name());
+			}
+			buf.append(")");
 		}
 		buf.append(": ").append(fullType).append("\n");
 		
@@ -207,6 +214,21 @@ public class GraphQlConfigurationBuilder {
 				}
 				
 				Serializable value = cnode.getNode().getPropertyValue(property);
+				
+				Serializable append = env.getArgument("append");
+				if (append != null) {
+					List<Serializable> list = (List<Serializable>) value;
+					list.add(append);
+					cnode.getNode().setPropertyValue(property, value);
+				}
+
+				Integer increment = env.getArgument("increment");
+				if (increment != null) {
+					Number number = (Number) value;
+					long newValue = number.longValue() + increment.intValue();
+					cnode.getNode().setPropertyValue(property, newValue);
+				}
+
 				Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(cnode.getNode(), property, item);
 				return (value instanceof List) 
 						? ((List<Serializable>) value).stream().map(function).collect(Collectors.toList())
@@ -287,9 +309,13 @@ public class GraphQlConfigurationBuilder {
 	}
 	
 	private void enumQName(StringBuilder buf, String typeName, Collection<QName> values) {
+		enumString(buf, typeName, values.stream()
+				.map(this::toFieldName).collect(Collectors.toList()));
+	}
+	private void enumString(StringBuilder buf, String typeName, Collection<String> values) {
 		buf.append("enum ").append(typeName).append(" {");
-		for (QName value : new TreeSet<QName>(values)) {
-			buf.append(toFieldName(value)).append(", ");
+		for (String value : new TreeSet<String>(values)) {
+			buf.append(value).append(", ");
 		}
 		buf.append("}\n");
 	}

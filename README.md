@@ -63,11 +63,16 @@ Can be integrated in an existing Alfresco by declaring:
 - Make run.sh test work again
 
 - manage several reads of request.getInputStream() by RetryngTransaction?
-- test mutation
-	- change type
-	- versions
+
+- On query, agregation sum, AVG, min, max, and, or of field, delete
+	returns proxy
+	https://stackoverflow.com/questions/14277608/creating-java-proxy-instance-for-a-class-type
+
+
+- test append and increment
+locked (setValue: Boolean)
+favorite(setValue: Boolean)
 	
-- versions mutation
 - Checkout
 - Lance action sur Node. 
 - Categories
@@ -81,12 +86,10 @@ Can be integrated in an existing Alfresco by declaring:
 	byNodeRef(nodeRef: "...") { saveAsVariable("destination") }
 	moveNode(variable: "destination")
 	createLink(variable: "destination")	
-- On query, agregation sum, AVG, min, max of field
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
 		You need to use SubscriptionExecutionStrategy as your execution strategy as it has the support for the reactive-streams APIs.
 	return SubmissionPublisher
 	can be tested in graphiql
 	on a node or global?
-- change permissions
 

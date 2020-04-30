@@ -14,6 +14,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.ContentType;
@@ -62,7 +63,13 @@ public class GraphQlServletIT {
 		}
 		assertEquals("Incorrect Web Script Response", expectedResponse.toString(), actualResponse.toString());
 	}
-	
+
+	@Test
+	public void testGraphIQlCall() throws Exception {
+		callURL("/graphiql");
+		callURL("/graphiql_mutation");
+	}
+
 	@Before
 	public void init() {
 		// Login credentials for Alfresco Repo
@@ -105,6 +112,20 @@ public class GraphQlServletIT {
 			return body;
 		} catch (HttpHostConnectException ex) {
 			Assume.assumeTrue("Alfresco not started at " + webscriptURL, false);
+			throw ex;
+		}
+	}
+	
+	private String callURL(String url) throws IOException {
+		HttpGet get = new HttpGet(getPlatformEndpoint() + url);
+		try {
+			HttpResponse httpResponse = httpclient.execute(get);
+	
+			String body = EntityUtils.toString(httpResponse.getEntity());
+			assertEquals("Incorrect HTTP Response Status " + httpResponse.getStatusLine() + "\n" + body, HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
+			return body;
+		} catch (HttpHostConnectException ex) {
+			Assume.assumeTrue("Alfresco not started at " + url, false);
 			throw ex;
 		}
 	}

@@ -3,6 +3,8 @@ package fr.smile.alfresco.graphql.helper;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -16,6 +18,7 @@ import org.alfresco.service.namespace.NamespaceService;
 public class QueryContext {
 
 	private ServiceRegistry serviceRegistry;
+	private DocumentLinkHelper documentLinkHelper;
 	private NodeService nodeService;
 	private NamespaceService namespaceService;
 	private AuthorityService authorityService;
@@ -26,11 +29,13 @@ public class QueryContext {
 	private RenditionService2 renditionService2;
 	private FileFolderService fileFolderService;
 	private VersionService versionService;
-	private DocumentLinkHelper documentLinkHelper;
+	private DictionaryService dictionaryService;
+	private LockService lockService;
 	
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 		
+		documentLinkHelper = new DocumentLinkHelper(serviceRegistry);
 		nodeService = serviceRegistry.getNodeService();
 		namespaceService = serviceRegistry.getNamespaceService();
 		authorityService = serviceRegistry.getAuthorityService();
@@ -41,7 +46,8 @@ public class QueryContext {
 		renditionService2 = serviceRegistry.getRenditionService2();
 		fileFolderService = serviceRegistry.getFileFolderService();
 		versionService = serviceRegistry.getVersionService();
-		documentLinkHelper = new DocumentLinkHelper(serviceRegistry);
+		dictionaryService = serviceRegistry.getDictionaryService();
+		lockService = serviceRegistry.getLockService();
 	}
 	
 	public ServiceRegistry getServiceRegistry() {
@@ -80,5 +86,11 @@ public class QueryContext {
 	}
 	public DocumentLinkHelper getDocumentLinkHelper() {
 		return documentLinkHelper;
+	}
+	public DictionaryService getDictionaryService() {
+		return dictionaryService;
+	}
+	public LockService getLockService() {
+		return lockService;
 	}
 }

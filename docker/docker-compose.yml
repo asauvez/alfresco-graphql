@@ -35,7 +35,7 @@ services:
     volumes:
       - graphql-db-volume:/var/lib/postgresql/data
   graphql-ass:
-    image: alfresco/alfresco-search-services:1.2.0
+    image: alfresco/alfresco-search-services:1.4.2
     entrypoint: ["echo", "Solr6 disabled. Comment this line to activate it."]
     environment:
       SOLR_ALFRESCO_HOST: graphql-acs

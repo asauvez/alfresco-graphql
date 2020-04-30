@@ -46,6 +46,8 @@ type Node {
 	nodeRef: ID!
 	uuid: ID!
 	type: String!
+	isContent: Boolean!
+	isFolder: Boolean!
 	aspects: [String!]!
 
 	addChild(name: String!, type: TypeEnum!, assocType: String = "cm:contains", uuid: String) : Node!
@@ -78,12 +80,15 @@ type Node {
 	content(property: PropertyEnum! = cm_content, rendition: String) : ContentData
 	contentCreate(property: PropertyEnum! = cm_content) : ContentData!
 	
-	inheritParentPermissions: Boolean!
+	inheritParentPermissions(setValue: Boolean) : Boolean!
 	permissions: [AccessPermission!]!
 	allSetPermissions: [AccessPermission!]!
 	hasPermission(permission: String!) : Boolean!
 	hasWritePermission: Boolean!
 	hasDeletePermission: Boolean!
+	settablePermissions: [String!]!
+	setPermission(authority: String!, permission: String!, allow: Boolean = true) : Boolean!
+	deletePermission(authority: String!, permission: String!) : Boolean!
 	
 	primaryParent: Node
 	primaryParents(ignoreFirst: Int = 1, reverse: Boolean = true): [Node!]!
@@ -113,6 +118,7 @@ type ContentData {
 	property: String!
 	mimetype: String!
 	size: Int!
+	sizeHumanReadable: String!
 	encoding: String
 	locale: String
 }

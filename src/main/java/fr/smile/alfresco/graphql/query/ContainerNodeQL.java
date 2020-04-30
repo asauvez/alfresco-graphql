@@ -17,8 +17,11 @@ public class ContainerNodeQL extends AbstractQLModel {
 		return node;
 	}
 	
-	public boolean getIsType() {
+	public boolean getIsExactType() {
 		return getNodeService().getType(node.getNodeRefInternal()).equals(container);
+	}	
+	public boolean getIsSubType() {
+		return getQueryContext().getDictionaryService().isSubClass(getNodeService().getType(node.getNodeRefInternal()), container);
 	}	
 	public boolean getSetType() {
 		getNodeService().setType(node.getNodeRefInternal(), container);
