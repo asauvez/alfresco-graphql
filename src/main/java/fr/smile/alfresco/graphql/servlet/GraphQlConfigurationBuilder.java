@@ -227,8 +227,8 @@ public class GraphQlConfigurationBuilder {
 				Integer increment = env.getArgument("increment");
 				if (increment != null) {
 					Number number = (Number) value;
-					long newValue = number.longValue() + increment.intValue();
-					node.setPropertyValue(property, newValue);
+					value = number.longValue() + increment.intValue();
+					node.setPropertyValue(property, value);
 				}
 
 				Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(node, property, item);

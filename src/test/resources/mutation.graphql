@@ -9,7 +9,7 @@
 
 // --------- Properties ---------
 
-// set property
+// set property float
 {node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_longitude(setValue: 4.8901709), cm_latitude(setValue: 45.771944) } } }}}
 {"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_longitude":4.890171,"cm_latitude":45.771942}}}}}}
 
@@ -25,9 +25,21 @@
 {node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic { cm_longitude, cm_latitude } } }}}
 {"data":{"node":{"foo":{"properties":{"cm_geographic":{"cm_longitude":null,"cm_latitude":null}}}}}}
 
-// Clean aspect
-{node{foo:byUuid(uuid:"foobar"){ properties {cm_geographic { removeAspect } } }}}
-{"data":{"node":{"foo":{"properties":{"cm_geographic":{"removeAspect":true}}}}}}
+// set property int and list
+{node{foo:byUuid(uuid:"foobar"){ properties { exif_exif { exif_pixelXDimension(setValue: 100) }, cm_emailed { cm_addressees(setValue:["a@a.com"]) } } }}}
+{"data":{"node":{"foo":{"properties":{"exif_exif":{"exif_pixelXDimension":100},"cm_emailed":{"cm_addressees":["a@a.com"]}}}}}}
+
+// increment and append
+{node{foo:byUuid(uuid:"foobar"){ properties { exif_exif { exif_pixelXDimension(increment: 5) }, cm_emailed { cm_addressees(append:"b@b.com") } } }}}
+{"data":{"node":{"foo":{"properties":{"exif_exif":{"exif_pixelXDimension":105},"cm_emailed":{"cm_addressees":["a@a.com","b@b.com"]}}}}}}
+
+// check value
+{node{foo:byUuid(uuid:"foobar"){ properties { exif_exif { exif_pixelXDimension }, cm_emailed { cm_addressees } } }}}
+{"data":{"node":{"foo":{"properties":{"exif_exif":{"exif_pixelXDimension":105},"cm_emailed":{"cm_addressees":["a@a.com","b@b.com"]}}}}}}
+
+// Clean aspects
+{node{foo:byUuid(uuid:"foobar"){ properties { cm_geographic {removeAspect}, exif_exif {removeAspect}, cm_emailed {removeAspect} } }}}
+{"data":{"node":{"foo":{"properties":{"cm_geographic":{"removeAspect":true},"exif_exif":{"removeAspect":true},"cm_emailed":{"removeAspect":true}}}}}}
 
 // --------- Aspect ---------
 
@@ -70,7 +82,6 @@
 // set permission
 {node{foo:byUuid(uuid:"foobar"){ setPermission(authority: "admin", permission: "Consumer") }}}
 {"data":{"node":{"foo":{"setPermission":true}}}}
-
 
 // check permissions
 {node{foo:byUuid(uuid:"foobar"){ allSetPermissions { authority {name} permission } }}}

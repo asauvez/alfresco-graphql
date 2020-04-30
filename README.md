@@ -64,9 +64,6 @@ Can be integrated in an existing Alfresco by declaring:
 
 - manage several reads of request.getInputStream() by RetryngTransaction?
 
-- test append and increment
-
-
 locked (setValue: Boolean)
 favorite(setValue: Boolean)
 	
