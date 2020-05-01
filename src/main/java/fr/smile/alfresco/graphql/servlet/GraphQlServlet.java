@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.ServiceRegistry;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -59,17 +58,19 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 	
 	@Override
 	public void init() {
-		try {
-			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-			ServiceRegistry serviceRegistry = applicationContext.getBean(ServiceRegistry.class);
-
-			queryContext = new QueryContext(serviceRegistry);
-			servletAuthenticatorFactory = (ServletAuthenticatorFactory) applicationContext.getBean("webscripts.authenticator.remoteuser");
-			configurationBuilder = new GraphQlConfigurationBuilder(queryContext);
-			
-			super.init();
-		} catch (RuntimeException ex) {
-			log.error("GraphQL Init", ex);
+		if (configurationBuilder == null) {
+			try {
+				WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+				ServiceRegistry serviceRegistry = applicationContext.getBean(ServiceRegistry.class);
+	
+				queryContext = new QueryContext(serviceRegistry);
+				servletAuthenticatorFactory = (ServletAuthenticatorFactory) applicationContext.getBean("webscripts.authenticator.remoteuser");
+				configurationBuilder = new GraphQlConfigurationBuilder(queryContext);
+				
+				super.init();
+			} catch (RuntimeException ex) {
+				log.error("GraphQL Init", ex);
+			}
 		}
 	}
 	
@@ -110,14 +111,12 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 
 			boolean readOnly = ! request.getServletPath().startsWith(GRAPHQL_MUTATION_PATH);
 			
-			queryContext.getServiceRegistry().getRetryingTransactionHelper().doInTransaction(new RetryingTransactionCallback<Void>() {
-				@Override
-				public Void execute() throws Throwable {
-					GraphQlServlet.super.service(request, response);
-					
-					return null;
-				}
-			}, readOnly, true);
+			queryContext.getServiceRegistry().getRetryingTransactionHelper()
+				.doInTransaction(() -> 
+					queryContext.executeQuery(() -> {
+						GraphQlServlet.super.service(request, response);
+						return null;
+					}), readOnly, true);
 		} finally {
 			AuthenticationUtil.clearCurrentSecurityContext();
 		}

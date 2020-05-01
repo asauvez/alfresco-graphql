@@ -60,6 +60,11 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
+- moveNode with variable
+	byNodeRef(nodeRef: "...") { saveAsVariable("destination") }
+	moveNode(variable: "destination")
+	createLink(variable: "destination")	
+
 - Make run.sh test work again
 
 - manage several reads of request.getInputStream() by RetryngTransaction?
@@ -76,10 +81,6 @@ favorite(setValue: Boolean)
 
 - delete without trashbin
 - Test on another project
-- moveNode with variable
-	byNodeRef(nodeRef: "...") { saveAsVariable("destination") }
-	moveNode(variable: "destination")
-	createLink(variable: "destination")	
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
 		You need to use SubscriptionExecutionStrategy as your execution strategy as it has the support for the reactive-streams APIs.

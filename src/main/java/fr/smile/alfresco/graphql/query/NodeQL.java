@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.lock.LockStatus;
+import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.model.FileExistsException;
 import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -53,6 +55,28 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 	@Override
 	public int compareTo(NodeQL o) {
 		return nodeRef.getId().compareTo(o.nodeRef.getId());
+	}
+	
+	public boolean getAsVariable(DataFetchingEnvironment env) {
+		String variable = env.getArgument("variable");
+		getQueryContext().setQueryVariable(variable, nodeRef);
+		return true;
+	}
+	public boolean getMoveTo(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
+		String name = env.getArgument("variable");
+		NodeRef destination = getQueryContext().getQueryVariable(name);
+		getFileFolderService().move(nodeRef, destination, null);
+		return true;
+	}
+	public NodeQL getCopyTo(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
+		String name = env.getArgument("variable");
+		NodeRef destination = getQueryContext().getQueryVariable(name);
+		return newNode(getFileFolderService().copy(nodeRef, destination, null).getNodeRef());
+	}
+	public NodeQL getCreateLinkTo(DataFetchingEnvironment env) throws FileExistsException, FileNotFoundException {
+		String name = env.getArgument("variable");
+		NodeRef destination = getQueryContext().getQueryVariable(name);
+		return newNode(getQueryContext().getDocumentLinkService().createDocumentLink(nodeRef, destination));
 	}
 	
 	public String getType() {
@@ -401,5 +425,20 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 				.map(vh -> vh.getAllVersions().stream()
 						.map(v -> new VersionQL(getQueryContext(), v))
 						.collect(Collectors.toList()));
+	}
+
+	// ======= Lock ==============================================================
+
+	public boolean isLocked() {
+		return getQueryContext().getLockService().isLocked(nodeRef);
+	}
+	public boolean isLockedAndReadOnly() {
+		return getQueryContext().getLockService().isLockedAndReadOnly(nodeRef);
+	}
+	public LockType getLockType() {
+		return getQueryContext().getLockService().getLockType(nodeRef);
+	}
+	public LockStatus getLockStatus() {
+		return getQueryContext().getLockService().getLockStatus(nodeRef);
 	}
 }

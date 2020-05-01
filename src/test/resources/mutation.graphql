@@ -95,6 +95,16 @@
 {node{foo:byUuid(uuid:"foobar"){ allSetPermissions { authority {name} permission } }}}
 {"data":{"node":{"foo":{"allSetPermissions":[{"authority":{"name":"GROUP_EVERYONE"},"permission":"Contributor"}]}}}}
 
+// --------- Variable ---------
+
+// copy to myFolder
+{node{ sharedHome { addChildFolder(name:"myFolder") { asVariable(variable:"destination") } }, foo:byUuid(uuid:"foobar"){ copyTo(variable: "destination") {pathDisplay} }}}
+{"data":{"node":{"sharedHome":{"addChildFolder":{"asVariable":true}},"foo":{"copyTo":{"pathDisplay":"/Company Home/Shared/myFolder"}}}}}
+
+// delete myFolder
+{node{ sharedHome { childByName(name:"myFolder") { delete } }}}
+{"data":{"node":{"sharedHome":{"childByName":{"delete":true}}}}}
+
 // --------- Delete ---------
 
 // delete node

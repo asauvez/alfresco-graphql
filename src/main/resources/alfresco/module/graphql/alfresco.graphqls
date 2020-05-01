@@ -50,6 +50,11 @@ type Node {
 	isFolder: Boolean!
 	aspects: [String!]!
 
+	asVariable(variable: String!) : Boolean!
+	moveTo(variable: String!) : Boolean!
+	copyTo(variable: String!) : Node!
+	createLinkTo(variable: String!) : Node!
+
 	addChild(name: String!, type: TypeEnum!, assocType: String = "cm:contains", uuid: String) : Node!
 	addChildFolder(name: String!, uuid: String) : Node!
 	addChildContent(name: String!, uuid: String) : Node!
@@ -103,6 +108,11 @@ type Node {
 
 	currentVersion: Version
 	allVersions: [Version!]
+	
+	locked: Boolean!
+	lockedAndReadOnly: Boolean!
+	lockType: String
+	lockStatus: String
 }
 
 type Date {
