@@ -26,7 +26,7 @@ public class DockerSuiteIT {
 						Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(120)))
 				.withBuild(true)
 				.withTailChildContainers(true)
-//				.withLocalCompose(true)
+				.withLocalCompose(true)
 				;
 
 	@BeforeClass

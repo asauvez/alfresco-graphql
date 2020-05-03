@@ -77,7 +77,7 @@ public class QueryContext {
 		}
 		return nodeRef;
 	}
-	public Void executeQuery(RetryingTransactionCallback<Void> callback) throws Throwable {
+	public <T> T executeQuery(RetryingTransactionCallback<T> callback) throws Throwable {
 		queryVariables.set(new HashMap<>());
 		try {
 			return callback.execute();

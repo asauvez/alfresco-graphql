@@ -16,7 +16,7 @@ Interesting files:
 - Sample results: [queryResponse.json](src/test/resources/queryResponse.json)
 - Sample mutations: [mutation.graphql](src/test/resources/mutation.graphql)
 
-Code coverage: 82% instructions, 74% branches.
+Code coverage: 86% instructions, 76% branches.
 
 # Author
 
@@ -60,14 +60,8 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
-- moveNode with variable
-	byNodeRef(nodeRef: "...") { saveAsVariable("destination") }
-	moveNode(variable: "destination")
-	createLink(variable: "destination")	
-
-- Make run.sh test work again
-
 - manage several reads of request.getInputStream() by RetryngTransaction?
+	getTestConcurentError()
 
 locked (setValue: Boolean)
 favorite(setValue: Boolean)

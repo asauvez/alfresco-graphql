@@ -68,6 +68,7 @@ public class GraphQlServletIT {
 	public void testGraphIQlCall() throws Exception {
 		callURL("/graphiql");
 		callURL("/graphiql_mutation");
+		callURL("/graphql.schema");
 	}
 
 	@Before

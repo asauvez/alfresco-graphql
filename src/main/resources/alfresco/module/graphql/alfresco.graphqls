@@ -253,6 +253,7 @@ type SystemQuery {
 	descriptor : DescriptorService!
 	modules: [ModuleDetails!]!
 	missingModules: [ModuleDetails!]!
+	testConcurentException(modulo: Int = 5) : Boolean
 }
 type DescriptorService {
 	serverDescriptor: Descriptor

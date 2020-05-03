@@ -114,3 +114,7 @@
 // test really deleted
 { node { sharedHome { foo: childByName (name: "Foo.txt") { title } }}}
 {"data":{"node":{"sharedHome":{"foo":null}}}}
+
+// --------- Test retry ---------
+{ system { testConcurentException }}
+{"data":{"system":{"testConcurentException":true}}}
