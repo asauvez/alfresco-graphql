@@ -409,7 +409,11 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 		return newNode(getNodeService().createNode(nodeRef, assocType, assocQName, type, properties).getChildRef());
 	}
 
-	public boolean getDelete() {
+	public boolean getDelete(DataFetchingEnvironment env) {
+		boolean withoutTrashcan = env.getArgument("withoutTrashcan");
+		if (withoutTrashcan) {
+			getNodeService().addAspect(nodeRef, ContentModel.ASPECT_TEMPORARY, null);
+		}
 		getNodeService().deleteNode(nodeRef);
 		return true;
 	}
@@ -440,5 +444,25 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 	}
 	public LockStatus getLockStatus() {
 		return getQueryContext().getLockService().getLockStatus(nodeRef);
+	}
+	
+	// ======= Checkout ==============================================================
+	
+	public NodeQL getCheckout() {
+		return newNode(getCheckOutCheckInService().checkout(nodeRef));
+	}
+	public NodeQL getCheckin() {
+		return newNode(getCheckOutCheckInService().checkin(nodeRef, null));
+	}
+	public NodeQL getCancelCheckout() {
+		return newNode(getCheckOutCheckInService().cancelCheckout(nodeRef));
+	}
+	public Optional<NodeQL> getWorkingCopy() {
+		return Optional.ofNullable(getCheckOutCheckInService().getWorkingCopy(nodeRef))
+			.map(this::newNode);
+	}
+	public Optional<NodeQL> getCheckedOut() {
+		return Optional.ofNullable(getCheckOutCheckInService().getCheckedOut(nodeRef))
+			.map(this::newNode);
 	}
 }

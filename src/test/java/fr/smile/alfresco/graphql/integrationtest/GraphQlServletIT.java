@@ -55,9 +55,15 @@ public class GraphQlServletIT {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/mutation.graphql"), StandardCharsets.UTF_8))) {
 			String query;
 			while ((query = reader.readLine()) != null) {
+				expectedResponse.append(query).append("\n");
+				actualResponse.append(query).append("\n");
+
 				if (! query.isBlank() && ! query.startsWith("//")) {
-					expectedResponse.append(reader.readLine()).append("\n");
-					actualResponse.append(callGraphQL(query, true)).append("\n");
+					String expected = reader.readLine();
+					String actual = callGraphQL(query, true);
+
+					expectedResponse.append(expected).append("\n");
+					actualResponse.append(actual).append("\n");
 				}
 			}
 		}

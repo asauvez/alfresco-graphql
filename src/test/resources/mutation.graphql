@@ -95,7 +95,21 @@
 {node{foo:byUuid(uuid:"foobar"){ allSetPermissions { authority {name} permission } }}}
 {"data":{"node":{"foo":{"allSetPermissions":[{"authority":{"name":"GROUP_EVERYONE"},"permission":"Contributor"}]}}}}
 
-// --------- Variable ---------
+// --------- Checkout ---------
+
+{node{foo:byUuid(uuid:"foobar"){ checkout {name} }}}
+{"data":{"node":{"foo":{"checkout":{"name":"Foo (Working Copy).txt"}}}}}
+
+{node{foo:byUuid(uuid:"foobar"){ workingCopy { cancelCheckout {name} } }}}
+{"data":{"node":{"foo":{"workingCopy":{"cancelCheckout":{"name":"Foo.txt"}}}}}}
+
+{node{foo:byUuid(uuid:"foobar"){ checkout {name} }}}
+{"data":{"node":{"foo":{"checkout":{"name":"Foo (Working Copy).txt"}}}}}
+
+{node{foo:byUuid(uuid:"foobar"){ workingCopy { checkin {name} } }}}
+{"data":{"node":{"foo":{"workingCopy":{"checkin":{"name":"Foo.txt"}}}}}}
+
+// --------- Move and copy ---------
 
 // copy to myFolder
 {node{ sharedHome { addChildFolder(name:"myFolder") { asVariable(variable:"destination") } }, foo:byUuid(uuid:"foobar"){ copyTo(variable: "destination") {pathDisplay} }}}
@@ -116,5 +130,5 @@
 {"data":{"node":{"sharedHome":{"foo":null}}}}
 
 // --------- Test retry ---------
-{ system { testConcurentException }}
-{"data":{"system":{"testConcurentException":true}}}
+//{ system { testConcurentException }}
+//{"data":{"system":{"testConcurentException":true}}}

@@ -7,6 +7,7 @@ import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.model.FileFolderService;
@@ -40,6 +41,8 @@ public class QueryContext {
 	private DictionaryService dictionaryService;
 	private LockService lockService;
 	private DocumentLinkService documentLinkService;
+
+	private CheckOutCheckInService checkOutCheckInService;
 	
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
@@ -58,6 +61,7 @@ public class QueryContext {
 		dictionaryService = serviceRegistry.getDictionaryService();
 		lockService = serviceRegistry.getLockService();
 		documentLinkService = serviceRegistry.getDocumentLinkService();
+		checkOutCheckInService = serviceRegistry.getCheckOutCheckInService();
 	}
 	
 	public ServiceRegistry getServiceRegistry() {
@@ -127,5 +131,8 @@ public class QueryContext {
 	}
 	public DocumentLinkService getDocumentLinkService() {
 		return documentLinkService;
+	}
+	public CheckOutCheckInService getCheckOutCheckInService() {
+		return checkOutCheckInService;
 	}
 }

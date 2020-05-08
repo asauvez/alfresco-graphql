@@ -58,7 +58,7 @@ type Node {
 	addChild(name: String!, type: TypeEnum!, assocType: String = "cm:contains", uuid: String) : Node!
 	addChildFolder(name: String!, uuid: String) : Node!
 	addChildContent(name: String!, uuid: String) : Node!
-	delete: Boolean
+	delete(withoutTrashcan: Boolean = false) : Boolean
 	
 	pathDisplay: String!
 	pathPrefixString: String!
@@ -113,6 +113,12 @@ type Node {
 	lockedAndReadOnly: Boolean!
 	lockType: String
 	lockStatus: String
+	
+	checkout: Node!
+	checkin: Node!
+	cancelCheckout: Node!
+	workingCopy: Node
+	checkedOut: Node
 }
 
 type Date {
