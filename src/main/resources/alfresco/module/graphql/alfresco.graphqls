@@ -1,6 +1,7 @@
 type Query {
 	node: NodeQuery!
 	authority: AuthorityQuery!
+	workflow: WorkflowQuery!
 	system: SystemQuery!
 }
 
@@ -12,8 +13,8 @@ type NodeQuery {
 	sharedHome: Node!
 	sitesHome: Node!
 	
-	byNodeRef(nodeRef: String!) : Node
-	byUuid(uuid: String!) : Node
+	byNodeRef(nodeRef: ID!) : Node
+	byUuid(uuid: ID!) : Node
 	byPath(path: String!) : Node
 	query(
 		query: [Predicate!]!, 
@@ -60,6 +61,7 @@ type Node {
 	addChildContent(name: String!, uuid: String) : Node!
 	delete(withoutTrashcan: Boolean = false) : Boolean
 	actions: Actions!
+	startWorkflows: StartWorkflow!
 	
 	pathDisplay: String!
 	pathPrefixString: String!
@@ -69,7 +71,6 @@ type Node {
 	webDavUrl: String!
 	shareUrl: String!
 	
-	propertyAsString(name: PropertyEnum!) : String
 	name(setValue: String) : String
 	title(setValue: String) : String
 	description(setValue: String) : String
@@ -80,8 +81,9 @@ type Node {
 	modified: Date
 	modifiedIso: String
 	owner: Authority
-	properties: PropertiesType
+	properties: NodePropertiesType
 	propertiesList: [PropertyValue!]!
+	propertyAsString(name: PropertyEnum!) : String
 	
 	content(property: PropertyEnum! = cm_content, rendition: String) : ContentData
 	contentCreate(property: PropertyEnum! = cm_content) : ContentData!
@@ -221,6 +223,8 @@ type Authority {
 	nodeRef: ID
 	uuid: ID
 	node: Node
+
+	asVariable(variable: String!) : Boolean!
 	
 	type: AuthorityType
 	displayName: String
@@ -298,8 +302,90 @@ type LicenseDescriptor {
 	transformationServerExpiryDate: String
 }
 type ModuleDetails {
-	id: String
+	id: ID!
 	title: String
 	description: String
 	moduleVersionNumber: String
 }
+
+type WorkflowQuery {
+	definitions: [WorkflowDefinition!]!
+	start: StartWorkflow!
+
+	activeWorkflows: [WorkflowInstance!]!
+	workflows: [WorkflowInstance!]!
+	completedWorkflows: [WorkflowInstance!]!
+	workflowById(id: ID!) : WorkflowInstance
+
+	taskById(id: ID!) : WorkflowTask
+}
+type WorkflowInstance {
+	id: ID!
+	description: String
+	active: Boolean
+	initiatorNode: Node
+	initiator: Authority
+	priority: Int
+	startDate: Date
+	dueDate: Date
+	endDate: Date
+	workflowPackage: Node
+	context: Node
+	definition: WorkflowDefinition
+	
+	paths: [WorkflowPath!]!
+	startTask: WorkflowTask
+	
+	cancelWorkflow: WorkflowInstance!
+	deleteWorkflow: WorkflowInstance!
+}
+type WorkflowPath {
+	id: ID!
+	instance: WorkflowInstance
+	node: WorkflowNode 
+	active: Boolean
+	tasks: [WorkflowTask!]!
+
+	propertiesList: [PropertyValue!]!
+	propertyAsString(name: String!) : String
+	
+	signal(transition: ID!) : WorkflowPath!
+}
+type WorkflowNode {
+	name: String
+	title: String
+	description: String
+	type: String
+	taskNode: Boolean
+	transitions: [WorkflowTransition]
+}
+type WorkflowTransition {
+	id: ID!
+	title: String
+	description: String
+	default: Boolean
+}
+type WorkflowDefinition {
+	id: String
+	name: String
+	version: String
+	title: String
+	description: String
+	startTaskDefinition: WorkflowTaskDefinition
+}
+type WorkflowTaskDefinition {
+	id: ID!
+	node: WorkflowNode
+}
+type WorkflowTask {
+	id: ID!
+	name: String
+	title: String
+	description: String
+	state: WorkflowTaskState
+	path: WorkflowPath 
+	definition: WorkflowTaskDefinition
+	propertiesList: [PropertyValue!]!
+	propertyAsString(name: String!) : String
+}
+enum WorkflowTaskState {IN_PROGRESS, COMPLETED}

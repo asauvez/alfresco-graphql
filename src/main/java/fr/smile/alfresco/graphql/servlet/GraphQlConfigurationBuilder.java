@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -19,18 +20,27 @@ import java.util.stream.Stream;
 
 import org.alfresco.repo.dictionary.IndexTokenisationMode;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionDefinition;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.action.ParameterDefinition;
+import org.alfresco.service.cmr.dictionary.AspectDefinition;
 import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.ClassDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
+import org.alfresco.service.cmr.dictionary.TypeDefinition;
+import org.alfresco.service.cmr.workflow.WorkflowDefinition;
+import org.alfresco.service.cmr.workflow.WorkflowService;
+import org.alfresco.service.cmr.workflow.WorkflowTaskDefinition;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import fr.smile.alfresco.graphql.helper.AlfrescoDataType;
 import fr.smile.alfresco.graphql.helper.QueryContext;
@@ -38,6 +48,8 @@ import fr.smile.alfresco.graphql.helper.ScalarType;
 import fr.smile.alfresco.graphql.query.ContainerNodeQL;
 import fr.smile.alfresco.graphql.query.NodeQL;
 import fr.smile.alfresco.graphql.query.QueryQL;
+import fr.smile.alfresco.graphql.query.SystemQueryQL;
+import fr.smile.alfresco.graphql.workflow.WorkflowPathQL;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
@@ -58,7 +70,9 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
 
 public class GraphQlConfigurationBuilder {
-	
+
+	private static Log log = LogFactory.getLog(SystemQueryQL.class);
+
 	private static final String ALFRESCO_SCHEMA = "/alfresco/module/graphql/alfresco.graphqls";
 	
 	private QueryContext queryContext;
@@ -77,8 +91,15 @@ public class GraphQlConfigurationBuilder {
 		DictionaryService dictionaryService = queryContext.getServiceRegistry().getDictionaryService();
 		
 		// Generate field for all types and aspects
-		Collection<QName> classes = new TreeSet<>();
 		Collection<QName> allTypes = new HashSet<>(dictionaryService.getAllTypes());
+		WorkflowService workflowService = queryContext.getWorkflowService();
+		for (WorkflowDefinition workflowDefinition : workflowService.getAllDefinitions()) {
+			for (WorkflowTaskDefinition workflowTaskDefinition : workflowService.getTaskDefinitions(workflowDefinition.getId())) {
+				allTypes.remove(workflowTaskDefinition.getMetadata().getName());
+			}
+		}
+		
+		Collection<QName> classes = new TreeSet<>();
 		classes.addAll(allTypes);
 		classes.addAll(dictionaryService.getAllAspects());
 
@@ -86,13 +107,14 @@ public class GraphQlConfigurationBuilder {
 		runtimeWiringBuilder.type("Query", builder -> builder
 					.dataFetcher("node", new StaticDataFetcher(query.getNode()))
 					.dataFetcher("authority", new StaticDataFetcher(query.getAuthority()))
+					.dataFetcher("workflow", new StaticDataFetcher(query.getWorkflow()))
 					.dataFetcher("system", new StaticDataFetcher(query.getSystem()))
 				);
 		
 		Map<QName, Set<AssociationDefinition>> sourceAssociationsByType = new HashMap<>();
 		StringBuilder buf = new StringBuilder(schemaString);
-		buf.append("\n\ntype PropertiesType {\n");
-		runtimeWiringBuilder.type("PropertiesType", builder -> {
+		buf.append("\n\ntype NodePropertiesType {\n");
+		runtimeWiringBuilder.type("NodePropertiesType", builder -> {
 			for (QName container : classes) {
 				builder.dataFetcher(toFieldName(container), new DataFetcher<ContainerNodeQL>() {
 					@Override
@@ -161,6 +183,7 @@ public class GraphQlConfigurationBuilder {
 		enumQName(buf, "IntPropertyEnum", propertiesByType.get(ScalarType.Int));
 
 		generateActions(buf, runtimeWiringBuilder);
+		generateStartWorkflow(buf, runtimeWiringBuilder);
 		
 		return buf.toString();
 	}
@@ -182,7 +205,11 @@ public class GraphQlConfigurationBuilder {
 					DataFetcherExceptionHandlerParameters handlerParameters) {
 
 				Throwable retryCause = RetryingTransactionHelper.extractRetryCause(handlerParameters.getException());
-				queryContext.setRetryException(retryCause);
+				if (retryCause != null) {
+					queryContext.setRetryException(retryCause);
+				} else {
+					log.error(handlerParameters.getPath(), handlerParameters.getException());
+				}
 				
 				return super.onException(handlerParameters);
 			}
@@ -332,7 +359,7 @@ public class GraphQlConfigurationBuilder {
 		return fieldName;
 	}
 	private String toFieldName(String name) {
-		return name.replace(':', '_').replace('-', '_');
+		return name.replace(':', '_').replace('-', '_').replace('$', '_');
 	}
 	
 	public static QName getQName(String name) {
@@ -371,7 +398,7 @@ public class GraphQlConfigurationBuilder {
 				for (ParameterDefinition parameterDefinition : parameterDefinitions) {
 					AlfrescoDataType alfrescoDataType = AlfrescoDataType.getForAlfrescoDataType(parameterDefinition.getType());
 					String fullInput = (parameterDefinition.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (parameterDefinition.isMultiValued() ? "!]" : "");
-
+					
 					buf.append(toFieldName(parameterDefinition.getName()))
 						.append(":").append(fullInput)
 						.append(parameterDefinition.isMandatory() ? "!" : "")
@@ -395,6 +422,105 @@ public class GraphQlConfigurationBuilder {
 						actionService.executeAction(action, node.getNodeRefInternal(), true, executeAsynchronously);
 						
 						return Boolean.TRUE;
+					}
+				});
+			}
+			buf.append("}\n");
+			return builder;
+		});
+	}
+
+
+	private void generateStartWorkflow(StringBuilder buf, Builder runtimeWiringBuilder) {
+		buf.append("\ntype StartWorkflow {\n");
+
+		runtimeWiringBuilder.type("StartWorkflow", builder -> {
+			WorkflowService workflowService = queryContext.getWorkflowService();
+			List<WorkflowDefinition> workflowDefinitions = workflowService.getDefinitions();
+			for (WorkflowDefinition workflowDefinition : workflowDefinitions) {
+				String actionName = toFieldName(workflowDefinition.getName());
+				buf.append("	").append(actionName).append("(\n");
+				TypeDefinition metadata = workflowDefinition.getStartTaskDefinition().getMetadata();
+				
+				Map<QName, PropertyDefinition> propertyDefinitions = new TreeMap<>(metadata.getProperties());
+				Map<QName, AssociationDefinition> assocDefinitions = new TreeMap<>(metadata.getAssociations());
+				for (AspectDefinition aspect : metadata.getDefaultAspects()) {
+					if (   !NamespaceService.CONTENT_MODEL_1_0_URI.equals(aspect.getName().getNamespaceURI()) 
+						&& !NamespaceService.SYSTEM_MODEL_1_0_URI.equals(aspect.getName().getNamespaceURI())) {
+						propertyDefinitions.putAll(aspect.getProperties());
+						assocDefinitions.putAll(aspect.getAssociations());
+					}
+				}
+				
+				for (PropertyDefinition propertyDefinition : propertyDefinitions.values()) {
+					if (propertyDefinition.getName().equals(WorkflowModel.PROP_TASK_ID)) {
+						continue;
+					}
+					
+					AlfrescoDataType alfrescoDataType = AlfrescoDataType.getForAlfrescoDataType(propertyDefinition.getDataType().getName());
+					String fullInput = (propertyDefinition.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (propertyDefinition.isMultiValued() ? "!]" : "");
+					String defaultValue = propertyDefinition.getDefaultValue();
+					if (defaultValue != null) {
+						if (alfrescoDataType.getScalarInput() == ScalarType.String) {
+							defaultValue = "\"" + defaultValue.replace("\"", "\\\"") + "\"";
+						}
+						if (propertyDefinition.isMultiValued()) {
+							defaultValue = "[" + defaultValue + "]";
+						}
+					}
+					
+					buf.append("		").append(toFieldName(propertyDefinition.getName()))
+						.append(":").append(fullInput)
+						.append(propertyDefinition.isMandatory() ? "!" : "")
+						.append(defaultValue != null ? " = " + defaultValue : "")
+						.append(",\n");
+				}
+				
+				for (AssociationDefinition assoc : assocDefinitions.values()) {
+					if (assoc.getName().equals(WorkflowModel.ASSOC_PACKAGE)) {
+						continue;
+					}
+					buf.append("		").append(toFieldName(assoc.getName()))
+						.append(":").append(assoc.isTargetMany() ? "[" : "")
+						.append("String")
+						.append(assoc.isTargetMany() ? "]" : "")
+						.append(",\n");
+				}
+				
+				buf.append(") : WorkflowPath!\n");
+				
+				builder.dataFetcher(actionName, new DataFetcher<WorkflowPathQL>() {
+					@SuppressWarnings("unchecked")
+					@Override
+					public WorkflowPathQL get(DataFetchingEnvironment env) throws Exception {
+						Map<QName, Serializable> parameters = new HashMap<>();
+
+						for (PropertyDefinition propertyDefinition : propertyDefinitions.values()) {
+							Serializable value = env.getArgument(toFieldName(propertyDefinition.getName()));
+							parameters.put(propertyDefinition.getName(), value);
+						}
+						for (AssociationDefinition assoc : assocDefinitions.values()) {
+							Serializable value = env.getArgument(toFieldName(assoc.getName()));
+							
+							if (value instanceof List) {
+								value = (Serializable) ((List<String>) value).stream()
+									.map(v -> queryContext.getQueryVariableAuthority(v))
+									.collect(Collectors.toList());
+							} else if (value instanceof String) {
+								value = queryContext.getQueryVariableAuthority((String) value);
+							}
+							
+							parameters.put(assoc.getName(), value);
+						}
+						
+						Object source = env.getSource();
+						if (source instanceof NodeQL) {
+							NodeQL node = (NodeQL) source;
+							parameters.put(WorkflowModel.ASSOC_PACKAGE, node.getNodeRefInternal());
+							parameters.put(WorkflowModel.PROP_CONTEXT, node.getNodeRefInternal());
+						}
+						
+						return new WorkflowPathQL(queryContext, workflowService.startWorkflow(workflowDefinition.getId(), parameters));
 					}
 				});
 			}

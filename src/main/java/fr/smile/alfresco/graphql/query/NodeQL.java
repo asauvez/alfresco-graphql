@@ -421,6 +421,9 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 	public NodeQL getActions() {
 		return this;
 	}
+	public NodeQL getStartWorkflows() {
+		return this;
+	}
 
 	// ======= Versions ==============================================================
 

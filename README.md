@@ -61,6 +61,13 @@ Can be integrated in an existing Alfresco by declaring:
 
 # TODO
 - Workflow
+	queryTasks
+	task/path .properties as dynamic
+	test signal
+
+
+- New transaction on subquery : return CompletableFuture ?
+	
 - Categories
 - Dictionary
 

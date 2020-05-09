@@ -35,6 +35,11 @@ public class AuthorityQL extends AbstractQLModel {
 	public Optional<String> getUuid() {
 		return getNodeRefInternal().map(NodeRef::getId);
 	}
+	public boolean getAsVariable(DataFetchingEnvironment env) {
+		String variable = env.getArgument("variable");
+		getQueryContext().setQueryVariable(variable, getNodeRefInternal().get());
+		return true;
+	}
 	public String getDisplayName() {
 		return getAuthorityService().getAuthorityDisplayName(name);
 	}

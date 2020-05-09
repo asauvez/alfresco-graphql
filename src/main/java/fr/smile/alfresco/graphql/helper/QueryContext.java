@@ -3,6 +3,7 @@ package fr.smile.alfresco.graphql.helper;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
@@ -20,8 +21,10 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 
 public class QueryContext {
 
@@ -45,6 +48,7 @@ public class QueryContext {
 	private DocumentLinkService documentLinkService;
 	private CheckOutCheckInService checkOutCheckInService;
 	private ActionService actionService;
+	private WorkflowService workflowService;
 	
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
@@ -65,6 +69,7 @@ public class QueryContext {
 		documentLinkService = serviceRegistry.getDocumentLinkService();
 		checkOutCheckInService = serviceRegistry.getCheckOutCheckInService();
 		actionService = serviceRegistry.getActionService();
+		workflowService = serviceRegistry.getWorkflowService();
 	}
 	
 	public ServiceRegistry getServiceRegistry() {
@@ -80,10 +85,26 @@ public class QueryContext {
 	public NodeRef getQueryVariable(String variable) {
 		NodeRef nodeRef = queryVariablesTL.get().get(variable);
 		if (nodeRef == null) {
-			throw new IllegalStateException("Unknown variable " + variable);
+			throw new IllegalStateException("Unknown variable " + variable 
+					+ ". Known variables = " + queryVariablesTL.get().entrySet());
 		}
 		return nodeRef;
 	}
+
+	public String getQueryVariableAuthority(String variable) {
+		NodeRef authorityRef = queryVariablesTL.get().get(variable);
+		if (authorityRef != null) {
+			QName type = nodeService.getType(authorityRef);
+			if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+				return (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
+			} else if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON)) {
+				return (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
+			}
+		}
+
+		return variable;
+	}
+	
 	public <T> T executeQuery(RetryingTransactionCallback<T> callback) throws Throwable {
 		queryVariablesTL.set(new HashMap<>());
 		try {
@@ -152,5 +173,8 @@ public class QueryContext {
 	}
 	public ActionService getActionService() {
 		return actionService;
+	}
+	public WorkflowService getWorkflowService() {
+		return workflowService;
 	}
 }

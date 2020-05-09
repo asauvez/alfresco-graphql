@@ -1,5 +1,6 @@
 package fr.smile.alfresco.graphql.query;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.alfresco.repo.nodelocator.NodeLocatorService;
@@ -12,6 +13,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.QNamePattern;
@@ -62,12 +64,18 @@ public abstract class AbstractQLModel {
 	protected CheckOutCheckInService getCheckOutCheckInService() {
 		return queryContext.getCheckOutCheckInService();
 	}
+	protected WorkflowService getWorkflowService() {
+		return queryContext.getWorkflowService();
+	}
 	
 	protected NodeQL newNode(NodeRef nodeRef) {
-		return new NodeQL(queryContext, nodeRef);
+		return (nodeRef != null) ? new NodeQL(queryContext, nodeRef) : null;
 	}
 	protected AuthorityQL newAuthority(String name) {
 		return new AuthorityQL(queryContext, name);
+	}
+	protected DateQL newDate(Date date) {
+		return (date != null) ? new DateQL(date) : null;
 	}
 
 	@SuppressWarnings("unchecked")
