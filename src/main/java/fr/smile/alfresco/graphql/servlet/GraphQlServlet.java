@@ -1,5 +1,6 @@
 package fr.smile.alfresco.graphql.servlet;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -20,6 +21,8 @@ import org.springframework.extensions.webscripts.servlet.WebScriptServletRequest
 import org.springframework.extensions.webscripts.servlet.WebScriptServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import graphql.kickstart.servlet.GraphQLConfiguration;
@@ -43,6 +46,8 @@ import graphql.schema.idl.RuntimeWiring;
 			GraphQlServlet.SCHEMA_PATH,
 		})
 public class GraphQlServlet extends GraphQLHttpServlet {
+	
+	private static final int REQUEST_SIZE_MAX = 32_000;
 	
 	static final String GRAPHQL_PATH			= "/graphql";
 	static final String GRAPHQL_MUTATION_PATH	= "/graphql_mutation";
@@ -110,13 +115,27 @@ public class GraphQlServlet extends GraphQLHttpServlet {
 			}
 
 			boolean readOnly = ! request.getServletPath().startsWith(GRAPHQL_MUTATION_PATH);
-			
+						
+			ContentCachingRequestWrapper contentCachingRequestWrapper = new ContentCachingRequestWrapper(request);
+			ContentCachingResponseWrapper contentCachingResponseWrapper = new ContentCachingResponseWrapper(response);
+			BufferedReader reader = contentCachingRequestWrapper.getReader();
+			reader.mark(REQUEST_SIZE_MAX);
+
 			queryContext.getServiceRegistry().getRetryingTransactionHelper()
-				.doInTransaction(() -> 
-					queryContext.executeQuery(() -> {
-						GraphQlServlet.super.service(request, response);
+				.doInTransaction(() -> {
+					try {
+						queryContext.executeQuery(() -> {
+							GraphQlServlet.super.service(contentCachingRequestWrapper, contentCachingResponseWrapper);
+							return null;
+						});
+						contentCachingResponseWrapper.copyBodyToResponse();
 						return null;
-					}), readOnly, true);
+					} catch (Throwable t) {
+						reader.reset();
+						contentCachingResponseWrapper.reset();
+						throw t;
+					}
+				}, readOnly, true);
 		} finally {
 			AuthenticationUtil.clearCurrentSecurityContext();
 		}

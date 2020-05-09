@@ -24,7 +24,8 @@ import org.alfresco.service.namespace.NamespaceService;
 
 public class QueryContext {
 
-	private ThreadLocal<Map<String, NodeRef>> queryVariables = new ThreadLocal<>();
+	private ThreadLocal<Map<String, NodeRef>> queryVariablesTL = new ThreadLocal<>();
+	private ThreadLocal<Throwable> retryCauseTL = new ThreadLocal<>();
 	
 	private ServiceRegistry serviceRegistry;
 	private DocumentLinkHelper documentLinkHelper;
@@ -69,24 +70,32 @@ public class QueryContext {
 	}
 	
 	public void setQueryVariable(String variable, NodeRef nodeRef) {
-		NodeRef oldValue = queryVariables.get().put(variable, nodeRef);
+		NodeRef oldValue = queryVariablesTL.get().put(variable, nodeRef);
 		if (oldValue != null) {
 			throw new IllegalStateException("Variable " + variable + " already exists");
 		}
 	}
 	public NodeRef getQueryVariable(String variable) {
-		NodeRef nodeRef = queryVariables.get().get(variable);
+		NodeRef nodeRef = queryVariablesTL.get().get(variable);
 		if (nodeRef == null) {
 			throw new IllegalStateException("Unknown variable " + variable);
 		}
 		return nodeRef;
 	}
 	public <T> T executeQuery(RetryingTransactionCallback<T> callback) throws Throwable {
-		queryVariables.set(new HashMap<>());
+		queryVariablesTL.set(new HashMap<>());
 		try {
-			return callback.execute();
+			T result = callback.execute();
+			
+			Throwable retryCause = retryCauseTL .get();
+			if (retryCause!= null) {
+				throw retryCause;
+			}
+			
+			return result;
 		} finally {
-			queryVariables.remove();
+			queryVariablesTL.remove();
+			retryCauseTL.remove();
 		}
 	}
 	
@@ -134,5 +143,9 @@ public class QueryContext {
 	}
 	public CheckOutCheckInService getCheckOutCheckInService() {
 		return checkOutCheckInService;
+	}
+
+	public void setRetryException(Throwable retryCause) {
+		this.retryCauseTL.set(retryCause);
 	}
 }

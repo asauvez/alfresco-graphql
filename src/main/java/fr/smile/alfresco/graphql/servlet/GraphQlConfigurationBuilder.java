@@ -13,11 +13,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.alfresco.repo.dictionary.IndexTokenisationMode;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.ClassDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -33,6 +35,17 @@ import fr.smile.alfresco.graphql.helper.ScalarType;
 import fr.smile.alfresco.graphql.query.ContainerNodeQL;
 import fr.smile.alfresco.graphql.query.NodeQL;
 import fr.smile.alfresco.graphql.query.QueryQL;
+import graphql.ExecutionResult;
+import graphql.execution.AsyncExecutionStrategy;
+import graphql.execution.DataFetcherExceptionHandlerParameters;
+import graphql.execution.DataFetcherExceptionHandlerResult;
+import graphql.execution.ExecutionContext;
+import graphql.execution.ExecutionStrategy;
+import graphql.execution.ExecutionStrategyParameters;
+import graphql.execution.NonNullableFieldWasNullException;
+import graphql.execution.SimpleDataFetcherExceptionHandler;
+import graphql.kickstart.execution.GraphQLQueryInvoker;
+import graphql.kickstart.execution.config.DefaultExecutionStrategyProvider;
 import graphql.kickstart.servlet.GraphQLConfiguration;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
@@ -162,7 +175,26 @@ public class GraphQlConfigurationBuilder {
 		SchemaGenerator schemaGenerator = new SchemaGenerator();
 		GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);
 
-		return GraphQLConfiguration.with(graphQLSchema).build();
+		SimpleDataFetcherExceptionHandler exceptionHandler = new SimpleDataFetcherExceptionHandler() {
+			@Override
+			public DataFetcherExceptionHandlerResult onException(
+					DataFetcherExceptionHandlerParameters handlerParameters) {
+
+				Throwable retryCause = RetryingTransactionHelper.extractRetryCause(handlerParameters.getException());
+				queryContext.setRetryException(retryCause);
+				
+				return super.onException(handlerParameters);
+			}
+		};
+		ExecutionStrategy executionStrategy = new AsyncExecutionStrategy(exceptionHandler);
+		GraphQLQueryInvoker invoker = GraphQLQueryInvoker.newBuilder()
+				.withExecutionStrategyProvider(new DefaultExecutionStrategyProvider(executionStrategy))
+				.build();
+		
+		return GraphQLConfiguration
+				.with(graphQLSchema)
+				.with(invoker)
+				.build();
 	}
 
 	private void configureField(StringBuilder buf, List<QName> allProperties, List<QName> tokenizedProperties,

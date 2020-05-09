@@ -60,20 +60,14 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
-- manage several reads of request.getInputStream() by RetryngTransaction?
-	getTestConcurentError()
-
-locked (setValue: Boolean)
-favorite(setValue: Boolean)
-	
-- Checkout
-- Lance action sur Node. 
+- execute action on Node. 
+	- liste action auto
 - Categories
+- Dictionary
 
 - getDefaultDataFetcher
 	improve PropertyDataFetcher with argument
 
-- delete without trashbin
 - Test on another project
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
