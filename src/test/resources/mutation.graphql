@@ -119,6 +119,10 @@
 {node{ sharedHome { childByName(name:"myFolder") { delete } }}}
 {"data":{"node":{"sharedHome":{"childByName":{"delete":true}}}}}
 
+// --------- Actions ---------
+{node{foo:byUuid(uuid:"foobar"){ actions {extract_metadata(executeAsynchronously: true)} }}}
+{"data":{"node":{"foo":{"actions":{"extract_metadata":true}}}}}
+
 // --------- Delete ---------
 
 // delete node

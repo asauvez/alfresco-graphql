@@ -59,6 +59,7 @@ type Node {
 	addChildFolder(name: String!, uuid: String) : Node!
 	addChildContent(name: String!, uuid: String) : Node!
 	delete(withoutTrashcan: Boolean = false) : Boolean
+	actions: Actions!
 	
 	pathDisplay: String!
 	pathPrefixString: String!

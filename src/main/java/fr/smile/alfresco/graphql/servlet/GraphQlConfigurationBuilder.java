@@ -13,13 +13,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.alfresco.repo.dictionary.IndexTokenisationMode;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionDefinition;
+import org.alfresco.service.cmr.action.ActionService;
+import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.ClassDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -35,14 +38,10 @@ import fr.smile.alfresco.graphql.helper.ScalarType;
 import fr.smile.alfresco.graphql.query.ContainerNodeQL;
 import fr.smile.alfresco.graphql.query.NodeQL;
 import fr.smile.alfresco.graphql.query.QueryQL;
-import graphql.ExecutionResult;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
-import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStrategy;
-import graphql.execution.ExecutionStrategyParameters;
-import graphql.execution.NonNullableFieldWasNullException;
 import graphql.execution.SimpleDataFetcherExceptionHandler;
 import graphql.kickstart.execution.GraphQLQueryInvoker;
 import graphql.kickstart.execution.config.DefaultExecutionStrategyProvider;
@@ -160,6 +159,8 @@ public class GraphQlConfigurationBuilder {
 		enumQName(buf, "TokenizePropertyEnum", tokenizedProperties);
 		enumQName(buf, "BooleanPropertyEnum", propertiesByType.get(ScalarType.Boolean));
 		enumQName(buf, "IntPropertyEnum", propertiesByType.get(ScalarType.Int));
+
+		generateActions(buf, runtimeWiringBuilder);
 		
 		return buf.toString();
 	}
@@ -326,9 +327,12 @@ public class GraphQlConfigurationBuilder {
 	}
 
 	private String toFieldName(QName qname) {
-		String fieldName = qname.getPrefixString().replace(':', '_').replace('-', '_');
+		String fieldName = toFieldName(qname.getPrefixString());
 		qnameByFieldName.put(fieldName, qname);
 		return fieldName;
+	}
+	private String toFieldName(String name) {
+		return name.replace(':', '_').replace('-', '_');
 	}
 	
 	public static QName getQName(String name) {
@@ -347,10 +351,55 @@ public class GraphQlConfigurationBuilder {
 				.map(this::toFieldName).collect(Collectors.toList()));
 	}
 	private void enumString(StringBuilder buf, String typeName, Collection<String> values) {
-		buf.append("enum ").append(typeName).append(" {");
+		buf.append("\nenum ").append(typeName).append(" {");
 		for (String value : new TreeSet<String>(values)) {
 			buf.append(value).append(", ");
 		}
 		buf.append("}\n");
+	}
+	
+	private void generateActions(StringBuilder buf, Builder runtimeWiringBuilder) {
+		buf.append("\ntype Actions {\n");
+
+		runtimeWiringBuilder.type("Actions", builder -> {
+			ActionService actionService = queryContext.getActionService();
+			List<ActionDefinition> actionDefinitions = actionService.getActionDefinitions();
+			for (ActionDefinition actionDefinition : actionDefinitions) {
+				String actionName = toFieldName(actionDefinition.getName());
+				buf.append("	").append(actionName).append("(");
+				List<ParameterDefinition> parameterDefinitions = actionDefinition.getParameterDefinitions();
+				for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+					AlfrescoDataType alfrescoDataType = AlfrescoDataType.getForAlfrescoDataType(parameterDefinition.getType());
+					String fullInput = (parameterDefinition.isMultiValued() ? "[" : "") + alfrescoDataType.getScalarInput().name() + (parameterDefinition.isMultiValued() ? "!]" : "");
+
+					buf.append(toFieldName(parameterDefinition.getName()))
+						.append(":").append(fullInput)
+						.append(parameterDefinition.isMandatory() ? "!" : "")
+						.append(", ");
+				}
+				buf.append("executeAsynchronously: Boolean! = false) : Boolean!\n");
+				
+				builder.dataFetcher(actionName, new DataFetcher<Boolean>() {
+					@Override
+					public Boolean get(DataFetchingEnvironment env) throws Exception {
+						NodeQL node = env.getSource();
+						boolean executeAsynchronously = env.getArgument("executeAsynchronously");
+						
+						Map<String, Serializable> params = new HashMap<>();
+						for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+							Serializable value = env.getArgument(toFieldName(parameterDefinition.getName()));
+							params.put(parameterDefinition.getName(), value);
+						}
+						
+						Action action = actionService.createAction(actionDefinition.getName(), params);
+						actionService.executeAction(action, node.getNodeRefInternal(), true, executeAsynchronously);
+						
+						return Boolean.TRUE;
+					}
+				});
+			}
+			buf.append("}\n");
+			return builder;
+		});
 	}
 }

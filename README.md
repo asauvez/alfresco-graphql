@@ -60,8 +60,7 @@ Can be integrated in an existing Alfresco by declaring:
 
 
 # TODO
-- execute action on Node. 
-	- liste action auto
+- Workflow
 - Categories
 - Dictionary
 

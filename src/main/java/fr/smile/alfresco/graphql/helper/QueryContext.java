@@ -7,6 +7,7 @@ import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
@@ -42,8 +43,8 @@ public class QueryContext {
 	private DictionaryService dictionaryService;
 	private LockService lockService;
 	private DocumentLinkService documentLinkService;
-
 	private CheckOutCheckInService checkOutCheckInService;
+	private ActionService actionService;
 	
 	public QueryContext(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
@@ -63,6 +64,7 @@ public class QueryContext {
 		lockService = serviceRegistry.getLockService();
 		documentLinkService = serviceRegistry.getDocumentLinkService();
 		checkOutCheckInService = serviceRegistry.getCheckOutCheckInService();
+		actionService = serviceRegistry.getActionService();
 	}
 	
 	public ServiceRegistry getServiceRegistry() {
@@ -99,6 +101,10 @@ public class QueryContext {
 		}
 	}
 	
+	public void setRetryException(Throwable retryCause) {
+		this.retryCauseTL.set(retryCause);
+	}
+
 	public NodeService getNodeService() {
 		return nodeService;
 	}
@@ -144,8 +150,7 @@ public class QueryContext {
 	public CheckOutCheckInService getCheckOutCheckInService() {
 		return checkOutCheckInService;
 	}
-
-	public void setRetryException(Throwable retryCause) {
-		this.retryCauseTL.set(retryCause);
+	public ActionService getActionService() {
+		return actionService;
 	}
 }

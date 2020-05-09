@@ -417,6 +417,10 @@ public class NodeQL extends AbstractQLModel implements Comparable<NodeQL> {
 		getNodeService().deleteNode(nodeRef);
 		return true;
 	}
+	
+	public NodeQL getActions() {
+		return this;
+	}
 
 	// ======= Versions ==============================================================
 
