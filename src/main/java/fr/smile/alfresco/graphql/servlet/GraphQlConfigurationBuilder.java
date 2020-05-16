@@ -32,7 +32,9 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.cmr.workflow.WorkflowDefinition;
+import org.alfresco.service.cmr.workflow.WorkflowPath;
 import org.alfresco.service.cmr.workflow.WorkflowService;
+import org.alfresco.service.cmr.workflow.WorkflowTask;
 import org.alfresco.service.cmr.workflow.WorkflowTaskDefinition;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
@@ -79,11 +81,13 @@ public class GraphQlConfigurationBuilder {
 	
 	private static Map<String, QName> qnameByFieldName = new HashMap<>();
 	public static NamespacePrefixResolver namespaceService;
+	private WorkflowService workflowService;
 	
 
 	public GraphQlConfigurationBuilder(QueryContext queryContext) {
 		this.queryContext = queryContext;
 		namespaceService = queryContext.getNamespaceService();
+		workflowService = queryContext.getWorkflowService();
 	}
 	
 	public String getSchema(Builder runtimeWiringBuilder) throws IOException {
@@ -91,17 +95,21 @@ public class GraphQlConfigurationBuilder {
 		DictionaryService dictionaryService = queryContext.getServiceRegistry().getDictionaryService();
 		
 		// Generate field for all types and aspects
-		Collection<QName> allTypes = new HashSet<>(dictionaryService.getAllTypes());
-		WorkflowService workflowService = queryContext.getWorkflowService();
+		Collection<QName> allNodeTypes = new TreeSet<>(dictionaryService.getAllTypes());
+		Collection<QName> allNodeAspects = new TreeSet<>(dictionaryService.getAllAspects());
+
+		Collection<QName> wfTypes = new TreeSet<>();
 		for (WorkflowDefinition workflowDefinition : workflowService.getAllDefinitions()) {
 			for (WorkflowTaskDefinition workflowTaskDefinition : workflowService.getTaskDefinitions(workflowDefinition.getId())) {
-				allTypes.remove(workflowTaskDefinition.getMetadata().getName());
+				collectWfType(wfTypes, workflowTaskDefinition.getMetadata());
 			}
 		}
+		allNodeTypes.removeAll(wfTypes);
+		allNodeAspects.removeAll(wfTypes);
 		
-		Collection<QName> classes = new TreeSet<>();
-		classes.addAll(allTypes);
-		classes.addAll(dictionaryService.getAllAspects());
+		Collection<QName> nodeClasses = new TreeSet<>();
+		nodeClasses.addAll(allNodeTypes);
+		nodeClasses.addAll(allNodeAspects);
 
 		QueryQL query = new QueryQL(queryContext);
 		runtimeWiringBuilder.type("Query", builder -> builder
@@ -111,11 +119,12 @@ public class GraphQlConfigurationBuilder {
 					.dataFetcher("system", new StaticDataFetcher(query.getSystem()))
 				);
 		
-		Map<QName, Set<AssociationDefinition>> sourceAssociationsByType = new HashMap<>();
 		StringBuilder buf = new StringBuilder(schemaString);
+
+		Map<QName, Set<AssociationDefinition>> sourceAssociationsByType = new HashMap<>();
 		buf.append("\n\ntype NodePropertiesType {\n");
 		runtimeWiringBuilder.type("NodePropertiesType", builder -> {
-			for (QName container : classes) {
+			for (QName container : nodeClasses) {
 				builder.dataFetcher(toFieldName(container), new DataFetcher<ContainerNodeQL>() {
 					@Override
 					public ContainerNodeQL get(DataFetchingEnvironment environment) throws Exception {
@@ -142,9 +151,9 @@ public class GraphQlConfigurationBuilder {
 		List<QName> tokenizedProperties = new ArrayList<>();
 		Map<ScalarType, List<QName>> propertiesByType = new HashMap<>();
 		
-		for (QName container : classes) {
+		for (QName container : nodeClasses) {
 			buf.append("type ").append(toFieldName(container)).append(" {\n");
-			if (allTypes.contains(container)) {
+			if (allNodeTypes.contains(container)) {
 				buf.append("	isExactType: Boolean\n");
 				buf.append("	isSubType: Boolean\n");
 				buf.append("	setType: Boolean\n");
@@ -158,7 +167,7 @@ public class GraphQlConfigurationBuilder {
 				ClassDefinition classDefinition = dictionaryService.getClass(container);
 				Collection<PropertyDefinition> properties = classDefinition.getProperties().values();
 				for (PropertyDefinition def : properties) {
-					configureField(buf, allProperties, tokenizedProperties, propertiesByType, builder, def);
+					configureNodeField(buf, allProperties, tokenizedProperties, propertiesByType, builder, def);
 				}
 				
 				Collection<AssociationDefinition> targetAssociations = classDefinition.getAssociations().values();
@@ -175,8 +184,8 @@ public class GraphQlConfigurationBuilder {
 
 			buf.append("}\n\n");
 		}
-		enumQName(buf, "TypeEnum", dictionaryService.getAllTypes());
-		enumQName(buf, "AspectEnum", dictionaryService.getAllAspects());
+		enumQName(buf, "TypeEnum", allNodeTypes);
+		enumQName(buf, "AspectEnum", allNodeAspects);
 		enumQName(buf, "PropertyEnum", allProperties);
 		enumQName(buf, "TokenizePropertyEnum", tokenizedProperties);
 		enumQName(buf, "BooleanPropertyEnum", propertiesByType.get(ScalarType.Boolean));
@@ -184,10 +193,84 @@ public class GraphQlConfigurationBuilder {
 
 		generateActions(buf, runtimeWiringBuilder);
 		generateStartWorkflow(buf, runtimeWiringBuilder);
-		
+
+		buf.append("\n\ntype WorkflowPropertiesType {\n");
+		runtimeWiringBuilder.type("WorkflowPropertiesType", builder -> {
+			for (QName container : wfTypes) {
+				builder.dataFetcher(toFieldName(container), new DataFetcher<Map<QName, Serializable>>() {
+					@Override
+					public Map<QName, Serializable> get(DataFetchingEnvironment environment) throws Exception {
+						return environment.getSource();
+					}
+				});
+				buf.append("	").append(toFieldName(container)).append(": ").append(toFieldName(container)).append("\n");
+			}
+			return builder;
+		});
+		buf.append("}\n\n");
+
+		for (QName container : wfTypes) {
+			buf.append("type ").append(toFieldName(container)).append(" {\n");
+
+			runtimeWiringBuilder.type(toFieldName(container), builder -> {
+				ClassDefinition classDefinition = dictionaryService.getClass(container);
+				Collection<PropertyDefinition> properties = classDefinition.getProperties().values();
+				for (PropertyDefinition def : properties) {
+					QName dataType = def.getDataType().getName();
+					AlfrescoDataType alfrescoDataType = AlfrescoDataType.getForAlfrescoDataType(dataType);
+					configureWorkflowField(buf, builder, def.getName(), alfrescoDataType, def.isMultiValued());
+				}
+				
+				Collection<AssociationDefinition> targetAssociations = classDefinition.getAssociations().values();
+				for (AssociationDefinition def : targetAssociations) {
+					configureWorkflowField(buf, builder, def.getName(), AlfrescoDataType.NODE_REF, def.isTargetMany());
+				}
+
+				return builder;
+			});
+
+			buf.append("}\n\n");
+		}
+
 		return buf.toString();
 	}
+
+	private void configureWorkflowField(StringBuilder buf, graphql.schema.idl.TypeRuntimeWiring.Builder builder,
+			QName property, AlfrescoDataType alfrescoDataType, boolean isMultiValued) {
+		ScalarType scalarType = alfrescoDataType.getScalarType();
 		
+		String fullType = (isMultiValued ? "[" : "") + scalarType.name() + (isMultiValued ? "]" : "");
+		buf.append("	").append(toFieldName(property));
+		buf.append(": ").append(fullType).append("\n");
+		
+		builder.dataFetcher(toFieldName(property), new DataFetcher<Object>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public Object get(DataFetchingEnvironment env) throws Exception {
+				Map<QName, Serializable> properties = env.getSource();
+				
+				Serializable value = properties.get(property);
+				Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(queryContext, null, property, item);
+				return (value instanceof List) 
+						? ((List<Serializable>) value).stream().map(function).collect(Collectors.toList())
+						: Optional.ofNullable(value).map(function);
+			}
+		});
+	}
+	
+	private void collectWfType(Collection<QName> wfTypes, ClassDefinition classDefinition) {
+		if (   classDefinition != null
+			&& !NamespaceService.CONTENT_MODEL_1_0_URI.equals(classDefinition.getName().getNamespaceURI()) 
+			&& !NamespaceService.SYSTEM_MODEL_1_0_URI.equals(classDefinition.getName().getNamespaceURI())) {
+			wfTypes.add(classDefinition.getName());
+			
+			collectWfType(wfTypes, classDefinition.getParentClassDefinition());
+			for (AspectDefinition aspect : classDefinition.getDefaultAspects()) {
+				collectWfType(wfTypes, aspect);
+			}
+		}
+	}
+	
 	public GraphQLConfiguration getConfiguration() throws IOException {
 		Builder runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring();
 		String schema = getSchema(runtimeWiringBuilder);
@@ -225,7 +308,7 @@ public class GraphQlConfigurationBuilder {
 				.build();
 	}
 
-	private void configureField(StringBuilder buf, List<QName> allProperties, List<QName> tokenizedProperties,
+	private void configureNodeField(StringBuilder buf, List<QName> allProperties, List<QName> tokenizedProperties,
 			Map<ScalarType, List<QName>> propertiesByType, TypeRuntimeWiring.Builder builder,
 			PropertyDefinition def) {
 		QName property = def.getName();
@@ -260,41 +343,10 @@ public class GraphQlConfigurationBuilder {
 		buf.append(": ").append(fullType).append("\n");
 		
 		builder.dataFetcher(toFieldName(property), new DataFetcher<Object>() {
-			@SuppressWarnings("unchecked")
 			@Override
 			public Object get(DataFetchingEnvironment env) throws Exception {
 				ContainerNodeQL cnode = env.getSource();
-				NodeQL node = cnode.getNode();
-
-				Serializable setValue = env.getArgument("setValue");
-				if (setValue != null) {
-					node.setPropertyValue(property, setValue);
-				}
-				boolean remove = env.getArgument("remove");
-				if (remove) {
-					node.removeProperty(property);
-				}
-				
-				Serializable value = node.getPropertyValue(property);
-				
-				Serializable append = env.getArgument("append");
-				if (append != null) {
-					List<Serializable> list = (List<Serializable>) value;
-					list.add(append);
-					node.setPropertyValue(property, value);
-				}
-
-				Integer increment = env.getArgument("increment");
-				if (increment != null) {
-					Number number = (Number) value;
-					value = number.longValue() + increment.intValue();
-					node.setPropertyValue(property, value);
-				}
-
-				Function<Serializable, Object> function = (item) -> alfrescoDataType.toGraphQl(node, property, item);
-				return (value instanceof List) 
-						? ((List<Serializable>) value).stream().map(function).collect(Collectors.toList())
-						: Optional.ofNullable(value).map(function);
+				return cnode.getPropertyValue(env, property, alfrescoDataType);
 			}
 		});
 	}
@@ -435,7 +487,6 @@ public class GraphQlConfigurationBuilder {
 		buf.append("\ntype StartWorkflow {\n");
 
 		runtimeWiringBuilder.type("StartWorkflow", builder -> {
-			WorkflowService workflowService = queryContext.getWorkflowService();
 			List<WorkflowDefinition> workflowDefinitions = workflowService.getDefinitions();
 			for (WorkflowDefinition workflowDefinition : workflowDefinitions) {
 				String actionName = toFieldName(workflowDefinition.getName());
@@ -482,7 +533,7 @@ public class GraphQlConfigurationBuilder {
 					}
 					buf.append("		").append(toFieldName(assoc.getName()))
 						.append(":").append(assoc.isTargetMany() ? "[" : "")
-						.append("String")
+						.append("ID")
 						.append(assoc.isTargetMany() ? "]" : "")
 						.append(",\n");
 				}
@@ -520,7 +571,12 @@ public class GraphQlConfigurationBuilder {
 							parameters.put(WorkflowModel.PROP_CONTEXT, node.getNodeRefInternal());
 						}
 						
-						return new WorkflowPathQL(queryContext, workflowService.startWorkflow(workflowDefinition.getId(), parameters));
+						WorkflowPath workflowPath = workflowService.startWorkflow(workflowDefinition.getId(), parameters);
+						List<WorkflowTask> tasks = workflowService.getTasksForWorkflowPath(workflowPath.getId());
+						for (WorkflowTask task : tasks) {
+							workflowService.endTask(task.getId(), null);
+						}
+						return new WorkflowPathQL(queryContext, workflowPath);
 					}
 				});
 			}

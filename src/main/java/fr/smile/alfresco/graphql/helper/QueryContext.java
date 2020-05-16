@@ -3,7 +3,6 @@ package fr.smile.alfresco.graphql.helper;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
@@ -24,7 +23,6 @@ import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
 
 public class QueryContext {
 
@@ -91,18 +89,11 @@ public class QueryContext {
 		return nodeRef;
 	}
 
-	public String getQueryVariableAuthority(String variable) {
+	public NodeRef getQueryVariableAuthority(String variable) {
 		NodeRef authorityRef = queryVariablesTL.get().get(variable);
-		if (authorityRef != null) {
-			QName type = nodeService.getType(authorityRef);
-			if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-				return (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
-			} else if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON)) {
-				return (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
-			}
-		}
-
-		return variable;
+		return (authorityRef != null) 
+				? authorityRef 
+				: authorityService.getAuthorityNodeRef(variable);
 	}
 	
 	public <T> T executeQuery(RetryingTransactionCallback<T> callback) throws Throwable {

@@ -318,6 +318,14 @@ type WorkflowQuery {
 	workflowById(id: ID!) : WorkflowInstance
 
 	taskById(id: ID!) : WorkflowTask
+	queryTasks(
+		taskId: String,
+		taskState: WorkflowTaskState = IN_PROGRESS,
+		actorId: String,
+		processId: String,
+		workflowDefinitionName: String,
+		active: Boolean = true, 
+		limit: Int! = -1) : [WorkflowTask!]!
 }
 type WorkflowInstance {
 	id: ID!
@@ -336,8 +344,8 @@ type WorkflowInstance {
 	paths: [WorkflowPath!]!
 	startTask: WorkflowTask
 	
-	cancelWorkflow: WorkflowInstance!
-	deleteWorkflow: WorkflowInstance!
+	cancelWorkflow: WorkflowInstance
+	deleteWorkflow: WorkflowInstance
 }
 type WorkflowPath {
 	id: ID!
@@ -350,6 +358,7 @@ type WorkflowPath {
 	propertyAsString(name: String!) : String
 	
 	signal(transition: ID!) : WorkflowPath!
+	fireEvent(event: ID!) : WorkflowPath!
 }
 type WorkflowNode {
 	name: String
@@ -376,6 +385,10 @@ type WorkflowDefinition {
 type WorkflowTaskDefinition {
 	id: ID!
 	node: WorkflowNode
+	metadata: ClassDefinition
+}
+type ClassDefinition {
+	name: String!
 }
 type WorkflowTask {
 	id: ID!
@@ -385,7 +398,11 @@ type WorkflowTask {
 	state: WorkflowTaskState
 	path: WorkflowPath 
 	definition: WorkflowTaskDefinition
+	
+	properties: WorkflowPropertiesType
 	propertiesList: [PropertyValue!]!
 	propertyAsString(name: String!) : String
+
+	endTask(transition: ID) : WorkflowTask!
 }
 enum WorkflowTaskState {IN_PROGRESS, COMPLETED}

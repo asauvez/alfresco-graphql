@@ -55,8 +55,12 @@ public class WorkflowPathQL extends AbstractQLModel {
 				.map(Object::toString);
 	}
 	
-	public WorkflowPathQL signal(DataFetchingEnvironment env) {
+	public WorkflowPathQL getSignal(DataFetchingEnvironment env) {
 		String transitionId = env.getArgument("transition");
 		return new WorkflowPathQL(getQueryContext(), getWorkflowService().signal(workflowPath.getId(), transitionId));
+	}
+	public WorkflowPathQL getFireEvent(DataFetchingEnvironment env) {
+		String event = env.getArgument("event");
+		return new WorkflowPathQL(getQueryContext(), getWorkflowService().fireEvent(workflowPath.getId(), event));
 	}
 }

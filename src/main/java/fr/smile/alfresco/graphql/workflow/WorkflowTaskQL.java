@@ -2,6 +2,7 @@ package fr.smile.alfresco.graphql.workflow;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,5 +58,13 @@ public class WorkflowTaskQL extends AbstractQLModel {
 		QName propertyName = getQName(env.getArgument("name"));
 		return Optional.ofNullable(workflowTask.getProperties().get(propertyName))
 				.map(Object::toString);
+	}
+	public Map<QName, Serializable> getProperties() {
+		return workflowTask.getProperties(); // managed in global configuration
+	}
+	
+	public WorkflowTaskQL getEndTask(DataFetchingEnvironment env) {
+		String transitionId = env.getArgument("transition");
+		return new WorkflowTaskQL(getQueryContext(), getWorkflowService().endTask(workflowTask.getId(), transitionId));
 	}
 }

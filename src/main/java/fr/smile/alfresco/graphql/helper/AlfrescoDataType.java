@@ -37,13 +37,13 @@ public enum AlfrescoDataType {
 	PERIOD (DataTypeDefinition.PERIOD, 		ScalarType.String, ScalarType.String),
 
 	NODE_REF (DataTypeDefinition.NODE_REF, 	ScalarType.Node, ScalarType.ID) {
-		@Override public Object toGraphQl(NodeQL parent, QName property, Serializable o) {
-			return new NodeQL(parent.getQueryContext(), (NodeRef) o);
+		@Override public Object toGraphQl(QueryContext queryContext, NodeRef parent, QName property, Serializable o) {
+			return new NodeQL(queryContext, (NodeRef) o);
 		}
 	},
 	CONTENT (DataTypeDefinition.CONTENT, 	ScalarType.ContentData, ScalarType.String) {
-		@Override public Object toGraphQl(NodeQL parent, QName property, Serializable o) {
-			return new ContentDataQL(parent.getQueryContext(), parent.getNodeRefInternal(), property, (ContentData) o);
+		@Override public Object toGraphQl(QueryContext queryContext, NodeRef parent, QName property, Serializable o) {
+			return new ContentDataQL(queryContext, parent, property, (ContentData) o);
 		}
 	},
 
@@ -81,7 +81,7 @@ public enum AlfrescoDataType {
 	public ScalarType getScalarInput() {
 		return scalarInput;
 	}
-	public Object toGraphQl(NodeQL parent, QName property, Serializable o) {
+	public Object toGraphQl(QueryContext queryContext, NodeRef parent, QName property, Serializable o) {
 		return toGraphQl.apply(o); 
 	}
 }

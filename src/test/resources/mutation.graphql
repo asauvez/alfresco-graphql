@@ -123,6 +123,28 @@
 {node{foo:byUuid(uuid:"foobar"){ actions {extract_metadata(executeAsynchronously: true)} }}}
 {"data":{"node":{"foo":{"actions":{"extract_metadata":true}}}}}
 
+// --------- Workflow ---------
+
+// Clean existing WF
+{ workflow { activeWorkflows { deleteWorkflow { id } } } }
+{"data":{"workflow":{"activeWorkflows":[]}}}
+
+// Start WF
+{node{foo:byUuid(uuid:"foobar"){ startWorkflows { activiti_activitiAdhoc(bpm_assignee: "admin", bpm_comment:"Test") { node { name, transitions {id, default} } } } }}}
+{"data":{"node":{"foo":{"startWorkflows":{"activiti_activitiAdhoc":{"node":{"name":"adhocTask","transitions":[{"id":"Next","default":true}]}}}}}}}
+
+// First step
+{workflow {queryTasks { state, definition {metadata {name}}, endTask(transition:"Next") {state}}}}
+{"data":{"workflow":{"queryTasks":[{"state":"IN_PROGRESS","definition":{"metadata":{"name":"{http://www.alfresco.org/model/workflow/1.0}adhocTask"}},"endTask":{"state":"COMPLETED"}}]}}}
+
+// Final step
+{workflow {queryTasks { state, definition {metadata {name}}, endTask(transition:"Next") {state}}}}
+{"data":{"workflow":{"queryTasks":[{"state":"IN_PROGRESS","definition":{"metadata":{"name":"{http://www.alfresco.org/model/workflow/1.0}completedAdhocTask"}},"endTask":{"state":"COMPLETED"}}]}}}
+
+// Check no more tasks
+{workflow {queryTasks { state, definition {metadata {name}}, endTask(transition:"Next") {state}}}}
+{"data":{"workflow":{"queryTasks":[]}}}
+
 // --------- Delete ---------
 
 // delete node
@@ -134,5 +156,5 @@
 {"data":{"node":{"sharedHome":{"foo":null}}}}
 
 // --------- Test retry ---------
-{ system { testConcurentException }}
-{"data":{"system":{"testConcurentException":true}}}
+//{ system { testConcurentException }}
+//{"data":{"system":{"testConcurentException":true}}}

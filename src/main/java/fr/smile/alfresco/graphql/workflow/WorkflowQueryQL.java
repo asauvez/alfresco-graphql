@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.alfresco.service.cmr.workflow.WorkflowDefinition;
 import org.alfresco.service.cmr.workflow.WorkflowService;
+import org.alfresco.service.cmr.workflow.WorkflowTaskQuery;
+import org.alfresco.service.cmr.workflow.WorkflowTaskState;
 
 import fr.smile.alfresco.graphql.helper.QueryContext;
 import fr.smile.alfresco.graphql.query.AbstractQLModel;
@@ -50,7 +52,34 @@ public class WorkflowQueryQL extends AbstractQLModel {
 		return Optional.ofNullable(workflowService.getTaskById(id))
 				.map(t -> new WorkflowTaskQL(getQueryContext(), t));
 	}
+	public List<WorkflowTaskQL> getQueryTasks(DataFetchingEnvironment env) {
+		WorkflowTaskQuery query = new WorkflowTaskQuery();
+		
+		// task predicates
+		query.setTaskId(env.getArgument("taskId"));
+		String taskState = env.getArgument("taskState");
+		query.setTaskState((taskState != null) ? WorkflowTaskState.valueOf(taskState) : null);
+		//QName taskName;
+		query.setActorId(env.getArgument("actorId"));
+		//Map<QName, Object> taskCustomProps; 
+		
+		// process predicates
+		query.setProcessId(env.getArgument("processId"));
+		//QName processName;
+		query.setWorkflowDefinitionName(env.getArgument("workflowDefinitionName"));
+		query.setActive(env.getArgument("active"));
+		//Map<QName, Object> processCustomProps;
+		
+		// order by
+		//OrderBy[] orderBy;
 
+		query.setLimit(env.getArgument("limit"));
+		
+		return workflowService.queryTasks(query, true).stream()
+				.map(t -> new WorkflowTaskQL(getQueryContext(), t))
+				.collect(Collectors.toList());
+	}
+	
 	public List<WorkflowDefinition> getDefinitions() {
 		return workflowService.getDefinitions();
 	}

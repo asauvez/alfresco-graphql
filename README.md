@@ -56,17 +56,20 @@ Can be integrated in an existing Alfresco by declaring:
 	<version>1.0-SNAPSHOT</version>
 </dependency>
 ```
-
+This was tested against a 6.2 version Community and Enterprise.
 
 
 # TODO
 - Workflow
-	queryTasks
+	Test
+	updateTask
+		{{http://www.alfresco.org/model/bpm/1.0}status=Not Yet Started, {http://www.alfresco.org/model/bpm/1.0}comment=}
+		Completed
 	task/path .properties as dynamic
-	test signal
+		task association
 
-
-- New transaction on subquery : return CompletableFuture ?
+- Dependency as provided?
+- New transaction on subquery : return proxy with CompletableFuture?
 	
 - Categories
 - Dictionary
@@ -74,7 +77,6 @@ Can be integrated in an existing Alfresco by declaring:
 - getDefaultDataFetcher
 	improve PropertyDataFetcher with argument
 
-- Test on another project
 - Subscription
 	https://www.graphql-java.com/documentation/v14/subscriptions/
 		You need to use SubscriptionExecutionStrategy as your execution strategy as it has the support for the reactive-streams APIs.
