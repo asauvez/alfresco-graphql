@@ -1,0 +1,21 @@
+image: maven:latest
+
+variables:
+        MAVEN_CLI_OPTIONS: "--batch-mode"
+        MAVEN_SETTINGS_FILE: ".m2/settings.xml"
+
+stages:
+        - build
+        - test
+
+build:
+        stage: build
+        script:
+                - mvn $MAVEN_CLI_OPTIONS compile
+test:
+        stage: test
+        script:
+                - mvn $MAVEN_CLI_OPTIONS test
+        artifacts:
+                paths:
+                        - target/site/jacoco-it
