@@ -10,12 +10,17 @@ stages:
 
 build:
         stage: build
+        tags:
+            - java
         script:
                 - mvn $MAVEN_CLI_OPTIONS compile
 test:
         stage: test
+        tags:
+            - java
         script:
                 - mvn $MAVEN_CLI_OPTIONS test
         artifacts:
                 paths:
-                        - target/site/jacoco-it
+                        - target/surefire-reports
+                        - target/site/it-jacoco
