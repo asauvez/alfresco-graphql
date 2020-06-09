@@ -11,13 +11,13 @@ stages:
 build:
         stage: build
         tags:
-            - java
+            - dockers
         script:
                 - mvn $MAVEN_CLI_OPTIONS compile
 test:
         stage: test
         tags:
-            - java
+            - docker
         script:
                 - mvn $MAVEN_CLI_OPTIONS test
         artifacts:
