@@ -9,6 +9,7 @@ import java.util.Map;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.Path.ChildAssocElement;
@@ -56,12 +57,15 @@ public class DocumentLinkHelper {
 	private NodeService nodeService;
 	private SysAdminParams sysAdminParams;
 	private SiteService siteService;
+	private FileFolderService fileFolderService;
 	
+	@SuppressWarnings("deprecation")
 	public DocumentLinkHelper(ServiceRegistry serviceRegistry) {
 		this.nodeService = serviceRegistry.getNodeService();
 		this.sysAdminParams = serviceRegistry.getSysAdminParams();
 		this.webDavService = serviceRegistry.getWebDavService();
 		this.siteService = serviceRegistry.getSiteService();
+		this.fileFolderService = serviceRegistry.getFileFolderService();
 	}
 	
 	/** Inspired by: https://github.com/Alfresco/share/blob/6.0/share/src/main/webapp/components/documentlibrary/actions.js */
@@ -101,11 +105,15 @@ public class DocumentLinkHelper {
 	public String getShareUrl(NodeRef nodeRef) {
 		SiteInfo site = siteService.getSite(nodeRef);
 		
-		// TODO manage folder
-		
-		return UrlUtil.getShareUrl(sysAdminParams) + "/page/" 
-			+ ((site != null) ? "site/" + site.getShortName() : "")
-			+ "/document-details?nodeRef=" + nodeRef;
+		if (fileFolderService.getFileInfo(nodeRef).isFolder()) {
+			return UrlUtil.getShareUrl(sysAdminParams) + "/page/" 
+					+ ((site != null) ? "site/" + site.getShortName() + "/documentlibrary" : "/repository")
+					+ "#filter=path%7C%2FDirection%2520Achat%2FRecettes%7C&page=1";
+		} else {
+			return UrlUtil.getShareUrl(sysAdminParams) + "/page/" 
+				+ ((site != null) ? "site/" + site.getShortName() : "")
+				+ "/document-details?nodeRef=" + nodeRef;
+		}
 	}
 	
 	public String getDownloadUrl(NodeRef nodeRef, QName property) {
